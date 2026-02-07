@@ -356,12 +356,11 @@ class RoleChecker:
         Raises:
             HTTPException: If user doesn't have required role
         """
-        # TODO: Update when User model with roles is created
-        # if current_user.role.name not in self.allowed_roles:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_403_FORBIDDEN,
-        #         detail="Not enough permissions"
-        #     )
+        if not has_any_role(current_user, self.allowed_roles):
+             raise HTTPException(
+                 status_code=status.HTTP_403_FORBIDDEN,
+                 detail="Not enough permissions"
+             )
         return current_user
 
 
@@ -399,14 +398,11 @@ class PermissionChecker:
         Raises:
             HTTPException: If user doesn't have required permissions
         """
-        # TODO: Update when User model with permissions is created
-        # user_permissions = [p.code for p in current_user.role.permissions]
-        # for permission in self.required_permissions:
-        #     if permission not in user_permissions:
-        #         raise HTTPException(
-        #             status_code=status.HTTP_403_FORBIDDEN,
-        #             detail=f"Missing required permission: {permission}"
-        #         )
+        if not has_all_permissions(current_user, self.required_permissions):
+             raise HTTPException(
+                 status_code=status.HTTP_403_FORBIDDEN,
+                 detail=f"Missing required permissions: {self.required_permissions}"
+             )
         return current_user
 
 
@@ -423,9 +419,9 @@ def has_role(user, role_name: str) -> bool:
     Returns:
         bool: True if user has the role
     """
-    # TODO: Update when User model is created
-    # return user.role.name == role_name
-    return True
+    if not user or not user.role:
+        return False
+    return user.role == role_name
 
 
 def has_permission(user, permission_code: str) -> bool:
@@ -439,10 +435,21 @@ def has_permission(user, permission_code: str) -> bool:
     Returns:
         bool: True if user has the permission
     """
-    # TODO: Update when User model is created
-    # user_permissions = [p.code for p in user.role.permissions]
-    # return permission_code in user_permissions
-    return True
+    if not user:
+        return False
+        
+    # Admins have all permissions
+    if user.role == Roles.ADMIN:
+        return True
+        
+    # Check user permissions
+    # Assuming user.permissions is a list of Permission objects or similar
+    # Adjust based on actual User model relationship
+    if hasattr(user, "permissions"):
+        user_permissions = [p.name for p in user.permissions]
+        return permission_code in user_permissions
+        
+    return False
 
 
 def has_any_role(user, role_names: List[str]) -> bool:
@@ -456,9 +463,9 @@ def has_any_role(user, role_names: List[str]) -> bool:
     Returns:
         bool: True if user has any of the roles
     """
-    # TODO: Update when User model is created
-    # return user.role.name in role_names
-    return True
+    if not user or not user.role:
+        return False
+    return user.role in role_names
 
 
 def has_all_permissions(user, permission_codes: List[str]) -> bool:
@@ -472,10 +479,18 @@ def has_all_permissions(user, permission_codes: List[str]) -> bool:
     Returns:
         bool: True if user has all permissions
     """
-    # TODO: Update when User model is created
-    # user_permissions = [p.code for p in user.role.permissions]
-    # return all(code in user_permissions for code in permission_codes)
-    return True
+    if not user:
+        return False
+        
+    # Admins have all permissions
+    if user.role == Roles.ADMIN:
+        return True
+        
+    if hasattr(user, "permissions"):
+        user_permissions = [p.name for p in user.permissions]
+        return all(code in user_permissions for code in permission_codes)
+        
+    return False
 
 
 # ==================== Role and Permission Constants ====================

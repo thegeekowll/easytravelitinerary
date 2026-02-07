@@ -20,8 +20,8 @@ class Settings(BaseSettings):
 
     # Application
     APP_NAME: str = "Travel Agency Management System"
-    ENVIRONMENT: str = "development"
-    DEBUG: bool = True
+    ENVIRONMENT: str = "production"
+    DEBUG: bool = False
     SECRET_KEY: str = Field(default_factory=lambda: secrets.token_urlsafe(32))
     API_V1_PREFIX: str = "/api/v1"
 
