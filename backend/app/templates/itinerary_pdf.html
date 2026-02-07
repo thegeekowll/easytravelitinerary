@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ tour_title }} - Itinerary</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        :root {
+            --primary-color: #5B7444;
+            /* Olive Green */
+            --header-gradient: linear-gradient(110deg, #ffffff 30%, #5B7444 30%);
+            --text-dark: #111827;
+            /* Gray 900 */
+            --text-gray: #4B5563;
+            /* Gray 600 */
+            --bg-light: #F9FAFB;
+            --footer-bg: #EFE9E6;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+            /* Full bleed support */
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: var(--text-gray);
+            background: white;
+            /* Padding for non-hero pages - handled by container classes */
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3,
+        h4,
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        h1 {
+            margin-bottom: 0.5em;
+            line-height: 1.2;
+        }
+
+        h2 {
+            margin-bottom: 0.5em;
+            line-height: 1.3;
+        }
+
+        p {
+            margin-bottom: 1em;
+        }
+
+        /* Helpers */
+        .page-break {
+            page-break-after: always;
+        }
+
+        .no-break {
+            page-break-inside: avoid;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .text-primary {
+            color: var(--primary-color);
+        }
+
+        .container {
+            padding: 40px;
+            margin: 0 auto;
+            max-width: 1000px;
+        }
+
+        .section-spacing {
+            margin-bottom: 40px;
+        }
+
+        /* -----------------------
+           HERO SECTION (COVER)
+           ----------------------- */
+        .hero-section {
+            position: relative;
+            /* Use padding-bottom trick or aspect ratio, but for cover page fixed height is okay usually. 
+               However, to match "long page", let's make it sized by content + min-height */
+            min-height: 800px;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            /* page-break-after: always; REMOVED */
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+
+        .hero-bg img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: 0;
+        }
+
+        /* Top Bar Gradient style match */
+        .top-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: var(--header-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            /* Adjust for print margins */
+            z-index: 10;
+        }
+
+        .brand-logo {
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .tour-meta {
+            display: flex;
+            gap: 20px;
+            color: white;
+            font-size: 9pt;
+            text-align: left;
+        }
+
+        /* White part of gradient text fix */
+        .tour-meta-dark {
+            color: #333;
+            /* For the white section of gradient if needed, but simplistic here */
+        }
+
+        .meta-item label {
+            display: block;
+            opacity: 0.8;
+            font-size: 8pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            padding: 60px 50px;
+            color: white;
+            max-width: 80%;
+        }
+
+        .hero-title {
+            font-size: 48pt;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 18pt;
+            font-style: italic;
+            font-family: 'Lato', sans-serif;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        /* -----------------------
+           WELCOME // INTRO
+           ----------------------- */
+        .intro-section {
+            padding: 50px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .intro-text {
+            font-size: 12pt;
+            color: #374151;
+            white-space: pre-wrap;
+        }
+
+        .agent-mini-profile {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .agent-thumb {
+            width: 80px;
+            height: 80px;
+            background: #eee;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            object-fit: cover;
+        }
+
+        /* -----------------------
+           DAY ITINERARY (JOURNAL)
+           ----------------------- */
+        .day-container {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            /* min-height: 500px; REMOVE fixed min-height to avoid gaps */
+            overflow: hidden;
+            /* Clear floats/flex issues */
+        }
+
+        .day-image-col {
+            flex: 0 0 40%;
+            position: relative;
+            overflow: hidden;
+            background: #f3f4f6;
+        }
+
+        .day-image-col img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .day-content-col {
+            flex: 1;
+            padding: 40px;
+            background: white;
+        }
+
+        .itinerary-heading {
+            color: var(--primary-color);
+            font-size: 24pt;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .day-marker {
+            border-left: 4px solid #1e3a8a;
+            /* Blue 900 */
+            padding-left: 20px;
+            margin-bottom: 30px;
+        }
+
+        .day-number {
+            font-size: 20pt;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .day-subtitle {
+            display: block;
+            font-size: 14pt;
+            font-weight: 300;
+            color: var(--text-gray);
+            margin-top: 5px;
+        }
+
+        .day-body h4 {
+            font-family: 'Lato', sans-serif;
+            font-size: 10pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9CA3AF;
+            /* Gray 400 */
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .day-meta {
+            margin-bottom: 20px;
+            font-size: 11pt;
+            color: #374151;
+        }
+
+        .day-meta-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .day-meta-label {
+            font-weight: 700;
+        }
+
+        /* -----------------------
+           ACCOMMODATIONS
+           ----------------------- */
+        .accommodations-section {
+            padding: 50px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 24pt;
+            color: var(--text-dark);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            font-family: 'Lato', sans-serif;
+            font-weight: 400;
+        }
+
+        .acc-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            /* Flush grid */
+        }
+
+        .acc-item {
+            width: 100%;
+            /* Full width rows basically, or 50% */
+            display: block;
+            /* Change from flex to block to stack if needed, or maintain grid appearance */
+            /* height: 350px; Fixed height causing issues? Use aspect ratio. */
+            aspect-ratio: 16 / 9;
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .acc-image-half {
+            width: 50%;
+            height: 100%;
+            background: #e5e7eb;
+            position: relative;
+        }
+
+        .acc-image-half img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-right: 1px solid white;
+        }
+
+        .acc-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 20px;
+            color: white;
+            z-index: 5;
+        }
+
+        .acc-overlay-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            font-size: 10pt;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .acc-dot {
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        /* -----------------------
+           INCLUSIONS & EXCLUSIONS
+           ----------------------- */
+        .inc-exc-section {
+            background: #F9FAFB;
+            padding: 60px 40px;
+        }
+
+        .inc-exc-grid {
+            display: flex;
+            gap: 40px;
+        }
+
+        .inc-exc-col {
+            flex: 1;
+        }
+
+        .inc-item {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: flex-start;
+        }
+
+        .inc-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .check-icon {
+            color: #16a34a;
+        }
+
+        .x-icon {
+            color: #dc2626;
+        }
+
+        .inc-content h4 {
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            font-size: 11pt;
+            margin-bottom: 2px;
+            color: var(--text-dark);
+        }
+
+        .inc-content p {
+            font-size: 10pt;
+            color: var(--text-gray);
+            line-height: 1.4;
+            margin: 0;
+        }
+
+        /* -----------------------
+           FOOTER / CONTACT
+           ----------------------- */
+        .footer-section {
+            background: var(--footer-bg);
+            padding: 60px 40px;
+            page-break-inside: avoid;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 40px;
+        }
+
+        .footer-agent-info {
+            display: flex;
+            gap: 30px;
+        }
+
+        .footer-agent-photo {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            background: #5B7444;
+            /* Fallback */
+            /* No circle in web screenshot, it's a square/rectangle? Web code says h-40 w-40 overflow-hidden, looks square */
+        }
+
+        .footer-details h3 {
+            font-size: 18pt;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+        }
+
+        .footer-job {
+            font-size: 10pt;
+            text-transform: uppercase;
+            color: #6B7280;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .footer-contact-row {
+            margin-bottom: 5px;
+            font-size: 11pt;
+            color: #1f2937;
+        }
+
+        .footer-divider {
+            border-left: 1px solid #5B7444;
+            opacity: 0.3;
+        }
+
+        .footer-notes {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #d1d5db;
+            text-align: center;
+            font-size: 9pt;
+            color: #6B7280;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- COVER PAGE -->
+    <div class="hero-section">
+        <div class="hero-bg">
+            <img src="{{ hero_image_url }}" alt="Cover">
+        </div>
+        <div class="hero-overlay"></div>
+
+        <div class="top-bar">
+            <!-- Left side: Logo -->
+            {% if company_logo_url %}
+            <img src="{{ company_logo_url }}" class="brand-logo" alt="Logo">
+            {% else %}
+            <div style="font-weight: bold; color: #333;">EASY TRAVEL</div>
+            {% endif %}
+
+            <!-- Right side: Meta -->
+            <div class="tour-meta">
+                <div class="meta-item">
+                    <label>Tour Type</label>
+                    <div style="font-weight: 500;">{{ tour_type }}</div>
+                </div>
+                <!-- Add Spacer -->
+                <div class="meta-item">
+                    <label>Duration</label>
+                    <div style="font-weight: 500;">{{ duration_days }} Days</div>
+                </div>
+                <div class="meta-item">
+                    <label>Code</label>
+                    <div style="font-weight: 500;">{{ tour_code }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-content">
+            <h1 class="hero-title">{{ tour_title }}</h1>
+            <div class="hero-subtitle">
+                A Private Safari Curated for {{ primary_traveler_name }}
+            </div>
+        </div>
+    </div>
+
+    <!-- INTRO PAGE -->
+    <div class="section-spacing"></div>
+    <div class="intro-section" style="padding-top: 100px;">
+        <div class="intro-text">
+            {% if intro_letter %}
+            {{ intro_letter | safe }}
+            {% else %}
+            <p>Welcome to your itinerary.</p>
+            {% endif %}
+        </div>
+
+        {% if agent %}
+        <div class="agent-mini-profile">
+            {% if agent.photo_url %}
+            <img src="{{ agent.photo_url }}" class="agent-thumb">
+            {% else %}
+            <div class="agent-thumb"
+                style="display: flex; align-items: center; justify-content: center; font-size: 24pt; color: #aaa; background: #eee;">
+                {{ agent.name[0] }}
+            </div>
+            {% endif %}
+
+            <div>
+                <div style="font-weight: 700; font-size: 14pt; color: #111;">Easy Travel</div>
+                <div style="color: #666;">{{ agent.phone }}</div>
+                <div style="color: #666;">{{ agent.email }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- DAYS -->
+    <div class="section-spacing"></div>
+
+    {% for day in days %}
+    <div class="day-container">
+        <!-- Left Image -->
+        <div class="day-image-col">
+            {% if day.atmospheric_image_url %}
+            <img src="{{ day.atmospheric_image_url }}" alt="Day Image">
+            {% else %}
+            <!-- Placeholder style -->
+            <div
+                style="width:100%; height:100%; background: #ddd; display: flex; align-items: center; justify-content: center;">
+                <span
+                    style="font-family: 'Playfair Display', serif; font-style: italic; color: #999; font-size: 18pt;">Journey</span>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Content -->
+        <div class="day-content-col">
+            {% if loop.index == 1 %}
+            <h2 class="itinerary-heading">Itinerary</h2>
+            {% endif %}
+
+            <div class="day-marker">
+                <div class="day-number">Day {{ day.day_number }}</div>
+                <div class="day-subtitle">
+                    {% if day.day_number == 1 %}
+                    Arrival Day
+                    {% else %}
+                    <!-- Destination List logic matches web simpler view -->
+                    {{ day.destinations[0].name if day.destinations else day.title }}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="day-body">
+                <p>{{ day.description }}</p>
+
+                <!-- Stay & Meals -->
+                {% if day.accommodation_name or day.meals_included %}
+                <div class="day-meta">
+                    <div class="day-meta-row">
+                        <span class="day-meta-label">Overnight At:</span> <span>{{ day.accommodation_name or 'TBD'
+                            }}</span>
+                    </div>
+                    <div class="day-meta-row">
+                        <span class="day-meta-label">Meal Plan:</span> <span>{{ day.meals_included or 'Not included'
+                            }}</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if day.activities %}
+                <h4>Today's Activities</h4>
+                <p>{{ day.activities }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- ACCOMMODATIONS -->
+    {% if featured_accommodations %}
+    <div class="section-spacing"></div>
+    <div class="accommodations-section">
+        <h2 class="section-title">Accommodations</h2>
+
+        <div class="acc-grid">
+            {% for acc in featured_accommodations %}
+            <div class="acc-item">
+                <!-- Logic: Web view shows 2 images side by side for each accommodation? 
+                     Web View -> 2 images side by side for ONE accommodation item.
+                     We can try to replicate that if we have images in the backend model passed to template.
+                     Current service passes 'image_url' (single).
+                     For now, let's just make it look good: 50% image, 50% info?
+                     Or just fill with the one image we have.
+                     Web view: 2 images occupying full width.
+                     Let's do 1 image occupying full width, with overlay.
+                -->
+                <div class="acc-image-half" style="width: 100%;">
+                    <img src="{{ acc.image_url }}" alt="{{ acc.name }}">
+                    <div class="acc-overlay">
+                        <div class="acc-overlay-content">
+                            <span>{{ acc.name }}</span>
+                            <!-- <div class="acc-dot"></div> -->
+                            <!-- <span>{{ acc.nights }} Nights Stay (Calc if avail)</span> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ACCOMMODATION END IMAGE -->
+    {% if accommodation_end_image_url %}
+    <div class="section-spacing"></div>
+    <div class="full-width-image" style="width: 100%; min-height: 400px; position: relative;">
+        <img src="{{ accommodation_end_image_url }}" style="width: 100%; height: auto; display: block;">
+    </div>
+    {% endif %}
+
+    <!-- INCLUSIONS / EXCLUSIONS -->
+    <div class="section-spacing"></div>
+
+    <!-- INCLUSIONS BANNER -->
+    {% if inclusions_image_url %}
+    <div class="section-banner" style="margin-bottom: 40px; height: 300px; overflow: hidden; position: relative;">
+        <img src="{{ inclusions_image_url }}" style="width: 100%; height: 100%; object-fit: cover;">
+        <div
+            style="position: absolute; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+            <h2 style="color: white; font-size: 32pt; font-family: 'Playfair Display', serif;">The Details</h2>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="inc-exc-section">
+        <h2 class="section-title" style="margin-bottom: 60px;">What's Included</h2>
+        <div class="section-spacing">
+            <!-- 2 col grid? No, web is 2 col grid of items. -->
+            <div style="display: flex; flex-wrap: wrap; gap: 30px;">
+                {% for inc in inclusions %}
+                <div style="width: 45%;">
+                    <!-- Simulating the design -->
+                    <div class="inc-item">
+                        <div class="inc-icon check-icon">✓</div>
+                        <div class="inc-content">
+                            <h4>{{ inc.name }}</h4>
+                            <p>{{ inc.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <h2 class="section-title" style="margin-top: 60px; margin-bottom: 60px;">What's Excluded</h2>
+        <div class="section-spacing">
+            <div style="display: flex; flex-wrap: wrap; gap: 30px;">
+                {% for exc in exclusions %}
+                <div style="width: 45%;">
+                    <div class="inc-item">
+                        <div class="inc-icon x-icon">✗</div>
+                        <div class="inc-content">
+                            <h4>{{ exc.name }}</h4>
+                            <p>{{ exc.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ABOUT BANNER -->
+    {% if about_banner_image_url %}
+    <div class="section-spacing"></div>
+    <div class="full-width-image" style="width: 100%; min-height: 400px; position: relative;">
+        <img src="{{ about_banner_image_url }}" style="width: 100%; height: auto; display: block;">
+    </div>
+    {% endif %}
+
+    <!-- COMPANY / FOOTER -->
+    {% if not about_banner_image_url %}<div class="section-spacing"></div>{% endif %}
+    <div class="footer-section">
+        <div class="footer-grid">
+            <div class="footer-agent-info">
+                {% if agent and agent.photo_url %}
+                <img src="{{ agent.photo_url }}" class="footer-agent-photo">
+                {% else %}
+                <div class="footer-agent-photo" style="background: #ccc;"></div>
+                {% endif %}
+
+                <div class="footer-details">
+                    <h3>{{ agent.name if agent else 'Travel Consultant' }}</h3>
+                    <div class="footer-job">{{ agent.job_title if agent else 'Consultant' }}</div>
+
+                    <div class="footer-contact-row">
+                        <strong>M:</strong> {{ agent.phone if agent else '' }}
+                    </div>
+                    <div class="footer-contact-row">
+                        <strong>E:</strong> {{ agent.email if agent else '' }}
+                    </div>
+                    {% if company_address %}
+                    <div class="footer-contact-row" style="margin-top: 10px;">
+                        <strong>A:</strong> {{ company_address }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Socials if passed -->
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: center;">
+                <!-- Review Image Spot -->
+                <div style="border: 2px dashed #ccc; padding: 20px; color: #999; text-align: center;">
+                    Review / Association Badges
+                </div>
+            </div>
+        </div>
+
+        {% if footer_notes %}
+        <div class="footer-notes">
+            {{ footer_notes }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- END IMAGE -->
+    {% if end_image_url %}
+    <div class="section-spacing"></div>
+    <div class="hero-section" style="min-height: 800px;"> <!-- Full page end image -->
+        <div class="hero-bg">
+            <img src="{{ end_image_url }}" alt="End" style="display: block;">
+        </div>
+        <div class="hero-overlay" style="background: rgba(0,0,0,0.2);">
+            <div style="position: absolute; bottom: 100px; left: 0; right: 0; text-align: center; color: white;">
+                <h1 style="font-size: 40pt;">Safari Njema</h1>
+                <p style="font-size: 16pt; letter-spacing: 2px;">SAFE TRAVELS</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</body>
+
+</html>

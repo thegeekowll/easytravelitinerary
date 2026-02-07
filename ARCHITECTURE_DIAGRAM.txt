@@ -1,0 +1,274 @@
+# Travel Agency Management System - Architecture Diagram
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              FRONTEND (Next.js 14)                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                      App Router Pages                               │    │
+│  │  /auth/login  |  /dashboard  |  /admin  |  /itinerary/[id]        │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                   ↓                                          │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                   Auth Context Provider                             │    │
+│  │  - User State        - Login/Logout      - Role Checking           │    │
+│  │  - Permissions       - Token Management  - Protected Routes        │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                   ↓                                          │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                      API Client (Axios)                             │    │
+│  │  - Request Interceptors   (Add Token)                              │    │
+│  │  - Response Interceptors  (Auto-refresh on 401)                    │    │
+│  │  - Error Handling        (Toast notifications)                     │    │
+│  │  - Token Manager         (localStorage)                            │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                   ↓                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ↓ HTTP/JSON
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         API GATEWAY (FastAPI)                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                    API Endpoints (/api/v1)                          │    │
+│  │  /auth  |  /users  |  /itineraries  |  /packages  |  /destinations │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                   ↓                                          │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                  Dependencies & Middleware                          │    │
+│  │  - Authentication    - Authorization    - Pagination               │    │
+│  │  - Error Handling    - Logging          - CORS                     │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                   ↓                                          │
+│  ┌───────────────────────┐  ┌─────────────────────────────────────────┐   │
+│  │   Security Module     │  │      Services Layer                      │   │
+│  │  - Password Hashing   │  │  - Business Logic                        │   │
+│  │  - JWT Tokens         │  │  - CRUD Operations                       │   │
+│  │  - Role/Permission    │  │  - PDF Generation                        │   │
+│  │    Checking           │  │  - Email Service                         │   │
+│  └───────────────────────┘  └─────────────────────────────────────────┘   │
+│                                   ↓                                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    ↓
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         DATABASE LAYER                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                SQLAlchemy ORM & Session                             │    │
+│  │  - Connection Pooling    - UTC Timezone    - Query Builder         │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                   ↓                                          │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                    PostgreSQL Database                              │    │
+│  │                                                                      │    │
+│  │  Tables:                                                            │    │
+│  │  - users                    - roles                                 │    │
+│  │  - permissions              - role_permissions                      │    │
+│  │  - itineraries              - itinerary_items                       │    │
+│  │  - tour_packages            - destinations                          │    │
+│  │  - destination_cross_ref    - accommodations                        │    │
+│  │  - notifications            - analytics_events                      │    │
+│  │  - payment_tracking                                                 │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         EXTERNAL SERVICES                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────────┐    │
+│  │  Redis Cache    │  │  SendGrid       │  │  Azure Blob Storage     │    │
+│  │  - Sessions     │  │  - Emails       │  │  - Files                │    │
+│  │  - Celery       │  │  - Notifications│  │  - PDFs                 │    │
+│  └─────────────────┘  └─────────────────┘  └─────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    BACKGROUND TASKS (Celery)                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  Celery Worker                                                      │    │
+│  │  - PDF Generation          - Email Sending                          │    │
+│  │  - Notification Processing - Analytics Aggregation                  │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  Celery Beat (Scheduler)                                            │    │
+│  │  - 3-Day Arrival Alerts    - Cleanup Tasks                          │    │
+│  │  - Report Generation       - Data Synchronization                   │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                            AUTHENTICATION FLOW
+═══════════════════════════════════════════════════════════════════════════════
+
+┌──────────┐    1. Login Request        ┌────────────┐
+│          │  ─────────────────────────> │            │
+│  Client  │                              │   Backend  │
+│          │  <───────────────────────── │            │
+└──────────┘    2. Access + Refresh      └────────────┘
+                   Tokens
+     │                                          │
+     │  3. Store Tokens                         │
+     │     (localStorage)                       │
+     │                                          │
+     ▼                                          │
+┌──────────┐    4. API Request           ┌────────────┐
+│          │     + Access Token          │            │
+│  Client  │  ─────────────────────────> │   Backend  │
+│          │                              │            │
+│          │                              │  5. Verify │
+│          │                              │     Token  │
+│          │  <───────────────────────── │            │
+└──────────┘    6. Response              └────────────┘
+     │                                          │
+     │  7. Token Expired (401)                  │
+     │  <───────────────────────────────────── │
+     │                                          │
+     │  8. Auto Refresh Token                   │
+     │  ─────────────────────────────────────> │
+     │                                          │
+     │  9. New Tokens                           │
+     │  <───────────────────────────────────── │
+     │                                          │
+     │  10. Retry Original Request              │
+     │  ─────────────────────────────────────> │
+     │                                          │
+     │  11. Response                            │
+     │  <───────────────────────────────────── │
+     ▼                                          ▼
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                         AUTHORIZATION FLOW
+═══════════════════════════════════════════════════════════════════════════════
+
+Request → Authentication Check → Role Check → Permission Check → Endpoint
+   │              │                    │               │              │
+   │              ▼                    │               │              │
+   │        Valid Token?               │               │              │
+   │         Yes │ No                  │               │              │
+   │             │                     │               │              │
+   │          ┌──┴──┐                 │               │              │
+   │          │ 401 │                 │               │              │
+   │          └─────┘                 │               │              │
+   │                                  ▼               │              │
+   │                           Has Required          │              │
+   │                           Role?                 │              │
+   │                            Yes │ No             │              │
+   │                                │                │              │
+   │                            ┌───┴───┐           │              │
+   │                            │  403  │           │              │
+   │                            └───────┘           │              │
+   │                                                 ▼              │
+   │                                          Has Required         │
+   │                                          Permission?          │
+   │                                           Yes │ No            │
+   │                                               │               │
+   │                                           ┌───┴───┐          │
+   │                                           │  403  │          │
+   │                                           └───────┘          │
+   │                                                               │
+   └───────────────────────────────────────────────────────────> ✓
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                              DATA FLOW
+═══════════════════════════════════════════════════════════════════════════════
+
+Frontend Component
+        │
+        │  1. User Action
+        ▼
+   React Hook
+   (useQuery/useMutation)
+        │
+        │  2. API Call
+        ▼
+   API Client
+   (axios + interceptors)
+        │
+        │  3. HTTP Request
+        ▼
+   Backend Endpoint
+   (FastAPI route)
+        │
+        │  4. Validate & Authorize
+        ▼
+   Service Layer
+   (Business Logic)
+        │
+        │  5. Database Query
+        ▼
+   SQLAlchemy ORM
+        │
+        │  6. SQL Query
+        ▼
+   PostgreSQL
+        │
+        │  7. Result
+        ▼
+   Service Layer
+   (Process Data)
+        │
+        │  8. Response
+        ▼
+   Backend Endpoint
+   (Serialize)
+        │
+        │  9. JSON Response
+        ▼
+   API Client
+   (Error Handling)
+        │
+        │  10. Update State
+        ▼
+   React Hook
+        │
+        │  11. Re-render
+        ▼
+Frontend Component
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                         SECURITY LAYERS
+═══════════════════════════════════════════════════════════════════════════════
+
+Layer 1: Network
+  - HTTPS
+  - CORS
+  - Rate Limiting
+
+Layer 2: Authentication
+  - JWT Tokens
+  - Token Expiry
+  - Refresh Mechanism
+  - Password Hashing (bcrypt)
+
+Layer 3: Authorization
+  - Role-Based Access Control (RBAC)
+  - Permission-Based Access Control
+  - Route Guards
+  - API Endpoint Protection
+
+Layer 4: Input Validation
+  - Pydantic Schemas
+  - SQL Injection Prevention (ORM)
+  - XSS Prevention
+  - File Upload Validation
+
+Layer 5: Error Handling
+  - Custom Exceptions
+  - No Info Leakage
+  - Logging (without sensitive data)
+  - User-Friendly Messages
+
+
+═══════════════════════════════════════════════════════════════════════════════
