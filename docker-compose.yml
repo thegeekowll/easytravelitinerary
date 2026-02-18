@@ -5,6 +5,7 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: travel_agency_db
+    restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -20,11 +21,13 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    shm_size: 1g
 
   # Redis for caching and Celery
   redis:
     image: redis:7-alpine
     container_name: travel_agency_redis
+    restart: always
     ports:
       - "6379:6379"
     volumes:
@@ -43,18 +46,22 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: travel_agency_backend
+    restart: always
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/travel_agency
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-travel_agency}
       - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=hR5E-hl4lpITA7-ohud0Dmz2kFjC_dp990dW8AFUCWc
-      - JWT_SECRET_KEY=4n86gcmIUQAvH5W78VrSsWB_J5OD9yHt9Jv_pE2lqho
-      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-your-sendgrid-api-key}
-      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING:-}
-      - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER:-travel-agency-files}
-      - FRONTEND_URL=http://localhost:3000
-      - ENVIRONMENT=development
-      - DEBUG=True
-      - _BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
+      - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DEBUG=${DEBUG:-False}
+      - _BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
+    env_file:
+      - ./backend/.env
+      - .env
     ports:
       - "8000:8000"
     volumes:
@@ -75,6 +82,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: travel_agency_celery_worker
+    restart: always
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-travel_agency}
       - REDIS_URL=redis://redis:6379/0
@@ -82,14 +90,21 @@ services:
       - SENDGRID_API_KEY=${SENDGRID_API_KEY}
       - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
       - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+    env_file:
+      - ./backend/.env
+      - .env
     volumes:
       - ./backend:/app
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - travel_network
-    command: celery -A app.services.celery_app worker --loglevel=info
+    # Worker listening to specific queues including default 'celery'
+    command: celery -A app.services.celery_app worker --loglevel=info -Q celery,emails,notifications,pdfs
 
   # Celery Beat for scheduled tasks
   celery_beat:
@@ -97,48 +112,52 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: travel_agency_celery_beat
+    restart: always
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-travel_agency}
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY}
+    env_file:
+      - ./backend/.env
+      - .env
     volumes:
       - ./backend:/app
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - travel_network
     command: celery -A app.services.celery_app beat --loglevel=info
 
   # Frontend Application
-  # NOTE: Frontend is commented out until Phase 2 (frontend application needs to be created)
-  # Uncomment this section once frontend pages and components are built
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      target: base
+      target: runner
     container_name: travel_agency_frontend
+    restart: always
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - NODE_ENV=production
+    env_file:
+      - ./frontend/.env.local
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    working_dir: /app
     depends_on:
-      - backend
+      backend:
+        condition: service_started
     networks:
       - travel_network
-    command: sh -c "npm install && npm run dev"
 
   # Nginx Reverse Proxy (Optional - for production)
   nginx:
     image: nginx:alpine
     container_name: travel_agency_nginx
+    restart: always
     ports:
       - "80:80"
       - "443:443"
