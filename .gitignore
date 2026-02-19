@@ -75,7 +75,7 @@ temp/
 tmp/
 
 # Docker
-.dockerignore
+
 
 # OS
 .DS_Store
