@@ -20,7 +20,8 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # Build the application
-RUN npm run build
+# Use verbose logging and catch errors to print them
+RUN npm run build -- --debug || (echo "Build Failed" && ls -la && exit 1)
 
 # Production image, copy all the files and run next
 FROM base AS runner
