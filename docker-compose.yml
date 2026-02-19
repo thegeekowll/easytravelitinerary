@@ -56,7 +56,7 @@ services:
       - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
       - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
       - DEBUG=${DEBUG:-False}
       - _BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
     env_file:
@@ -65,7 +65,6 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
       - backend_uploads:/app/uploads
     depends_on:
       postgres:
@@ -74,7 +73,7 @@ services:
         condition: service_healthy
     networks:
       - travel_network
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # Production command is defined in Dockerfile (CMD), no override needed.
 
   # Celery Worker for async tasks
   celery_worker:
@@ -91,11 +90,10 @@ services:
       - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING}
       - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
     env_file:
       - ./backend/.env
       - .env
-    volumes:
-      - ./backend:/app
     depends_on:
       postgres:
         condition: service_healthy
@@ -117,11 +115,10 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-travel_agency}
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY}
+      - ENVIRONMENT=${ENVIRONMENT:-production}
     env_file:
       - ./backend/.env
       - .env
-    volumes:
-      - ./backend:/app
     depends_on:
       postgres:
         condition: service_healthy
@@ -153,7 +150,7 @@ services:
     networks:
       - travel_network
 
-  # Nginx Reverse Proxy (Optional - for production)
+  # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     container_name: travel_agency_nginx
@@ -169,8 +166,6 @@ services:
       - frontend
     networks:
       - travel_network
-    profiles:
-      - production
 
 networks:
   travel_network:
