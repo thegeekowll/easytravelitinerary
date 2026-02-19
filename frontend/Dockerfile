@@ -18,13 +18,13 @@ COPY . .
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED 1
-# Limit Node.js memory usage to avoid OOM on small VPS (adjust 2048 based on available RAM)
-ENV NODE_OPTIONS="--max-old-space-size=2048"
+# Limit Node.js memory usage to avoid OOM on small VPS (Try 1024MB, if 2048MB was too high)
+ENV NODE_OPTIONS="--max-old-space-size=1024"
 
 # Build the application
-# Print memory info before build to debug environment constraints
+# Redirect output to file to try and bypass UI log suppression, then cat it on failure
 RUN echo "Memory Info:" && (free -m || cat /proc/meminfo || echo "Cannot read memory") && \
-    npm run build -- --debug
+    (npm run build > build.log 2>&1 || (echo "=== BUILD LEGS ===" && cat build.log && exit 1))
 
 
 # Production image, copy all the files and run next
