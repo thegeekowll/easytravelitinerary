@@ -116,4 +116,4 @@ dmypy.json
 *.backup
 
 # Deployment
-deploy_to_vps.sh
+
