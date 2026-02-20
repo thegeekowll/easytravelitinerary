@@ -12,11 +12,24 @@ const lato = Lato({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+  const fallback: Metadata = {
+    title: 'Easy. Travel Itinerary Builder',
+    description: 'Easy. Travel Itinerary Builder - Create stunning travel itineraries.',
+    keywords: ['travel', 'itinerary', 'builder', 'easy', 'safari', 'tour'],
+  };
+
   try {
-    // Use internal docker network URL for server-side fetching
+    // Use internal docker network URL for server-side fetching with a 3-second timeout
     const apiUrl = process.env.INTERNAL_API_URL || 'http://backend:8000/api/v1';
-    const res = await fetch(`${apiUrl}/public/company`, { next: { revalidate: 60 } });
-    
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
+    const res = await fetch(`${apiUrl}/public/company`, {
+      next: { revalidate: 60 },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
     if (res.ok) {
         const data = await res.json();
         const appName = data.company_name || 'Easy. Travel Itinerary Builder';
@@ -27,15 +40,10 @@ export async function generateMetadata(): Promise<Metadata> {
         };
     }
   } catch (e) {
-      console.error("Failed to fetch metadata", e);
+      // Timeout or network error - use fallback silently
   }
 
-  // Fallback
-  return {
-    title: 'Easy. Travel Itinerary Builder',
-    description: 'Easy. Travel Itinerary Builder - Create stunning travel itineraries.',
-    keywords: ['travel', 'itinerary', 'builder', 'easy', 'safari', 'tour'],
-  };
+  return fallback;
 }
 
 export default function RootLayout({
