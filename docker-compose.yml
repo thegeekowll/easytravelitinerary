@@ -157,15 +157,15 @@ services:
     networks:
       - travel_network
 
-  # Nginx Reverse Proxy
+  # Nginx Reverse Proxy (config baked into image, no bind mount needed)
   nginx:
-    image: nginx:alpine
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     container_name: travel_agency_nginx
     restart: always
     ports:
       - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - backend
       - frontend
