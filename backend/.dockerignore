@@ -1,0 +1,54 @@
+# Virtual environment
+.venv
+venv
+ENV
+
+# Environment files
+.env
+.env.*
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+.tox
+.nox
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Git
+.git
+.gitignore
+
+# Docs
+*.md
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads (mounted as volume)
+uploads/
+
+# Logs
+logs/
+*.log
+
+# mypy
+.mypy_cache
+
+# Distribution
+dist
+build
+*.egg-info

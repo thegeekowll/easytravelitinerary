@@ -15,42 +15,30 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'localhost',
+        hostname: '**',
       },
       {
         protocol: 'http',
-        hostname: 'localhost',
-        port: '8000',
-        pathname: '/uploads/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
+        hostname: '**',
       },
     ],
     formats: ['image/avif', 'image/webp'],
   },
 
-  // Environment variables
+  // Environment variables - use relative URLs so nginx proxies correctly
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    // Prevent build failures if these are missing
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || '/api/v1',
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || '',
     NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
   },
 
   // Eslint configuration
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
 
   // TypeScript configuration
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
     ignoreBuildErrors: true,
   },
 
@@ -94,23 +82,14 @@ const nextConfig = {
     ];
   },
 
-  // Redirects
-  async redirects() {
-    return [
-      // {
-      //   source: '/dashboard',
-      //   destination: '/dashboard/itineraries',
-      //   permanent: false,
-      // },
-    ];
-  },
-
   // Experimental features
   experimental: {
-    serverActions: {
-      allowedOrigins: ['localhost:3000'],
-    },
+    workerThreads: false,
+    cpus: 2,
   },
+
+  // Disable source maps to save memory
+  productionBrowserSourceMaps: false,
 };
 
 module.exports = nextConfig;

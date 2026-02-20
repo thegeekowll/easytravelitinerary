@@ -16,6 +16,7 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="allow",
         env_parse_none_str="None",  # Don't try to parse empty strings as None
+        populate_by_name=True,  # Allow both alias and field name
     )
 
     # Application
@@ -29,18 +30,24 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # CORS origins - parsed in __init__
-    _BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8000"
+    # CORS origins - accepts comma-separated string from env var BACKEND_CORS_ORIGINS
+    BACKEND_CORS_ORIGINS_STR: str = Field(
+        default="http://localhost:3000,http://localhost:8000",
+        alias="BACKEND_CORS_ORIGINS",
+    )
 
     @property
     def BACKEND_CORS_ORIGINS(self) -> List[str]:
         """Parse CORS origins from comma-separated string."""
-        if isinstance(self._BACKEND_CORS_ORIGINS, str):
-            return [i.strip() for i in self._BACKEND_CORS_ORIGINS.split(",") if i.strip()]
+        raw = self.BACKEND_CORS_ORIGINS_STR
+        if isinstance(raw, str):
+            origins = [i.strip() for i in raw.split(",") if i.strip()]
+            if origins:
+                return origins
         return ["http://localhost:3000", "http://localhost:8000"]
 
     # Database
-    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_SERVER: str = "postgres"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "travel_agency"
@@ -61,7 +68,7 @@ class Settings(BaseSettings):
         return f"postgresql://{user}:{password}@{host}:{port}/{db}"
 
     # Redis
-    REDIS_HOST: str = "localhost"
+    REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
     REDIS_DB: int = 0
     REDIS_PASSWORD: Optional[str] = None

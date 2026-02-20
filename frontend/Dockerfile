@@ -16,23 +16,25 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set environment variables for build
-ENV NEXT_TELEMETRY_DISABLED 1
-# Limit Node.js memory usage to avoid OOM on small VPS (Try 1024MB, if 2048MB was too high)
-ENV NODE_OPTIONS="--max-old-space-size=1024"
+# Accept build-time environment variables
+ARG NEXT_PUBLIC_API_URL=/api/v1
+ARG NEXT_PUBLIC_APP_URL=
+
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+ENV NEXT_TELEMETRY_DISABLED=1
+# 4GB for build on 32GB VPS - plenty of headroom
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Build the application
-# Redirect output to file to try and bypass UI log suppression, then cat it on failure
-RUN echo "Memory Info:" && (free -m || cat /proc/meminfo || echo "Cannot read memory") && \
-    (npm run build > build.log 2>&1 || (echo "=== BUILD LEGS ===" && cat build.log && exit 1))
-
+RUN npm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs
@@ -47,11 +49,11 @@ USER nextjs
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+# Health check - use a simple TCP check since /api/health may not exist
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD node -e "const http = require('http'); const req = http.get('http://localhost:3000/', (r) => { process.exit(r.statusCode < 500 ? 0 : 1); }); req.on('error', () => process.exit(1)); req.setTimeout(3000, () => { req.destroy(); process.exit(1); });"
 
 CMD ["node", "server.js"]

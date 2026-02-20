@@ -1,8 +1,10 @@
-# Environment Variables
+# Environment Variables (keep secrets out of repo)
+# NOTE: docker-compose.yml uses hardcoded defaults so no .env files are needed
 .env
 .env.local
 .env*.local
-*.env
+backend/.env
+frontend/.env.local
 
 # Python
 __pycache__/
@@ -16,7 +18,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# Python compiled libraries (but NOT frontend/lib which contains app code)
 lib64/
 parts/
 sdist/
@@ -27,8 +29,8 @@ wheels/
 *.egg
 MANIFEST
 venv/
+.venv/
 ENV/
-env/
 
 # Node
 node_modules/
@@ -74,17 +76,13 @@ uploads/
 temp/
 tmp/
 
-# Docker
-
-
 # OS
-.DS_Store
 Thumbs.db
 
-# Certificates
-*.pem
-*.key
-*.crt
+# Certificates (real certs - keep out of repo)
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
 
 # Secrets
 secrets/
@@ -92,10 +90,6 @@ secrets/
 
 # Generated files
 *.generated.*
-
-# Alembic
-alembic/versions/*.py
-!alembic/versions/__init__.py
 
 # mypy
 .mypy_cache/
@@ -114,6 +108,3 @@ dmypy.json
 # Backup files
 *.bak
 *.backup
-
-# Deployment
-

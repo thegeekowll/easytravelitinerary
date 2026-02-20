@@ -6,10 +6,9 @@ node_modules
 .next
 out
 
-# Environment
+# Environment - exclude all env files (vars passed via build args)
 .env*
-!.env.example
-!.env.local
+.env.local
 
 # Debug
 npm-debug.log*
