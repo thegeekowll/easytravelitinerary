@@ -3,12 +3,13 @@ import { Inter, Playfair_Display, Lato } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair' });
-const lato = Lato({ 
-  subsets: ['latin'], 
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
+const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair', display: 'swap' });
+const lato = Lato({
+  subsets: ['latin'],
   weight: ['100', '300', '400', '700', '900'],
-  variable: '--font-lato'
+  variable: '--font-lato',
+  display: 'swap',
 });
 
 export async function generateMetadata(): Promise<Metadata> {
