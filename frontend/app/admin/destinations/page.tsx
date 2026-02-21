@@ -204,7 +204,7 @@ export default function DestinationsPage() {
             <CardTitle className="text-sm font-medium text-gray-600">Countries</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-blue-600">{countries.length}</p>
+            <p className="text-2xl font-bold text-primary">{countries.length}</p>
           </CardContent>
         </Card>
       </div>

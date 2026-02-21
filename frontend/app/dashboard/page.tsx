@@ -83,10 +83,10 @@ function AdminDashboard({ data }: { data: AnalyticsData }) {
       {/* 1. Today's Flash Report */}
       <section>
         <h2 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-blue-600" /> Today's Activity
+            <Calendar className="h-5 w-5 text-primary" /> Today's Activity
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <StatCard title="Itineraries Created" value={adminToday?.total_itineraries_created ?? 0} icon={<FileText className="h-6 w-6 text-blue-600" />} trend="Today" />
+            <StatCard title="Itineraries Created" value={adminToday?.total_itineraries_created ?? 0} icon={<FileText className="h-6 w-6 text-primary" />} trend="Today" />
             <StatCard title="Departures" value={adminToday?.departures_today ?? 0} icon={<Layout className="h-6 w-6 text-green-600" />} trend="Today" />
             <StatCard title="Emails Sent" value={adminToday?.total_emails_sent ?? 0} icon={<Mail className="h-6 w-6 text-purple-600" />} trend="Today" />
             <StatCard title="Active Agents" value={adminToday?.active_agents ?? 0} icon={<Users className="h-6 w-6 text-orange-600" />} trend="Online" />
@@ -98,7 +98,7 @@ function AdminDashboard({ data }: { data: AnalyticsData }) {
         <h2 className="text-lg font-semibold mb-4 text-gray-800">Company Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <StatCard title="Total Revenue" value={`$${overview.totalRevenue.toLocaleString()}`} icon={<DollarSign className="h-6 w-6 text-green-700" />} trend={`${overview.revenueGrowth}% growth`} />
-            <StatCard title="Total Bookings" value={overview.totalBookings} icon={<FileText className="h-6 w-6 text-blue-700" />} trend={`${overview.bookingsGrowth}% growth`} />
+            <StatCard title="Total Bookings" value={overview.totalBookings} icon={<FileText className="h-6 w-6 text-primary" />} trend={`${overview.bookingsGrowth}% growth`} />
             <StatCard title="Avg Booking Value" value={`$${overview.avgBookingValue.toLocaleString()}`} icon={<TrendingUp className="h-6 w-6 text-indigo-600" />} trend="Per booking" />
             <StatCard title="Active Customers" value={overview.activeCustomers} icon={<Users className="h-6 w-6 text-pink-600" />} trend="Total unique" />
         </div>
@@ -113,7 +113,7 @@ function AdminDashboard({ data }: { data: AnalyticsData }) {
                     {perAgentToday.map((item: any, idx: number) => (
                         <div key={idx} className="flex justify-between items-center border-b pb-2 last:border-0 hover:bg-gray-50 p-2 rounded">
                             <span className="text-gray-700 font-medium">{item.agent}</span>
-                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">{item.itineraries_created} created</span>
+                            <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-bold">{item.itineraries_created} created</span>
                         </div>
                     ))}
                 </div>
@@ -157,10 +157,10 @@ function AgentDashboard({ data }: { data: AnalyticsData }) {
       {/* 1. My Day Stats */}
       <section>
         <h2 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-blue-600" /> My Day
+            <Calendar className="h-5 w-5 text-primary" /> My Day
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <StatCard title="Created Today" value={agentToday?.itineraries_created ?? 0} icon={<FileText className="h-6 w-6 text-blue-600" />} trend="Itineraries" />
+            <StatCard title="Created Today" value={agentToday?.itineraries_created ?? 0} icon={<FileText className="h-6 w-6 text-primary" />} trend="Itineraries" />
             <StatCard title="Edited Today" value={agentToday?.itineraries_edited ?? 0} icon={<FileText className="h-6 w-6 text-yellow-600" />} trend="Itineraries" />
             <StatCard title="Emails Sent" value={agentToday?.emails_sent ?? 0} icon={<Mail className="h-6 w-6 text-purple-600" />} trend="Today" />
             <StatCard title="Drafts" value={agentOverview?.incomplete_count ?? 0} icon={<AlertCircle className="h-6 w-6 text-orange-600" />} trend="Total Incomplete" />
@@ -223,7 +223,7 @@ function AgentDashboard({ data }: { data: AnalyticsData }) {
 
 function StatCard({ title, value, icon, trend }: { title: string; value: string | number; icon: React.ReactNode; trend: string }) {
   return (
-    <div className="bg-white rounded-lg shadow p-6 border-l-4 border-transparent hover:border-blue-500 transition-all">
+    <div className="bg-white rounded-lg shadow p-6 border-l-4 border-transparent hover:border-primary transition-all">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">{title}</p>

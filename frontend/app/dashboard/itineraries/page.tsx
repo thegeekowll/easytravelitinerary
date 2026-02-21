@@ -275,7 +275,7 @@ export default function ItinerariesPage() {
                   <TableCell>
                     <div className="text-sm">
                        {itinerary.creation_method === 'custom' && (
-                         <Badge variant="outline" className="text-blue-600 border-blue-200 bg-blue-50">Custom Build</Badge>
+                         <Badge variant="outline" className="text-primary border-primary/20 bg-primary/10">Custom Build</Badge>
                        )}
                        {itinerary.creation_method === 'choose_existing' && (
                          <div>

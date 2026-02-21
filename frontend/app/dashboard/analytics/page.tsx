@@ -87,7 +87,7 @@ export default function AnalyticsPage() {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-2 text-gray-500">Loading analytics...</span>
       </div>
     );
@@ -246,7 +246,7 @@ export default function AnalyticsPage() {
                     <div className="flex-1 bg-gray-200 rounded-full h-2">
                        {/* Calculate width assuming max revenue of 50k for basic visual scaling, can be improved */}
                       <div
-                        className="bg-blue-600 h-2 rounded-full"
+                        className="bg-primary h-2 rounded-full"
                         style={{
                           width: `${Math.min((month.revenue / 50000) * 100, 100)}%`,
                         }}
@@ -296,7 +296,7 @@ export default function AnalyticsPage() {
                           item.status === 'COMPLETED'
                             ? 'bg-green-600'
                             : item.status === 'CONFIRMED'
-                            ? 'bg-blue-600'
+                            ? 'bg-primary'
                             : item.status === 'PAID'
                             ? 'bg-green-500'
                             : 'bg-gray-400'
@@ -432,7 +432,7 @@ export default function AnalyticsPage() {
             </div>
             <div>
               <p className="text-sm text-gray-600 mb-1">Total Deposits</p>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold text-primary">
                 ${analytics.paymentMetrics.totalDeposits?.toLocaleString() ?? 0}
               </p>
             </div>

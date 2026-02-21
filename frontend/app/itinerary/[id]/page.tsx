@@ -121,7 +121,7 @@ export default function PublicItineraryPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="h-12 w-12 text-blue-600 animate-spin" />
+        <Loader2 className="h-12 w-12 text-primary animate-spin" />
         <p className="ml-4 text-gray-600">Loading your itinerary...</p>
       </div>
     );
@@ -152,7 +152,7 @@ export default function PublicItineraryPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center gap-3 mb-3">
-              <Badge className="bg-white text-blue-800">{itinerary.reference_number || 'REF'}</Badge>
+              <Badge className="bg-white text-primary">{itinerary.reference_number || 'REF'}</Badge>
               <Badge
                 variant={itinerary.status === 'CONFIRMED' || itinerary.status === 'COMPLETED' ? 'success' : 'default'}
                 className={itinerary.status === 'CONFIRMED' || itinerary.status === 'COMPLETED' ? "bg-green-500 text-white" : "bg-gray-500 text-white"}
@@ -161,7 +161,7 @@ export default function PublicItineraryPage() {
               </Badge>
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2">{itinerary.title}</h1>
-            <p className="text-blue-100 text-lg">
+            <p className="text-primary-foreground text-lg">
               {itinerary.duration_days === 1
                 ? '1 Day Safari Experience'
                 : `${itinerary.duration_days} Days / ${itinerary.duration_nights !== undefined ? itinerary.duration_nights : (itinerary.duration_days - 1)} ${(itinerary.duration_nights !== undefined ? itinerary.duration_nights : (itinerary.duration_days - 1)) === 1 ? 'Night' : 'Nights'} Safari Experience`}
@@ -177,7 +177,7 @@ export default function PublicItineraryPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <Calendar className="h-8 w-8 text-blue-600" />
+                  <Calendar className="h-8 w-8 text-primary" />
                   <div>
                     <p className="text-sm text-gray-600">Travel Dates</p>
                     <p className="font-semibold">
@@ -192,7 +192,7 @@ export default function PublicItineraryPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <Users className="h-8 w-8 text-blue-600" />
+                  <Users className="h-8 w-8 text-primary" />
                   <div>
                     <p className="text-sm text-gray-600">Travelers</p>
                     <p className="font-semibold">{itinerary.number_of_pax} People</p>
@@ -204,7 +204,7 @@ export default function PublicItineraryPage() {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3">
-                  <Plane className="h-8 w-8 text-blue-600" />
+                  <Plane className="h-8 w-8 text-primary" />
                   <div>
                     <p className="text-sm text-gray-600">Start Location</p>
                     <p className="font-semibold">Arusha, Tanzania</p>
@@ -265,9 +265,9 @@ export default function PublicItineraryPage() {
             <CardContent>
               <div className="space-y-6">
                 {itinerary.days?.map((day) => (
-                  <div key={day.day_number} className="border-l-4 border-blue-600 pl-6 pb-6">
+                  <div key={day.day_number} className="border-l-4 border-primary pl-6 pb-6">
                     <div className="flex items-start gap-3 mb-3">
-                      <div className="bg-blue-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
+                      <div className="bg-primary text-white rounded-full w-10 h-10 flex items-center justify-center font-bold flex-shrink-0">
                         {day.day_number}
                       </div>
                       <div>
@@ -354,7 +354,7 @@ export default function PublicItineraryPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-2xl font-bold text-blue-600">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center text-2xl font-bold text-primary">
                     {agentName.charAt(0)}
                   </div>
                   <div className="flex-1">
@@ -365,7 +365,7 @@ export default function PublicItineraryPage() {
                           <Mail className="h-4 w-4" />
                           <a
                             href={`mailto:${itinerary.agent_email}`}
-                            className="hover:text-blue-600"
+                            className="hover:text-primary"
                           >
                             {itinerary.agent_email}
                           </a>
@@ -376,7 +376,7 @@ export default function PublicItineraryPage() {
                           <Phone className="h-4 w-4" />
                           <a
                             href={`tel:${itinerary.agent_phone}`}
-                            className="hover:text-blue-600"
+                            className="hover:text-primary"
                           >
                             {itinerary.agent_phone}
                           </a>

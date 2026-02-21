@@ -134,7 +134,7 @@ export default function NotificationsPage() {
             <div
               key={notification.id}
               className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                !notification.is_read ? 'bg-blue-50' : ''
+                !notification.is_read ? 'bg-primary/10' : ''
               }`}
               onClick={() => handleNotificationClick(notification)}
             >
@@ -143,7 +143,7 @@ export default function NotificationsPage() {
                 <div className="flex-shrink-0">
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                      !notification.is_read ? 'bg-blue-100' : 'bg-gray-100'
+                      !notification.is_read ? 'bg-primary/10' : 'bg-gray-100'
                     }`}
                   >
                     {typeIcons[notification.type] || '📬'}
@@ -162,7 +162,7 @@ export default function NotificationsPage() {
                         {notification.title}
                       </h3>
                       {!notification.is_read && (
-                        <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
                       )}
                     </div>
                     <div className="flex items-center gap-2">
@@ -213,7 +213,7 @@ export default function NotificationsPage() {
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">Unread</p>
-          <p className="text-2xl font-bold text-blue-600">{unreadCount}</p>
+          <p className="text-2xl font-bold text-primary">{unreadCount}</p>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
           <p className="text-sm text-gray-600">High Priority</p>

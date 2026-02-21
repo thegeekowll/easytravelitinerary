@@ -56,7 +56,7 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -72,7 +72,7 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -84,7 +84,7 @@ export default function LoginPage() {
             <div className="text-sm">
               <Link
                 href="/auth/forgot-password"
-                className="font-medium text-blue-600 hover:text-blue-500"
+                className="font-medium text-primary hover:text-primary"
               >
                 Forgot your password?
               </Link>
@@ -103,7 +103,7 @@ export default function LoginPage() {
 
           <div className="text-center text-sm">
             <span className="text-gray-600">Don't have an account? </span>
-            <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href="/auth/register" className="font-medium text-primary hover:text-primary">
               Contact your administrator
             </Link>
           </div>

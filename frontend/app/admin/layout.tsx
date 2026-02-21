@@ -72,7 +72,7 @@ export default function AdminLayout({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function AdminLayout({
               <span className="text-sm text-gray-700">
                 {user.full_name || user.email}
               </span>
-              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+              <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded">
                 {user.role}
               </span>
               <Button

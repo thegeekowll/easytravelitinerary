@@ -183,11 +183,11 @@ export default function NewItineraryPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Method 1: Choose Existing Package */}
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-blue-500">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-primary">
             <CardHeader>
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-blue-100 rounded-lg">
-                  <FileText className="h-8 w-8 text-blue-600" />
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <FileText className="h-8 w-8 text-primary" />
                 </div>
               </div>
               <CardTitle>Choose Existing Package</CardTitle>
@@ -429,7 +429,7 @@ export default function NewItineraryPage() {
               ) : (
                 <select
                   required={method !== 'custom'}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary"
                   value={selectedPackage}
                   onChange={(e) => handlePackageSelect(e.target.value)}
                 >
@@ -456,7 +456,7 @@ export default function NewItineraryPage() {
             <CardContent>
               <select
                 required
-                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary"
                 value={tourTypeId}
                 onChange={(e) => setTourTypeId(e.target.value)}
               >

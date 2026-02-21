@@ -106,7 +106,7 @@ export default function ToursPage() {
                 </div>
                 
                 <div className="flex items-center gap-2 text-sm text-gray-600 mt-2">
-                  <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs px-2">
+                  <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs px-2">
                     {tour.tour_type || 'Safari'}
                   </span>
                 </div>

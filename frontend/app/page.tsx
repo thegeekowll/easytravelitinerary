@@ -31,22 +31,22 @@ export default function HomePage() {
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-20">
           <FeatureCard
-            icon={<Plane className="h-10 w-10 text-blue-600" />}
+            icon={<Plane className="h-10 w-10 text-primary" />}
             title="200+ Tour Packages"
             description="Pre-loaded templates for quick itinerary creation"
           />
           <FeatureCard
-            icon={<Calendar className="h-10 w-10 text-blue-600" />}
+            icon={<Calendar className="h-10 w-10 text-primary" />}
             title="Smart Scheduling"
             description="Day-by-day itinerary builder with auto-fill"
           />
           <FeatureCard
-            icon={<Users className="h-10 w-10 text-blue-600" />}
+            icon={<Users className="h-10 w-10 text-primary" />}
             title="Role-Based Access"
             description="Admin, CS agents, and public view management"
           />
           <FeatureCard
-            icon={<BarChart3 className="h-10 w-10 text-blue-600" />}
+            icon={<BarChart3 className="h-10 w-10 text-primary" />}
             title="Analytics Dashboard"
             description="Real-time insights and performance metrics"
           />

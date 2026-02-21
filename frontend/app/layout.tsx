@@ -104,7 +104,7 @@ export default async function RootLayout({
     const timeout = setTimeout(() => controller.abort(), 3000);
 
     const res = await fetch(`${apiUrl}/public/company`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
       signal: controller.signal,
     });
     clearTimeout(timeout);
@@ -155,12 +155,10 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <body className={`${inter.variable} ${playfair.variable} ${lato.variable} font-sans`}>
         {dynamicStyles && (
            <style dangerouslySetInnerHTML={{ __html: dynamicStyles }} />
         )}
-      </head>
-      <body className={`${inter.variable} ${playfair.variable} ${lato.variable} font-sans`}>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -284,7 +284,7 @@ export default function UsersPage() {
                                 <input
                                     type="checkbox"
                                     id={`perm-${perm.id}`}
-                                    className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                                     checked={newUser.permission_ids?.includes(perm.id)}
                                     onChange={(e) => {
                                       const current = newUser.permission_ids || [];
@@ -337,12 +337,12 @@ export default function UsersPage() {
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="bg-blue-100 p-0.5 rounded-full h-10 w-10 flex-shrink-0 overflow-hidden relative">
+                    <div className="bg-primary/10 p-0.5 rounded-full h-10 w-10 flex-shrink-0 overflow-hidden relative">
                       {user.profile_photo_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={user.profile_photo_url} alt={user.full_name} className="h-full w-full object-cover" />
                       ) : (
-                        <div className="h-full w-full flex items-center justify-center bg-blue-100 text-blue-600">
+                        <div className="h-full w-full flex items-center justify-center bg-primary/10 text-primary">
                             <UserIcon className="h-5 w-5" />
                         </div>
                       )}
@@ -363,7 +363,7 @@ export default function UsersPage() {
                         <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="h-8 w-8 text-gray-400 hover:text-blue-500"
+                            className="h-8 w-8 text-gray-400 hover:text-primary"
                             onClick={() => handleEditClick(user)}
                         >
                             <Pencil className="h-4 w-4" />

@@ -168,7 +168,7 @@ export default function ClientPresentationView() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={itinerary.agent_profile_photo_url} alt="Agent" className="h-full w-full object-cover" />
                  ) : (
-                    <div className="h-full w-full bg-blue-100 flex items-center justify-center text-blue-800 font-bold text-2xl">
+                    <div className="h-full w-full bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl">
                         {itinerary.agent_name ? itinerary.agent_name.charAt(0) : 'A'}
                     </div>
                  )}
@@ -215,7 +215,7 @@ export default function ClientPresentationView() {
                       )}
 
                       {/* Day Header */}
-                      <div className="mb-10 border-l-4 border-blue-900 pl-6">
+                      <div className="mb-10 border-l-4 border-primary pl-6">
                          <h3 className="text-3xl font-sans font-bold text-gray-900 mb-3">
                            Day {day.day_number}
                            {day.day_number === 1 ? (

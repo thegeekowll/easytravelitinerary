@@ -163,9 +163,9 @@ export default function MatrixPage() {
                   return (
                     <td 
                       key={col.id} 
-                      className={`px-3 py-2 whitespace-nowrap text-sm border-l hover:bg-blue-50 cursor-pointer ${
+                      className={`px-3 py-2 whitespace-nowrap text-sm border-l hover:bg-primary/10 cursor-pointer ${
                         !combo ? 'bg-gray-50' : ''
-                      } ${isDiagonal ? 'bg-blue-50/50' : ''}`}
+                      } ${isDiagonal ? 'bg-primary/10/50' : ''}`}
                       onClick={() => handleCellClick(row.id, col.id, row.name, col.name)}
                     >
                       {combo ? (

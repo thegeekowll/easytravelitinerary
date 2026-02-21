@@ -157,7 +157,7 @@ function ChooseContent() {
 
       {loading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : filteredTours.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -214,7 +214,7 @@ function ChooseContent() {
 
 export default function ChooseBaseTourPage() {
   return (
-    <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>}>
+    <Suspense fallback={<div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
       <ChooseContent />
     </Suspense>
   );

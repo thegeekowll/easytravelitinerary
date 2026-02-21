@@ -29,8 +29,8 @@ export default function CreateTourPage() {
       description: 'Select from our 200+ base tour packages. Creates an exact copy.',
       icon: Copy,
       action: () => router.push('/create-tour/choose'),
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
     },
     {
       title: 'Edit Existing Package',

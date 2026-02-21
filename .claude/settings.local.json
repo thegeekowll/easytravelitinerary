@@ -29,7 +29,16 @@
       "Bash(pip install:*)",
       "Bash(tree:*)",
       "Bash(docker:*)",
-      "Bash(node --version:*)"
+      "Bash(node --version:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: make project deployable on Hostinger VPS Docker\n\nROOT CAUSE: .gitignore had `lib/` rule \\(meant for Python\\) that excluded\nfrontend/lib/ \\(8 critical files: API client, auth context, hooks, utils\\).\nBuilds failed because all @/lib/* imports resolved to missing files.\n\nChanges:\n- .gitignore: Remove lib/ rule, remove alembic/versions exclusion\n- docker-compose.yml: Remove env_file refs \\(files not in repo\\), inline all\n  env vars with defaults, remove exposed DB/Redis ports, celery depends on\n  backend \\(not just postgres\\) for migration ordering\n- backend/Dockerfile: Fix Playwright browser permissions \\(install as appuser\\),\n  add entrypoint.sh for auto-migrations, add .dockerignore, 2 uvicorn workers\n- backend/config.py: Fix CORS field \\(was private _BACKEND_CORS_ORIGINS that\n  env vars couldn''t set\\), default POSTGRES_SERVER=postgres, REDIS_HOST=redis\n- frontend/Dockerfile: Add build ARGs for env vars, 4GB memory for 32GB VPS,\n  fix health check, increase start period\n- frontend/lib/*: 8 files now tracked \\(API client, auth, hooks, utils\\)\n- frontend/next.config.js: API URL default /api/v1 \\(relative\\), remove\n  hardcoded localhost allowedOrigins\n- frontend/lib/api.ts + client.ts: Remove hardcoded localhost:8000\n- nginx.conf: Add gzip, client_max_body_size 50m, WebSocket support,\n  proper timeouts, static file caching, backend health/docs routes\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: add frontend/public .gitkeep files and remove obsolete compose version\n\n- frontend/public/ had empty subdirs \\(fonts/, images/\\) with no files,\n  so git didn''t track them. Build failed at COPY --from=builder /app/public\n  because the directory didn''t exist after clone.\n- Remove obsolete `version: ''3.8''` from docker-compose.yml\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: bake nginx.conf into Docker image instead of bind mount\n\nHostinger Docker Manager clones repo to a temp dir then moves files,\ncausing bind mount `./nginx/nginx.conf:/etc/nginx/nginx.conf:ro` to fail\nwith \"not a directory\" error. Solution: build a custom nginx image with\nthe config COPY''d in, eliminating the need for bind mounts entirely.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: add 3-second timeout to generateMetadata fetch to prevent page hang\n\nThe server-side generateMetadata\\(\\) was fetching from the backend with no\ntimeout, causing the entire page render to block indefinitely if the\nbackend was slow or unreachable during startup.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(cd:*)"
     ]
   }
 }

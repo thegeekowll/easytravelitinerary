@@ -214,7 +214,7 @@ export default function AccommodationsPage() {
                     {acc.accommodation_type?.name || 'Lodge'}
                   </span>
                   {acc.accommodation_level && (
-                      <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs border border-blue-100">
+                      <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs border border-primary/20">
                         {acc.accommodation_level.name}
                       </span>
                   )}
