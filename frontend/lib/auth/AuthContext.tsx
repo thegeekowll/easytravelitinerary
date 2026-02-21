@@ -92,8 +92,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Show success message
         toast.success(`Welcome back!`);
 
-        // Redirect to dashboard
-        router.push('/dashboard');
+        // Force a hard redirect instead of soft push to ensure middleware and server components read the new cookie
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 100);
       } catch (error: any) {
         // Error is already handled by API client
         throw error;

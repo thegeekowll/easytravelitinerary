@@ -72,12 +72,9 @@ export default function SettingsPage() {
 
     try {
       // Execute in parallel but safely
-      const [tpls, awardsData, reviewsData, defaultsData, logoData] = await Promise.all([
+      const [tpls, allAssetsData] = await Promise.all([
         safeFetch(apiClient.getCompanyTemplates(), [], 'templates'),
-        safeFetch(apiClient.listCompanyAssets(ASSET_TYPES.AWARD), [], 'awards'),
-        safeFetch(apiClient.listCompanyAssets(ASSET_TYPES.REVIEW), [], 'reviews'),
-        safeFetch(apiClient.listCompanyAssets(ASSET_TYPES.DEFAULT), [], 'defaults'),
-        safeFetch(apiClient.listCompanyAssets(ASSET_TYPES.LOGO), [], 'logo')
+        safeFetch(apiClient.listCompanyAssets(), [], 'allAssets') // fetch all at once to save roundtrips
       ]);
 
       const tplMap: Record<string, string> = {};
@@ -87,15 +84,19 @@ export default function SettingsPage() {
           });
       }
       setTemplates(tplMap);
-      
-      console.log("Fetched Awards Data:", awardsData);
-      console.log("Fetched Defaults Data:", defaultsData);
 
-      setAwards(Array.isArray(awardsData) ? awardsData : []);
-      setReviewImages(Array.isArray(reviewsData) ? reviewsData : []);
-      setDefaults(Array.isArray(defaultsData) ? defaultsData : []);
-      // Take the most recent logo if multiple exist
-      setLogo(Array.isArray(logoData) && logoData.length > 0 ? logoData[logoData.length - 1] : null);
+      if (Array.isArray(allAssetsData)) {
+          const awardsData = allAssetsData.filter(a => a.asset_type === ASSET_TYPES.AWARD);
+          const reviewsData = allAssetsData.filter(a => a.asset_type === ASSET_TYPES.REVIEW);
+          const defaultsData = allAssetsData.filter(a => a.asset_type === ASSET_TYPES.DEFAULT);
+          const logoData = allAssetsData.filter(a => a.asset_type === ASSET_TYPES.LOGO);
+
+          setAwards(awardsData);
+          setReviewImages(reviewsData);
+          setDefaults(defaultsData);
+          // Take the most recent logo if multiple exist
+          setLogo(logoData.length > 0 ? logoData[logoData.length - 1] : null);
+      }
 
     } catch (error) {
       console.error("Critical error in fetchData:", error);
