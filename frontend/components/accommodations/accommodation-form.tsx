@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select } from '@/components/ui/select';
 import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Plus } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 import ImageUpload from '@/components/shared/image-upload';
 
@@ -23,6 +24,15 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
   const [types, setTypes] = useState<any[]>([]);
   const [levels, setLevels] = useState<any[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  
+  // Inline creation states
+  const [isTypeDialogOpen, setIsTypeDialogOpen] = useState(false);
+  const [isLevelDialogOpen, setIsLevelDialogOpen] = useState(false);
+  const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false);
+  const [newType, setNewType] = useState({ name: '', description: '' });
+  const [newLevel, setNewLevel] = useState({ name: '', description: '' });
+  const [newLocation, setNewLocation] = useState({ name: '', country: '' });
+  const [creatingInline, setCreatingInline] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -102,6 +112,62 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
     }
   };
 
+  const handleCreateType = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingInline(true);
+    try {
+      const created = await apiClient.createAccommodationType(newType);
+      setTypes([...types, created]);
+      setFormData({ ...formData, type_id: created.id });
+      setIsTypeDialogOpen(false);
+      setNewType({ name: '', description: '' });
+      toast.success('Type created');
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Failed to create type');
+    } finally {
+      setCreatingInline(false);
+    }
+  };
+
+  const handleCreateLevel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingInline(true);
+    try {
+      const created = await apiClient.createAccommodationLevel(newLevel);
+      setLevels([...levels, created]);
+      setFormData({ ...formData, level_id: created.id });
+      setIsLevelDialogOpen(false);
+      setNewLevel({ name: '', description: '' });
+      toast.success('Level created');
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Failed to create level');
+    } finally {
+      setCreatingInline(false);
+    }
+  };
+
+  const handleCreateLocation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingInline(true);
+    try {
+      const payload = {
+         name: newLocation.name,
+         country: newLocation.country,
+         description: ''
+      };
+      const created = await apiClient.createDestination(payload);
+      setDestinations([...destinations, created]);
+      setFormData({ ...formData, location_destination_id: created.id });
+      setIsLocationDialogOpen(false);
+      setNewLocation({ name: '', country: '' });
+      toast.success('Location created');
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Failed to create location');
+    } finally {
+      setCreatingInline(false);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 py-4">
       <div className="space-y-2">
@@ -117,7 +183,32 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="type">Type</Label>
+              <Dialog open={isTypeDialogOpen} onOpenChange={setIsTypeDialogOpen}>
+                  <DialogTrigger asChild>
+                      <Button type="button" variant="ghost" size="sm" className="h-4 p-0 px-2 text-xs text-blue-600">
+                          <Plus className="h-3 w-3 mr-1" /> Add New
+                      </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-sm">
+                      <DialogHeader><DialogTitle>Add Accommodation Type</DialogTitle></DialogHeader>
+                      <div className="space-y-4 pt-4">
+                          <div className="space-y-2">
+                              <Label>Name</Label>
+                              <Input value={newType.name} onChange={e => setNewType({...newType, name: e.target.value})} placeholder="e.g. Resort" />
+                          </div>
+                          <div className="space-y-2">
+                              <Label>Description (Optional)</Label>
+                              <Input value={newType.description} onChange={e => setNewType({...newType, description: e.target.value})} />
+                          </div>
+                          <Button type="button" onClick={handleCreateType} disabled={creatingInline || !newType.name} className="w-full">
+                              {creatingInline ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Type'}
+                          </Button>
+                      </div>
+                  </DialogContent>
+              </Dialog>
+            </div>
             <Select 
                 value={formData.type_id} 
                 onChange={(e) => setFormData({...formData, type_id: e.target.value})}
@@ -131,7 +222,32 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
         </div>
 
         <div className="space-y-2">
-            <Label htmlFor="level">Level</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="level">Level</Label>
+              <Dialog open={isLevelDialogOpen} onOpenChange={setIsLevelDialogOpen}>
+                  <DialogTrigger asChild>
+                      <Button type="button" variant="ghost" size="sm" className="h-4 p-0 px-2 text-xs text-blue-600">
+                          <Plus className="h-3 w-3 mr-1" /> Add New
+                      </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-sm">
+                      <DialogHeader><DialogTitle>Add Accommodation Level</DialogTitle></DialogHeader>
+                      <div className="space-y-4 pt-4">
+                          <div className="space-y-2">
+                              <Label>Name</Label>
+                              <Input value={newLevel.name} onChange={e => setNewLevel({...newLevel, name: e.target.value})} placeholder="e.g. Luxury" />
+                          </div>
+                          <div className="space-y-2">
+                              <Label>Description (Optional)</Label>
+                              <Input value={newLevel.description} onChange={e => setNewLevel({...newLevel, description: e.target.value})} />
+                          </div>
+                          <Button type="button" onClick={handleCreateLevel} disabled={creatingInline || !newLevel.name} className="w-full">
+                              {creatingInline ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Level'}
+                          </Button>
+                      </div>
+                  </DialogContent>
+              </Dialog>
+            </div>
             <Select 
                 value={formData.level_id} 
                 onChange={(e) => setFormData({...formData, level_id: e.target.value})}
@@ -145,7 +261,32 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="location">Location</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="location">Location</Label>
+          <Dialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen}>
+              <DialogTrigger asChild>
+                  <Button type="button" variant="ghost" size="sm" className="h-4 p-0 px-2 text-xs text-blue-600">
+                      <Plus className="h-3 w-3 mr-1" /> Add New
+                  </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm">
+                  <DialogHeader><DialogTitle>Add Location (Destination)</DialogTitle></DialogHeader>
+                  <div className="space-y-4 pt-4">
+                      <div className="space-y-2">
+                          <Label>Name / City</Label>
+                          <Input value={newLocation.name} onChange={e => setNewLocation({...newLocation, name: e.target.value})} placeholder="e.g. Serengeti National Park" />
+                      </div>
+                      <div className="space-y-2">
+                          <Label>Country</Label>
+                          <Input value={newLocation.country} onChange={e => setNewLocation({...newLocation, country: e.target.value})} placeholder="e.g. Tanzania" />
+                      </div>
+                      <Button type="button" onClick={handleCreateLocation} disabled={creatingInline || !newLocation.name || !newLocation.country} className="w-full">
+                          {creatingInline ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Location'}
+                      </Button>
+                  </div>
+              </DialogContent>
+          </Dialog>
+        </div>
         <Select 
             value={formData.location_destination_id} 
             onChange={(e) => setFormData({...formData, location_destination_id: e.target.value})}

@@ -278,6 +278,11 @@ class APIClient {
     return response.data;
   }
 
+  async createDestination(data: any) {
+    const response = await this.client.post('/destinations', data);
+    return response.data;
+  }
+
 
   // Notifications
   async getNotifications(params?: { page?: number; limit?: number; is_read?: boolean; notification_type?: string; priority?: string }) {
