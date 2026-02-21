@@ -58,13 +58,18 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
     setLoading(true);
 
     try {
+      const payload = {
+        ...formData,
+        level_id: formData.level_id || null, // Convert empty string to null for UUID validation
+      };
+
       let newAccommodation;
       if (initialData?.id) {
-        await apiClient.updateAccommodation(initialData.id, formData);
+        await apiClient.updateAccommodation(initialData.id, payload);
         newAccommodation = { id: initialData.id };
         toast.success('Accommodation updated successfully');
       } else {
-        newAccommodation = await apiClient.createAccommodation(formData);
+        newAccommodation = await apiClient.createAccommodation(payload);
         toast.success('Accommodation created successfully');
       }
 
