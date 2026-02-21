@@ -111,6 +111,7 @@ class Destination(Base):
     accommodations: Mapped[List["Accommodation"]] = relationship(
         "Accommodation",
         back_populates="location_destination",
+        passive_deletes=True,
         lazy="dynamic"
     )
 
@@ -119,6 +120,8 @@ class Destination(Base):
         "DestinationCombination",
         foreign_keys="[DestinationCombination.destination_1_id]",
         back_populates="destination_1",
+        cascade="all, delete",
+        passive_deletes=True,
         lazy="dynamic"
     )
 
@@ -127,6 +130,8 @@ class Destination(Base):
         "DestinationCombination",
         foreign_keys="[DestinationCombination.destination_2_id]",
         back_populates="destination_2",
+        cascade="all, delete",
+        passive_deletes=True,
         lazy="dynamic"
     )
 
@@ -135,6 +140,7 @@ class Destination(Base):
         "BaseTourDay",
         secondary="base_tour_day_destinations",
         back_populates="destinations",
+        passive_deletes=True,
         lazy="dynamic"
     )
 

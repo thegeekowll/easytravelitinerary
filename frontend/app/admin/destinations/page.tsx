@@ -79,7 +79,11 @@ export default function DestinationsPage() {
       queryClient.invalidateQueries({ queryKey: ['destinations'] });
       toast.success('Destination deleted');
     },
-    onError: () => toast.error('Failed to delete destination'),
+    onError: (error: any) => {
+      const detail = error.response?.data?.detail;
+      const message = Array.isArray(detail) ? detail[0].msg : (detail || 'Failed to delete destination');
+      toast.error(message);
+    },
   });
 
   // Helpers
