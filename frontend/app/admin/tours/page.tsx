@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Search, Map, Calendar, MoreVertical } from 'lucide-react';
+import { Plus, Search, Map, Download, Upload as UploadIcon } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +38,36 @@ export default function ToursPage() {
     fetchTours();
   }, []);
 
+  const handleExport = async () => {
+    try {
+      const blob = await apiClient.exportData('base-tours');
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'base_tours.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      toast.error('Export failed');
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const toastId = toast.loading('Importing tours...');
+    try {
+      const result = await apiClient.importData('base-tours', file);
+      toast.success(`Imported ${result.imported_count} tours. Failed: ${result.failed_count}`, { id: toastId });
+      fetchTours();
+    } catch (error) {
+      toast.error('Import failed', { id: toastId });
+    }
+    e.target.value = '';
+  };
+
   const filteredTours = tours.filter(tour => 
     tour.tour_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     tour.tour_code?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -51,14 +81,27 @@ export default function ToursPage() {
           <p className="text-gray-600">Manage tour templates and packages</p>
         </div>
         
-        {canAdd && (
-          <Link href="/admin/tours/create">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create New Tour
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            CSV Ex
+          </Button>
+          <div>
+            <input type="file" id="import-tours" accept=".csv" className="hidden" onChange={handleImport} />
+            <Button variant="outline" onClick={() => document.getElementById('import-tours')?.click()}>
+              <UploadIcon className="h-4 w-4 mr-2" />
+              CSV Im
             </Button>
-          </Link>
-        )}
+          </div>
+          {canAdd && (
+            <Link href="/admin/tours/create">
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Tour
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-4">

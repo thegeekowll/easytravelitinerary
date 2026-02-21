@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+
 import {
   Table,
   TableBody,
@@ -14,7 +14,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Search, Edit, Trash2, MapPin, Image as ImageIcon, X, Upload } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Image as ImageIcon, Upload, Download } from 'lucide-react';
+import { apiClient } from '@/lib/api/client';
 import { createDestination, deleteDestination, getDestinations, updateDestination, uploadDestinationImages } from '@/lib/api';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -160,8 +161,38 @@ export default function DestinationsPage() {
     setImageUrls(newUrls.length ? newUrls : ['']);
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await apiClient.exportData('destinations');
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'destinations.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      toast.error('Export failed');
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const toastId = toast.loading('Importing destinations...');
+    try {
+      const result = await apiClient.importData('destinations', file);
+      toast.success(`Imported ${result.imported_count} destinations. Failed: ${result.failed_count}`, { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ['destinations'] });
+    } catch (error) {
+      toast.error('Import failed', { id: toastId });
+    }
+    e.target.value = '';
+  };
+
   // Derived state
-  const countries = Array.from(new Set(destinations.map((d: any) => d.country).filter(Boolean)));
+  const countries = Array.from<string>(new Set(destinations.map((d: any) => d.country).filter(Boolean)));
   const filteredDestinations = destinations.filter((destination: any) => {
     const matchesSearch =
       destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -173,7 +204,6 @@ export default function DestinationsPage() {
 
   return (
     <div>
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Destinations</h1>
@@ -182,10 +212,23 @@ export default function DestinationsPage() {
           </p>
         </div>
         {canAdd && (
-          <Button onClick={() => { resetForm(); setShowModal(true); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Destination
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              CSV Ex
+            </Button>
+            <div>
+              <input type="file" id="import-destinations" accept=".csv" className="hidden" onChange={handleImport} />
+              <Button variant="outline" onClick={() => document.getElementById('import-destinations')?.click()}>
+                <Upload className="h-4 w-4 mr-2" />
+                CSV Im
+              </Button>
+            </div>
+            <Button onClick={() => { resetForm(); setShowModal(true); }}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add
+            </Button>
+          </div>
         )}
       </div>
 

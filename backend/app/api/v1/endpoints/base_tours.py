@@ -34,6 +34,8 @@ from app.schemas.base_tour import (
 )
 from app.schemas.common import PaginatedResponse, MessageResponse
 from app.services.azure_blob_service import azure_blob_service
+from app.services.import_export_service import ImportExportService
+from fastapi.responses import StreamingResponse
 
 router = APIRouter(prefix="/base-tours", tags=["base-tours"])
 
@@ -541,3 +543,79 @@ async def update_tour_image(
     db.refresh(image)
     
     return image
+
+@router.get("/export/csv")
+def export_base_tours_csv(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Export all base tours to CSV format."""
+    items = db.query(BaseTour).all()
+    output = ImportExportService.export_to_csv(items, exclude_fields=['id'])
+    
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=base_tours.csv"}
+    )
+
+@router.post("/bulk-import", response_model=dict)
+def bulk_import_base_tours(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Bulk import base tours from CSV file. Matches on tour_name."""
+    if not file.filename.endswith('.csv'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File must be a CSV"
+        )
+
+    try:
+        content = file.file.read()
+        csv_str = content.decode('utf-8')
+        rows = ImportExportService.parse_csv(csv_str)
+
+        imported = []
+        failed = []
+
+        for row_num, row in enumerate(rows, start=2):
+            try:
+                name = row.get('tour_name')
+                type_id = row.get('tour_type_id')
+
+                if not name or not type_id:
+                    failed.append({'row': row_num, 'error': 'Missing required fields (tour_name, tour_type_id)'})
+                    continue
+                
+                existing = db.query(BaseTour).filter(BaseTour.tour_name == name).first()
+                if existing:
+                    # Update Fields
+                    for k, v in row.items():
+                        if hasattr(existing, k) and k not in ['id', 'created_at', 'updated_at']:
+                            setattr(existing, k, v)
+                    imported.append(name)
+                else:
+                    # Create
+                    new_item = BaseTour()
+                    for k, v in row.items():
+                        if hasattr(new_item, k) and k not in ['id', 'created_at', 'updated_at']:
+                            setattr(new_item, k, v)
+                    db.add(new_item)
+                    imported.append(name)
+            except Exception as e:
+                failed.append({'row': row_num, 'error': str(e)})
+
+        db.commit()
+        return {
+            'success': True,
+            'imported_count': len(imported),
+            'failed_count': len(failed),
+            'imported': imported,
+            'failed': failed
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
+

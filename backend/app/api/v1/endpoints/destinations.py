@@ -28,6 +28,8 @@ from app.schemas.destination import (
 )
 from app.schemas.common import PaginatedResponse, MessageResponse
 from app.services.azure_blob_service import azure_blob_service
+from app.services.import_export_service import ImportExportService
+from fastapi.responses import StreamingResponse
 
 router = APIRouter(prefix="/destinations", tags=["destinations"])
 
@@ -343,47 +345,16 @@ def export_destinations_csv(
     current_user: User = Depends(require_admin)
 ):
     """
-    Export all destinations to CSV format.
-
-    Returns CSV data with columns:
-    - name, country, region, description, gps_coordinates, timezone, best_time_to_visit
+    Export all destinations to CSV format using ImportExportService.
     """
-    from fastapi.responses import StreamingResponse
-    import io
-    import csv
-
     destinations = db.query(Destination).all()
-
-    # Create CSV in memory
-    output = io.StringIO()
-    writer = csv.writer(output)
-
-    # Write header
-    writer.writerow([
-        'name', 'country', 'region', 'description',
-        'gps_coordinates', 'timezone', 'best_time_to_visit'
-    ])
-
-    # Write data
-    for dest in destinations:
-        writer.writerow([
-            dest.name,
-            dest.country,
-            dest.region or '',
-            dest.description or '',
-            dest.gps_coordinates or '',
-            dest.timezone or '',
-            dest.best_time_to_visit or ''
-        ])
-
-    output.seek(0)
-
+    output = ImportExportService.export_to_csv(destinations, exclude_fields=['id'])
+    
     return StreamingResponse(
         iter([output.getvalue()]),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=destinations.csv"}
     )
-
 
 @router.post("/bulk-import", response_model=dict)
 def bulk_import_destinations(
@@ -392,12 +363,7 @@ def bulk_import_destinations(
     current_user: User = Depends(require_admin)
 ):
     """
-    Bulk import destinations from CSV file.
-
-    CSV format:
-    name, country, region, description, gps_coordinates, timezone, best_time_to_visit
-
-    Returns summary of imported/failed records.
+    Bulk import destinations from CSV file using ImportExportService. Matches on name.
     """
     if not file.filename.endswith('.csv'):
         raise HTTPException(
@@ -405,77 +371,42 @@ def bulk_import_destinations(
             detail="File must be a CSV"
         )
 
-    import csv
-    import io
-
     try:
-        # Read CSV
         content = file.file.read()
-        decoded = content.decode('utf-8')
-        csv_reader = csv.DictReader(io.StringIO(decoded))
+        csv_str = content.decode('utf-8')
+        rows = ImportExportService.parse_csv(csv_str)
 
         imported = []
         failed = []
 
-        for row_num, row in enumerate(csv_reader, start=2):
+        for row_num, row in enumerate(rows, start=2):
             try:
-                # Check required fields
-                if not row.get('name') or not row.get('country'):
-                    failed.append({
-                        'row': row_num,
-                        'data': row,
-                        'error': 'Missing required fields (name, country)'
-                    })
+                name = row.get('name')
+                country = row.get('country')
+
+                if not name or not country:
+                    failed.append({'row': row_num, 'error': 'Missing required fields (name, country)'})
                     continue
-
-                # Check if already exists
-                existing = db.query(Destination).filter(
-                    Destination.name == row['name']
-                ).first()
-
+                
+                existing = db.query(Destination).filter(Destination.name == name).first()
                 if existing:
-                    failed.append({
-                        'row': row_num,
-                        'data': row,
-                        'error': 'Destination already exists'
-                    })
-                    continue
-
-                gps_lat = None
-                gps_lon = None
-                if row.get('gps_coordinates'):
-                    try:
-                        lat_s, lon_s = row['gps_coordinates'].split(',')
-                        gps_lat = float(lat_s.strip())
-                        gps_lon = float(lon_s.strip())
-                    except:
-                        pass
-
-                # Create destination
-                destination = Destination(
-                    name=row['name'],
-                    country=row['country'],
-                    region=row.get('region') or None,
-                    description=row.get('description') or None,
-                    gps_latitude=gps_lat,
-                    gps_longitude=gps_lon,
-                    best_time_to_visit=row.get('best_time_to_visit') or None
-                )
-
-                db.add(destination)
-                imported.append(row['name'])
-
+                    # Update Fields
+                    for k, v in row.items():
+                        if hasattr(existing, k) and k not in ['id', 'created_at', 'updated_at']:
+                            setattr(existing, k, v)
+                    imported.append(name)
+                else:
+                    # Create
+                    new_item = Destination()
+                    for k, v in row.items():
+                        if hasattr(new_item, k) and k not in ['id', 'created_at', 'updated_at']:
+                            setattr(new_item, k, v)
+                    db.add(new_item)
+                    imported.append(name)
             except Exception as e:
-                failed.append({
-                    'row': row_num,
-                    'data': row,
-                    'error': str(e)
-                })
+                failed.append({'row': row_num, 'error': str(e)})
 
-        # Commit all successful imports
-        if imported:
-            db.commit()
-
+        db.commit()
         return {
             'success': True,
             'imported_count': len(imported),
@@ -483,10 +414,6 @@ def bulk_import_destinations(
             'imported': imported,
             'failed': failed
         }
-
     except Exception as e:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Import failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")

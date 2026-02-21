@@ -28,6 +28,8 @@ from app.schemas.destination_combination import (
 from app.schemas.common import MessageResponse, PaginatedResponse
 from app.services.destination_combination_service import destination_combination_service
 from app.models.destination_combination import DestinationCombination
+from app.services.import_export_service import ImportExportService
+from fastapi.responses import StreamingResponse
 
 router = APIRouter(prefix="/destination-combinations", tags=["destination-combinations"])
 
@@ -313,71 +315,80 @@ def get_combination_grid(
         )
 
 
-@router.post("/bulk-import", status_code=status.HTTP_201_CREATED)
+@router.get("/export/csv")
+def export_combinations_csv(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Export all destination combinations to CSV format."""
+    items = db.query(DestinationCombination).all()
+    output = ImportExportService.export_to_csv(items, exclude_fields=['id'])
+    
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=destination_combinations.csv"}
+    )
+
+@router.post("/bulk-import", response_model=dict)
 def bulk_import_combinations(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
 ):
     """
-    Bulk import destination combinations from CSV (admin only).
-
-    Expected CSV columns:
-    - destination_1_id (UUID)
-    - destination_2_id (UUID, optional - leave empty for diagonal)
-    - description_content (text)
-    - activity_content (text)
+    Bulk import destination combinations from CSV.
+    Matches on destination_1_id and destination_2_id.
     """
     if not file.filename.endswith('.csv'):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Only CSV files are supported"
+            detail="File must be a CSV"
         )
-
-    imported = []
-    failed = []
 
     try:
         content = file.file.read()
-        csv_content = content.decode('utf-8')
-        csv_file = StringIO(csv_content)
-        reader = csv.DictReader(csv_file)
+        csv_str = content.decode('utf-8')
+        rows = ImportExportService.parse_csv(csv_str)
 
-        for row_num, row in enumerate(reader, start=2):
+        imported = []
+        failed = []
+
+        for row_num, row in enumerate(rows, start=2):
             try:
-                dest_1_id = UUID(row['destination_1_id'])
-                dest_2_id = UUID(row['destination_2_id']) if row.get('destination_2_id') else None
+                dest_1_id = row.get('destination_1_id')
+                dest_2_id = row.get('destination_2_id')
 
-                # Create combination
-                combination = destination_combination_service.create_combination(
-                    dest_1_id=dest_1_id,
-                    dest_2_id=dest_2_id,
-                    description=row['description_content'],
-                    activity=row['activity_content'],
-                    db=db
-                )
-
-                imported.append({
-                    'row': row_num,
-                    'id': str(combination.id),
-                    'destinations': f"{dest_1_id} × {dest_2_id or dest_1_id}"
-                })
-
-            except ValueError as e:
-                failed.append({
-                    'row': row_num,
-                    'data': row,
-                    'error': str(e)
-                })
+                if not dest_1_id:
+                    failed.append({'row': row_num, 'error': 'Missing required destination_1_id'})
+                    continue
+                
+                # Check existing combination
+                existing = None
+                if dest_2_id:
+                    existing = destination_combination_service.get_combination(UUID(dest_1_id), UUID(dest_2_id), db)
+                else:
+                    existing = destination_combination_service.get_combination(UUID(dest_1_id), None, db)
+                
+                if existing:
+                    # Update Fields
+                    for k, v in row.items():
+                        if hasattr(existing, k) and k not in ['id', 'created_at', 'updated_at']:
+                            setattr(existing, k, v)
+                    imported.append(f"{dest_1_id} x {dest_2_id}")
+                else:
+                    # Create
+                    comb_kwargs = {k: v for k, v in row.items() if hasattr(DestinationCombination, k) and k not in ['id', 'created_at', 'updated_at']}
+                    comb_kwargs['destination_1_id'] = UUID(dest_1_id)
+                    if dest_2_id:
+                        comb_kwargs['destination_2_id'] = UUID(dest_2_id)
+                    new_item = DestinationCombination(**comb_kwargs)
+                    db.add(new_item)
+                    imported.append(f"{dest_1_id} x {dest_2_id}")
             except Exception as e:
-                failed.append({
-                    'row': row_num,
-                    'data': row,
-                    'error': f"Unexpected error: {str(e)}"
-                })
+                failed.append({'row': row_num, 'error': str(e)})
 
         db.commit()
-
         return {
             'success': True,
             'imported_count': len(imported),
@@ -385,10 +396,6 @@ def bulk_import_combinations(
             'imported': imported,
             'failed': failed
         }
-
     except Exception as e:
         db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to parse CSV: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")

@@ -24,6 +24,9 @@ from app.schemas.user import (
 from app.schemas.permission import PermissionResponse
 from app.schemas.common import PaginatedResponse, MessageResponse
 from app.models.user import User, UserRoleEnum
+from app.services.import_export_service import ImportExportService
+from fastapi.responses import StreamingResponse
+from fastapi import UploadFile, File
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -354,3 +357,85 @@ async def reactivate_user(
     """
     user = AuthService.reactivate_user(user_id, db)
     return user
+
+@router.get("/export/csv")
+def export_users_csv(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Export all users to CSV format."""
+    users = db.query(User).all()
+    output = ImportExportService.export_to_csv(users, exclude_fields=['hashed_password', 'id'])
+    
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=users.csv"}
+    )
+
+@router.post("/bulk-import", response_model=dict)
+def bulk_import_users(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Bulk import users from CSV file. Matches on email."""
+    if not file.filename.endswith('.csv'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="File must be a CSV"
+        )
+
+    try:
+        content = file.file.read()
+        csv_str = content.decode('utf-8')
+        rows = ImportExportService.parse_csv(csv_str)
+
+        imported = []
+        failed = []
+
+        for row_num, row in enumerate(rows, start=2):
+            try:
+                email = row.get('email')
+                if not email:
+                    failed.append({'row': row_num, 'error': 'Missing email'})
+                    continue
+                
+                existing = db.query(User).filter(User.email == email).first()
+                if existing:
+                    # Update Fields
+                    for k, v in row.items():
+                        if hasattr(existing, k) and k not in ['id', 'email', 'hashed_password', 'created_at', 'updated_at']:
+                            setattr(existing, k, v)
+                    imported.append(email)
+                else:
+                    # Create User (requires password, so we generate a random one if missing)
+                    pwd = row.get('password') or 'ChangelMe123!'
+                    from app.core.security import get_password_hash
+                    new_user = User(
+                        email=email,
+                        hashed_password=get_password_hash(pwd),
+                        full_name=row.get('full_name') or email.split('@')[0],
+                        role=row.get('role') or UserRoleEnum.CS_AGENT,
+                        is_active=row.get('is_active') if row.get('is_active') is not None else True,
+                        phone_number=row.get('phone_number'),
+                        address=row.get('address'),
+                        position=row.get('position')
+                    )
+                    db.add(new_user)
+                    imported.append(email)
+            except Exception as e:
+                failed.append({'row': row_num, 'error': str(e)})
+
+        db.commit()
+        return {
+            'success': True,
+            'imported_count': len(imported),
+            'failed_count': len(failed),
+            'imported': imported,
+            'failed': failed
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
+

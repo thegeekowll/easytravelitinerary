@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus, Download, Upload as UploadIcon } from 'lucide-react';
+import { apiClient } from '@/lib/api/client';
 
 interface GridData {
   rows: Array<{ id: string; name: string }>;
@@ -104,6 +105,36 @@ export default function MatrixPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await apiClient.exportData('destination-combinations');
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'destination_combinations.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      toast.error('Export failed');
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const toastId = toast.loading('Importing combinations...');
+    try {
+      const result = await apiClient.importData('destination-combinations', file);
+      toast.success(`Imported ${result.imported_count} combinations. Failed: ${result.failed_count}`, { id: toastId });
+      queryClient.invalidateQueries({ queryKey: ['matrix-grid'] });
+    } catch (error) {
+      toast.error('Import failed', { id: toastId });
+    }
+    e.target.value = '';
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
@@ -132,6 +163,19 @@ export default function MatrixPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Destination Matrix</h1>
           <p className="text-gray-600">Manage descriptions and activities for destination pairs.</p>
+        </div>
+        <div className="flex gap-2">
+           <Button variant="outline" onClick={handleExport}>
+             <Download className="h-4 w-4 mr-2" />
+             CSV Ex
+           </Button>
+           <div>
+             <input type="file" id="import-matrix" accept=".csv" className="hidden" onChange={handleImport} />
+             <Button variant="outline" onClick={() => document.getElementById('import-matrix')?.click()}>
+               <UploadIcon className="h-4 w-4 mr-2" />
+               CSV Im
+             </Button>
+           </div>
         </div>
       </div>
 

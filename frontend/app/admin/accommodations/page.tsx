@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Search, Building, MapPin, Star, Pencil, Trash2, Settings } from 'lucide-react';
+import { Plus, Search, Building, MapPin, Star, Pencil, Trash2, Settings, Download, Upload as UploadIcon } from 'lucide-react';
 import AccommodationForm from '@/components/accommodations/accommodation-form';
 import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
@@ -76,6 +76,36 @@ export default function AccommodationsPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await apiClient.exportData('accommodations');
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'accommodations.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      toast.error('Export failed');
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const toastId = toast.loading('Importing accommodations...');
+    try {
+      const result = await apiClient.importData('accommodations', file);
+      toast.success(`Imported ${result.imported_count} accommodations. Failed: ${result.failed_count}`, { id: toastId });
+      fetchAccommodations();
+    } catch (error) {
+      toast.error('Import failed', { id: toastId });
+    }
+    e.target.value = '';
+  };
+
   const filteredAccommodations = accommodations.filter(acc => 
     acc.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -89,12 +119,22 @@ export default function AccommodationsPage() {
         </div>
         
         <div className="flex gap-2">
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              CSV Ex
+            </Button>
+            <div>
+              <input type="file" id="import-accommodations" accept=".csv" className="hidden" onChange={handleImport} />
+              <Button variant="outline" onClick={() => document.getElementById('import-accommodations')?.click()}>
+                <UploadIcon className="h-4 w-4 mr-2" />
+                CSV Im
+              </Button>
+            </div>
             {canManageSettings && (
                 <Dialog open={isAttributesOpen} onOpenChange={setIsAttributesOpen}>
                     <DialogTrigger asChild>
                         <Button variant="outline" onClick={fetchAttributes}>
-                            <Settings className="h-4 w-4 mr-2" />
-                            Manage Settings
+                            <Settings className="h-4 w-4" />
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -127,7 +167,7 @@ export default function AccommodationsPage() {
                 <DialogTrigger asChild>
                     <Button onClick={() => setEditingAccommodation(null)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Accommodation
+                    Add
                     </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">

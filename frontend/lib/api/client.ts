@@ -453,6 +453,24 @@ class APIClient {
       const response = await this.client.put(`/itineraries/images/${imageId}`, data);
       return response.data;
   }
+
+  // Generic Import/Export Data (CSV)
+  async exportData(endpoint: string) {
+    const response = await this.client.get(`/${endpoint}/export/csv`, {
+      responseType: 'blob', // Required for downloading files
+    });
+    return response.data; // This will return the blob
+  }
+
+  async importData(endpoint: string, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await this.client.post(`/${endpoint}/bulk-import`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  }
 }
 
 export const apiClient = new APIClient();

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Search, User as UserIcon, Trash2, Pencil, Camera } from 'lucide-react';
+import { Plus, Search, User as UserIcon, Trash2, Pencil, Camera, Download, Upload as UploadIcon } from 'lucide-react';
 import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -141,6 +141,36 @@ export default function UsersPage() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      const blob = await apiClient.exportData('users');
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'users.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      toast.error('Export failed');
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    const toastId = toast.loading('Importing users...');
+    try {
+      const result = await apiClient.importData('users', file);
+      toast.success(`Imported ${result.imported_count} users. Failed: ${result.failed_count}`, { id: toastId });
+      fetchUsers();
+    } catch (error) {
+      toast.error('Import failed', { id: toastId });
+    }
+    e.target.value = '';
+  };
+
   const filteredUsers = users.filter(user => 
     user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -154,17 +184,29 @@ export default function UsersPage() {
           <p className="text-gray-600">Manage system users and their roles (Total: {users.length})</p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => {
-              setEditingId(null);
-              setNewUser({ email: '', full_name: '', password: '', phone_number: '', profile_photo_url: '', position: '', role: 'cs_agent', permission_ids: [] });
-            }}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add User
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            CSV Ex
+          </Button>
+          <div>
+            <input type="file" id="import-users" accept=".csv" className="hidden" onChange={handleImport} />
+            <Button variant="outline" onClick={() => document.getElementById('import-users')?.click()}>
+              <UploadIcon className="h-4 w-4 mr-2" />
+              CSV Im
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => {
+                setEditingId(null);
+                setNewUser({ email: '', full_name: '', password: '', phone_number: '', profile_photo_url: '', position: '', role: 'cs_agent', permission_ids: [] });
+              }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>{editingId ? 'Edit User' : 'Create New User'}</DialogTitle>
             </DialogHeader>
@@ -314,6 +356,7 @@ export default function UsersPage() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
