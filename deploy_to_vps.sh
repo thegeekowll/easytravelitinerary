@@ -136,6 +136,9 @@ ssh $VPS_USER@$VPS_IP "
     echo 'Seeding initial data...'
     docker compose exec -T backend python -m app.db.init_db
     
+    echo 'Seeding 2D matrix data...'
+    docker compose exec -T backend python seed_matrix.py
+    
     echo 'Checking services...'
     docker compose ps
 "
