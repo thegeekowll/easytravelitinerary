@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,8 +20,7 @@ export default function LoginPage() {
 
     try {
       await login({ email, password });
-      toast.success('Login successful!');
-      router.push('/dashboard');
+      // AuthContext handles success toast and redirect to /dashboard
     } catch (error: any) {
       const msg =
         error?.response?.data?.detail ||
