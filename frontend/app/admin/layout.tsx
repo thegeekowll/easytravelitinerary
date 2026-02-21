@@ -17,6 +17,7 @@ import {
   Settings,
   LogOut,
   Grid,
+  Image,
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/use-notifications';
 
@@ -183,6 +184,12 @@ export default function AdminLayout({
                   </NavLink>
                 )}
                 
+                {(isAdmin || hasPermission('manage_settings')) && (
+                  <NavLink href="/admin/gallery" icon={<Image className="h-4 w-4" />}>
+                    Image Gallery
+                  </NavLink>
+                )}
+
                 {isAdmin && (
                   <NavLink href="/admin/settings" icon={<Settings className="h-4 w-4" />}>
                     Settings
