@@ -30,9 +30,10 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # CORS origins - accepts comma-separated string from env var BACKEND_CORS_ORIGINS
+    # CORS origins - accepts comma-separated string or "*" from env var BACKEND_CORS_ORIGINS
+    # Default to "*" since the app runs behind nginx reverse proxy
     BACKEND_CORS_ORIGINS_STR: str = Field(
-        default="http://localhost:3000,http://localhost:8000",
+        default="*",
         alias="BACKEND_CORS_ORIGINS",
     )
 
@@ -41,10 +42,13 @@ class Settings(BaseSettings):
         """Parse CORS origins from comma-separated string."""
         raw = self.BACKEND_CORS_ORIGINS_STR
         if isinstance(raw, str):
-            origins = [i.strip() for i in raw.split(",") if i.strip()]
+            stripped = raw.strip()
+            if stripped == "*":
+                return ["*"]
+            origins = [i.strip() for i in stripped.split(",") if i.strip()]
             if origins:
                 return origins
-        return ["http://localhost:3000", "http://localhost:8000"]
+        return ["*"]
 
     # Database
     POSTGRES_SERVER: str = "postgres"
@@ -124,8 +128,8 @@ class Settings(BaseSettings):
             return [i.strip() for i in v.split(",")]
         return v
 
-    # Frontend
-    FRONTEND_URL: str = "http://localhost:3000"
+    # Frontend - empty default so it works behind reverse proxy with relative URLs
+    FRONTEND_URL: str = ""
 
     # Celery
     CELERY_BROKER_URL: Optional[str] = None

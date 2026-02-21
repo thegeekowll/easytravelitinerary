@@ -23,7 +23,12 @@ export default function LoginPage() {
       toast.success('Login successful!');
       router.push('/dashboard');
     } catch (error: any) {
-      toast.error(error.message || 'Login failed');
+      const msg =
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        error?.message ||
+        'Login failed. Please check your credentials.';
+      toast.error(typeof msg === 'string' ? msg : 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -105,12 +110,6 @@ export default function LoginPage() {
           </div>
         </form>
 
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-md">
-          <p className="text-xs text-blue-800 font-semibold mb-2">Demo Credentials:</p>
-          <p className="text-xs text-blue-700">Email: admin@travelagency.com</p>
-          <p className="text-xs text-blue-700">Password: Admin123!</p>
-        </div>
       </div>
     </div>
   );

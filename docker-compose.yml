@@ -50,7 +50,7 @@ services:
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
       - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING:-}
       - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER:-travel-agency-files}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - FRONTEND_URL=${FRONTEND_URL:-}
       - ENVIRONMENT=production
       - DEBUG=False
       - HOST=0.0.0.0
@@ -63,7 +63,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_DB=0
-      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-http://localhost:3000,http://localhost:8000,http://localhost}
+      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-*}
       - EMAILS_FROM_EMAIL=${EMAILS_FROM_EMAIL:-noreply@example.com}
       - EMAILS_FROM_NAME=${EMAILS_FROM_NAME:-Travel Agency}
       - ACCESS_TOKEN_EXPIRE_MINUTES=1440
@@ -92,7 +92,7 @@ services:
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
       - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING:-}
       - AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER:-travel-agency-files}
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - FRONTEND_URL=${FRONTEND_URL:-}
       - ENVIRONMENT=production
       - POSTGRES_SERVER=postgres
       - POSTGRES_USER=postgres

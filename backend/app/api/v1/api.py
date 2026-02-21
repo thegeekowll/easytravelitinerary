@@ -11,7 +11,6 @@ from app.api.v1.endpoints import (
     destination_combinations,
     itineraries,
     notifications,
-    notifications,
     dashboard,
     public,
     inclusions,
@@ -37,7 +36,6 @@ api_router.include_router(itineraries.router)
 api_router.include_router(notifications.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(public.router)
-api_router.include_router(inclusions.router)
 api_router.include_router(inclusions.router)
 api_router.include_router(exclusions.router)
 api_router.include_router(tour_types.router, prefix="/tour-types", tags=["tour-types"])

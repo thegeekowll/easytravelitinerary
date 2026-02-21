@@ -103,21 +103,8 @@ class AzureBlobService:
                     content = await file.read()
                     await out_file.write(content)
                     
-                # Return local URL (assuming mounted at /uploads)
-                # Note: FRONTEND_URL/uploads is unlikely to work if they are different ports/hosts in prod,
-                # but for local dev with backend serving static files at /uploads, this works relative to backend.
-                # Ideally return absolute URL if needed, but relative usually safer if proxying.
-                # However, since backend and frontend are separate ports locally (3000 vs 8000), 
-                # we need the backend URL base. Assuming localhost:8000 for dev fallback.
-                
-                # Use hardcoded default since NEXT_PUBLIC_API_URL is a frontend setting
-                backend_url = "http://localhost:8000"
-                if "localhost" in backend_url:
-                     base_url = "http://localhost:8000"
-                else:
-                     base_url = "" # Rely on relative if same domain
-                
-                url = f"{base_url}/uploads/{container}/{blob_name}"
+                # Return relative URL so it works behind nginx reverse proxy
+                url = f"/uploads/{container}/{blob_name}"
                 print(f"DEBUG: Local upload saved to {file_path}")
                 print(f"DEBUG: Returning URL {url}")
                 return url
@@ -158,8 +145,7 @@ class AzureBlobService:
             try:
                 import os
                 # Extract relative path from URL
-                # Expected format: http://localhost:8000/uploads/container/folder/file.ext
-                # or just /uploads/container/...
+                # Supports both absolute and relative URL formats
                 
                 if "/uploads/" not in blob_url:
                      return False
