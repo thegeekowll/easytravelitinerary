@@ -9,12 +9,20 @@ import AccommodationForm from '@/components/accommodations/accommodation-form';
 import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useAuth } from '@/lib/hooks/useAuth';
 
 
 import AttributeManager from '@/components/accommodations/attribute-manager';
 import Image from 'next/image';
 
 export default function AccommodationsPage() {
+  const { user, hasPermission } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const canAdd = isAdmin || hasPermission('add_accommodation');
+  const canEdit = isAdmin || hasPermission('edit_accommodation');
+  const canDelete = isAdmin || hasPermission('delete_accommodation');
+  const canManageSettings = isAdmin || hasPermission('manage_accommodation_types');
+
   const [accommodations, setAccommodations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -81,57 +89,61 @@ export default function AccommodationsPage() {
         </div>
         
         <div className="flex gap-2">
-            <Dialog open={isAttributesOpen} onOpenChange={setIsAttributesOpen}>
+            {canManageSettings && (
+                <Dialog open={isAttributesOpen} onOpenChange={setIsAttributesOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" onClick={fetchAttributes}>
+                            <Settings className="h-4 w-4 mr-2" />
+                            Manage Settings
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                            <DialogTitle>Accommodation Settings</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-6">
+                            <AttributeManager 
+                                title="Accommodation Type" 
+                                items={types}
+                                onCreate={apiClient.createAccommodationType.bind(apiClient)}
+                                onDelete={() => Promise.resolve()} // Deletion not implemented for types yet in updated schema
+                                onRefresh={fetchAttributes}
+                            />
+                            <div className="border-t pt-6"></div>
+                            <AttributeManager 
+                                title="Accommodation Level" 
+                                items={levels}
+                                onCreate={apiClient.createAccommodationLevel.bind(apiClient)}
+                                onDelete={apiClient.deleteAccommodationLevel.bind(apiClient)}
+                                onRefresh={fetchAttributes}
+                            />
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
+
+            {canAdd && (
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
-                    <Button variant="outline" onClick={fetchAttributes}>
-                        <Settings className="h-4 w-4 mr-2" />
-                        Manage Settings
+                    <Button onClick={() => setEditingAccommodation(null)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Accommodation
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Accommodation Settings</DialogTitle>
+                    <DialogTitle>{editingAccommodation ? 'Edit Accommodation' : 'Add New Accommodation'}</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-6">
-                        <AttributeManager 
-                            title="Accommodation Type" 
-                            items={types}
-                            onCreate={apiClient.createAccommodationType.bind(apiClient)}
-                            onDelete={() => Promise.resolve()} // Deletion not implemented for types yet in updated schema
-                            onRefresh={fetchAttributes}
-                        />
-                        <div className="border-t pt-6"></div>
-                        <AttributeManager 
-                            title="Accommodation Level" 
-                            items={levels}
-                            onCreate={apiClient.createAccommodationLevel.bind(apiClient)}
-                            onDelete={apiClient.deleteAccommodationLevel.bind(apiClient)}
-                            onRefresh={fetchAttributes}
-                        />
-                    </div>
+                    <AccommodationForm 
+                        initialData={editingAccommodation || undefined}
+                        onSuccess={() => {
+                            setIsDialogOpen(false);
+                            fetchAccommodations();
+                        }}
+                    />
                 </DialogContent>
-            </Dialog>
-
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-                <Button onClick={() => setEditingAccommodation(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Accommodation
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                <DialogTitle>{editingAccommodation ? 'Edit Accommodation' : 'Add New Accommodation'}</DialogTitle>
-                </DialogHeader>
-                <AccommodationForm 
-                    initialData={editingAccommodation || undefined}
-                    onSuccess={() => {
-                        setIsDialogOpen(false);
-                        fetchAccommodations();
-                    }}
-                />
-            </DialogContent>
-            </Dialog>
+                </Dialog>
+            )}
         </div>
       </div>
 
@@ -168,15 +180,19 @@ export default function AccommodationsPage() {
                   )}
                   {/* Actions Overlay */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <Button variant="secondary" size="sm" onClick={() => {
-                        setEditingAccommodation(acc);
-                        setIsDialogOpen(true);
-                    }}>
-                        <Pencil className="h-4 w-4 mr-1" /> Edit
-                    </Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(acc.id)}>
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {canEdit && (
+                        <Button variant="secondary" size="sm" onClick={() => {
+                            setEditingAccommodation(acc);
+                            setIsDialogOpen(true);
+                        }}>
+                            <Pencil className="h-4 w-4 mr-1" /> Edit
+                        </Button>
+                    )}
+                    {canDelete && (
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(acc.id)}>
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    )}
                   </div>
               </div>
               <CardContent className="pt-4">

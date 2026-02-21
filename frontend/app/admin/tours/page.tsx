@@ -9,8 +9,14 @@ import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function ToursPage() {
+  const { user, hasPermission } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const canAdd = isAdmin || hasPermission('add_tour_package');
+  const canEdit = isAdmin || hasPermission('edit_tour_package');
+
   const [tours, setTours] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -45,12 +51,14 @@ export default function ToursPage() {
           <p className="text-gray-600">Manage tour templates and packages</p>
         </div>
         
-        <Link href="/admin/tours/create">
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Tour
-          </Button>
-        </Link>
+        {canAdd && (
+          <Link href="/admin/tours/create">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Create New Tour
+            </Button>
+          </Link>
+        )}
       </div>
 
       <div className="flex items-center gap-4">
@@ -103,11 +111,13 @@ export default function ToursPage() {
                   </span>
                 </div>
                 
-                <div className="mt-4 flex gap-2">
-                  <Button variant="outline" size="sm" className="w-full" asChild>
-                    <Link href={`/admin/tours/${tour.id}`}>Edit</Link>
-                  </Button>
-                </div>
+                {canEdit && (
+                  <div className="mt-4 flex gap-2">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={`/admin/tours/${tour.id}`}>Edit</Link>
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))
@@ -120,9 +130,11 @@ export default function ToursPage() {
             <p className="text-gray-500 mt-1 max-w-sm">
               Get started by creating your first base tour template.
             </p>
-            <Button className="mt-4" asChild>
-              <Link href="/admin/tours/create">Create Tour</Link>
-            </Button>
+            {canAdd && (
+              <Button className="mt-4" asChild>
+                <Link href="/admin/tours/create">Create Tour</Link>
+              </Button>
+            )}
           </div>
         )}
       </div>

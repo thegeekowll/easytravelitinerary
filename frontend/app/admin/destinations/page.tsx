@@ -20,9 +20,16 @@ import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/lib/hooks/useAuth';
 
 export default function DestinationsPage() {
   const queryClient = useQueryClient();
+  const { user, hasPermission } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const canAdd = isAdmin || hasPermission('add_destination');
+  const canEdit = isAdmin || hasPermission('edit_destination');
+  const canDelete = isAdmin || hasPermission('delete_destination');
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [countryFilter, setCountryFilter] = useState('all');
   
@@ -174,10 +181,12 @@ export default function DestinationsPage() {
             Manage travel destinations and locations
           </p>
         </div>
-        <Button onClick={() => { resetForm(); setShowModal(true); }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Destination
-        </Button>
+        {canAdd && (
+          <Button onClick={() => { resetForm(); setShowModal(true); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Destination
+          </Button>
+        )}
       </div>
 
       {/* Stats Cards */}
@@ -267,12 +276,16 @@ export default function DestinationsPage() {
                   <TableCell>{destination.region || '-'}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
-                      <Button size="sm" variant="ghost" onClick={() => handleEdit(destination)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" onClick={() => handleDelete(destination.id)}>
-                        <Trash2 className="h-4 w-4 text-red-600" />
-                      </Button>
+                      {canEdit && (
+                        <Button size="sm" variant="ghost" onClick={() => handleEdit(destination)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {canDelete && (
+                        <Button size="sm" variant="ghost" onClick={() => handleDelete(destination.id)}>
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
