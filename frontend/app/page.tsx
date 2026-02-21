@@ -9,7 +9,11 @@ export default async function HomePage() {
     feat1Title: "200+ Tour Packages", feat1Desc: "Pre-loaded templates for quick itinerary creation",
     feat2Title: "Smart Scheduling", feat2Desc: "Day-by-day itinerary builder with auto-fill",
     feat3Title: "Role-Based Access", feat3Desc: "Admin, CS agents, and public view management",
-    feat4Title: "Analytics Dashboard", feat4Desc: "Real-time insights and performance metrics"
+    feat4Title: "Analytics Dashboard", feat4Desc: "Real-time insights and performance metrics",
+    linksTitle: "Platform Features",
+    col1Title: "For CS Agents", col1Items: ["Create custom itineraries", "Edit existing packages", "Send PDFs via email", "Track payments"],
+    col2Title: "For Admins", col2Items: ["Manage users & permissions", "Content management", "System-wide analytics", "Bulk import/export"],
+    col3Title: "For Travelers", col3Items: ["Public web links", "Professional 8-page PDFs", "Email delivery", "Mobile-responsive"]
   };
 
   try {
@@ -25,6 +29,8 @@ export default async function HomePage() {
 
     if (res.ok) {
         const data = await res.json();
+        const parseItems = (str: string) => str ? str.split('\n').filter(s => s.trim()) : [];
+        
         homeContent = {
             heroTitle: data.home_hero_title || homeContent.heroTitle,
             heroSubtitle: data.home_hero_subtitle || homeContent.heroSubtitle,
@@ -36,6 +42,13 @@ export default async function HomePage() {
             feat3Desc: data.home_feat3_desc || homeContent.feat3Desc,
             feat4Title: data.home_feat4_title || homeContent.feat4Title,
             feat4Desc: data.home_feat4_desc || homeContent.feat4Desc,
+            linksTitle: data.home_links_title || homeContent.linksTitle,
+            col1Title: data.home_links_col1_title || homeContent.col1Title,
+            col1Items: data.home_links_col1_items ? parseItems(data.home_links_col1_items) : homeContent.col1Items,
+            col2Title: data.home_links_col2_title || homeContent.col2Title,
+            col2Items: data.home_links_col2_items ? parseItems(data.home_links_col2_items) : homeContent.col2Items,
+            col3Title: data.home_links_col3_title || homeContent.col3Title,
+            col3Items: data.home_links_col3_items ? parseItems(data.home_links_col3_items) : homeContent.col3Items,
         };
     }
   } catch (e) {
@@ -93,33 +106,30 @@ export default async function HomePage() {
 
         {/* Quick Links */}
         <div className="mt-20 p-8 bg-white rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold mb-4 text-center">Platform Features</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center">{homeContent.linksTitle}</h2>
           <div className="grid md:grid-cols-3 gap-6 text-center">
             <div>
-              <h3 className="font-semibold text-lg mb-2">For CS Agents</h3>
+              <h3 className="font-semibold text-lg mb-2">{homeContent.col1Title}</h3>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>Create custom itineraries</li>
-                <li>Edit existing packages</li>
-                <li>Send PDFs via email</li>
-                <li>Track payments</li>
+                {homeContent.col1Items.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                ))}
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">For Admins</h3>
+              <h3 className="font-semibold text-lg mb-2">{homeContent.col2Title}</h3>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>Manage users & permissions</li>
-                <li>Content management</li>
-                <li>System-wide analytics</li>
-                <li>Bulk import/export</li>
+                {homeContent.col2Items.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                ))}
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold text-lg mb-2">For Travelers</h3>
+              <h3 className="font-semibold text-lg mb-2">{homeContent.col3Title}</h3>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>Public web links</li>
-                <li>Professional 8-page PDFs</li>
-                <li>Email delivery</li>
-                <li>Mobile-responsive</li>
+                {homeContent.col3Items.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                ))}
               </ul>
             </div>
           </div>

@@ -508,12 +508,58 @@ export default function SettingsPage() {
                         ))}
                     </div>
 
+                    <div className="space-y-4 border-b pb-4">
+                        <h3 className="font-semibold text-lg">Quick Links Section</h3>
+                        <div className="space-y-4 bg-slate-50 p-4 rounded-lg">
+                            <div className="space-y-2">
+                                <Label htmlFor="links-title">Main Section Title</Label>
+                                <Input
+                                    id="links-title"
+                                    value={templates['home_links_title'] || ''}
+                                    placeholder="Platform Features"
+                                    onChange={(e) => setTemplates({...templates, home_links_title: e.target.value})}
+                                />
+                            </div>
+                            
+                            <div className="grid gap-4 md:grid-cols-3">
+                                {[1, 2, 3].map((colNum) => (
+                                    <div key={colNum} className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor={`col${colNum}-title`}>Column {colNum} Title</Label>
+                                            <Input
+                                                id={`col${colNum}-title`}
+                                                value={templates[`home_links_col${colNum}_title`] || ''}
+                                                placeholder={`e.g. For Travelers`}
+                                                onChange={(e) => setTemplates({...templates, [`home_links_col${colNum}_title`]: e.target.value})}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor={`col${colNum}-items`}>Column {colNum} Items (One per line)</Label>
+                                            <Textarea
+                                                id={`col${colNum}-items`}
+                                                value={templates[`home_links_col${colNum}_items`] || ''}
+                                                placeholder={`Item 1\nItem 2\nItem 3`}
+                                                className="min-h-[120px]"
+                                                onChange={(e) => setTemplates({...templates, [`home_links_col${colNum}_items`]: e.target.value})}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                     <Button onClick={() => {
                         handleTemplateSave('home_hero_title');
                         handleTemplateSave('home_hero_subtitle');
                         for(let i=1; i<=4; i++) {
                             handleTemplateSave(`home_feat${i}_title`);
                             handleTemplateSave(`home_feat${i}_desc`);
+                        }
+                        handleTemplateSave('home_links_title');
+                        for(let i=1; i<=3; i++) {
+                            handleTemplateSave(`home_links_col${i}_title`);
+                            handleTemplateSave(`home_links_col${i}_items`);
                         }
                     }}>Save Homepage Content</Button>
                 </CardContent>

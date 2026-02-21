@@ -274,7 +274,11 @@ def get_company_info(db: Session = Depends(get_db)):
         "home_feat1_title", "home_feat1_desc",
         "home_feat2_title", "home_feat2_desc",
         "home_feat3_title", "home_feat3_desc",
-        "home_feat4_title", "home_feat4_desc"
+        "home_feat4_title", "home_feat4_desc",
+        "home_links_title",
+        "home_links_col1_title", "home_links_col1_items",
+        "home_links_col2_title", "home_links_col2_items",
+        "home_links_col3_title", "home_links_col3_items",
     ]
     home_contents = db.query(CompanyContent).filter(CompanyContent.key.in_(home_keys)).all()
     home_map = {c.key: c.content for c in home_contents}
@@ -298,6 +302,13 @@ def get_company_info(db: Session = Depends(get_db)):
         "home_feat3_desc": home_map.get("home_feat3_desc", "Admin, CS agents, and public view management"),
         "home_feat4_title": home_map.get("home_feat4_title", "Analytics Dashboard"),
         "home_feat4_desc": home_map.get("home_feat4_desc", "Real-time insights and performance metrics"),
+        "home_links_title": home_map.get("home_links_title", "Platform Features"),
+        "home_links_col1_title": home_map.get("home_links_col1_title", "For CS Agents"),
+        "home_links_col1_items": home_map.get("home_links_col1_items", "Create custom itineraries\nEdit existing packages\nSend PDFs via email\nTrack payments"),
+        "home_links_col2_title": home_map.get("home_links_col2_title", "For Admins"),
+        "home_links_col2_items": home_map.get("home_links_col2_items", "Manage users & permissions\nContent management\nSystem-wide analytics\nBulk import/export"),
+        "home_links_col3_title": home_map.get("home_links_col3_title", "For Travelers"),
+        "home_links_col3_items": home_map.get("home_links_col3_items", "Public web links\nProfessional 8-page PDFs\nEmail delivery\nMobile-responsive"),
         "awards": [
             {
                 "image_url": award.asset_url, # Check model, it's asset_url not image_url
