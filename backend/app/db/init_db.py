@@ -11,13 +11,15 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
-from app.db.session import engine, Base
+from app.db.session import engine, Base, SessionLocal
 from app.core.config import settings
 
 # Import all models to register them with Base
 # Import all models to register them with Base
 from app.db.base import *
 from app.models.accommodation import AccommodationLevel, AccommodationType
+from app.api.v1.endpoints.permissions import seed_permissions
+import asyncio
 
 
 def create_tables():
@@ -48,7 +50,7 @@ def create_tables():
 
         # Seed Accommodation Levels
         print("🌱 Seeding initial data...")
-        with Session(engine) as session:
+        with SessionLocal() as session:
             levels = [
                 "Basic", "Comfort", "Comfort Plus", "Luxury", "Luxury Plus"
             ]
@@ -69,6 +71,16 @@ def create_tables():
                     print(f"   - Created type: {type_name}")
 
             session.commit()
+            
+            print("🔑 Seeding permissions...")
+            class DummyUser: pass
+            
+            # Run the async permission seeder synchronously in this wrapper
+            async def run_seed():
+                result = await seed_permissions(session, DummyUser())
+                print(f"   - Permissions seeded: {result}")
+            asyncio.run(run_seed())
+            
         print("✅ Seeding complete")
         print()
 
