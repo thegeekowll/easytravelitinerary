@@ -196,6 +196,7 @@ export default function SettingsPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
             <TabsTrigger value="platform">Platform Settings</TabsTrigger>
+          <TabsTrigger value="theme">Theme & Design</TabsTrigger>
           <TabsTrigger value="content">Messages & Content</TabsTrigger>
           <TabsTrigger value="assets">Media Assets</TabsTrigger>
           <TabsTrigger value="defaults">Default Images</TabsTrigger>
@@ -391,6 +392,61 @@ export default function SettingsPage() {
                     </CardContent>
                  </Card>
              </div>
+        </TabsContent>
+
+        {/* THEME TAB */}
+        <TabsContent value="theme" className="space-y-4">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Global Theme & Typography</CardTitle>
+                    <CardDescription>Customize the primary color and typography for your platform and itineraries.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="theme-color">Primary Theme Color</Label>
+                            <div className="flex items-center gap-3">
+                                <Input
+                                    id="theme-color"
+                                    type="color"
+                                    value={templates['theme_primary_color'] || '#1d4ed8'}
+                                    onChange={(e) => setTemplates({...templates, theme_primary_color: e.target.value})}
+                                    className="w-16 h-10 p-1 cursor-pointer"
+                                />
+                                <Input
+                                    type="text"
+                                    value={templates['theme_primary_color'] || '#1d4ed8'}
+                                    onChange={(e) => setTemplates({...templates, theme_primary_color: e.target.value})}
+                                    className="flex-1 font-mono uppercase"
+                                    maxLength={7}
+                                    placeholder="#1D4ED8"
+                                />
+                            </div>
+                            <p className="text-xs text-muted-foreground">Used for buttons, links, and accents.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="theme-font">Global Typography</Label>
+                            <select
+                                id="theme-font"
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                value={templates['theme_font_family'] || 'sans'}
+                                onChange={(e) => setTemplates({...templates, theme_font_family: e.target.value})}
+                            >
+                                <option value="sans">System Default (Sans-serif)</option>
+                                <option value="inter">Inter (Modern Sans)</option>
+                                <option value="lato">Lato (Classic Sans)</option>
+                                <option value="playfair">Playfair Display (Elegant Serif)</option>
+                            </select>
+                            <p className="text-xs text-muted-foreground">The primary font used throughout the app.</p>
+                        </div>
+                    </div>
+                    <Button onClick={() => {
+                        handleTemplateSave('theme_primary_color');
+                        handleTemplateSave('theme_font_family');
+                        setTimeout(() => window.location.reload(), 1000); // Reload to apply theme
+                    }}>Save Theme Preferences</Button>
+                </CardContent>
+            </Card>
         </TabsContent>
 
         {/* CONTENT TAB */}

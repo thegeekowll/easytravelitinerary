@@ -47,13 +47,119 @@ export async function generateMetadata(): Promise<Metadata> {
   return fallback;
 }
 
-export default function RootLayout({
+// Helper to convert HEX to HSL format matching Tailwind CSS variables (e.g., "221.2 83.2% 53.3%")
+function hexToHSL(hex: string) {
+  // Remove hash if present
+  hex = hex.replace(/^#/, '');
+
+  // Parse RGB
+  let r = 0, g = 0, b = 0;
+  if (hex.length === 3) {
+    r = parseInt(hex[0] + hex[0], 16);
+    g = parseInt(hex[1] + hex[1], 16);
+    b = parseInt(hex[2] + hex[2], 16);
+  } else if (hex.length === 6) {
+    r = parseInt(hex.substring(0, 2), 16);
+    g = parseInt(hex.substring(2, 4), 16);
+    b = parseInt(hex.substring(4, 6), 16);
+  }
+
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+      case g: h = (b - r) / d + 2; break;
+      case b: h = (r - g) / d + 4; break;
+    }
+    h /= 6;
+  }
+
+  h = Math.round(h * 360 * 10) / 10;
+  s = Math.round(s * 100 * 10) / 10;
+  l = Math.round(l * 100 * 10) / 10;
+
+  return `${h} ${s}% ${l}%`;
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  let primaryHsl = '';
+  let ringHsl = '';
+  let fontFamily = '';
+
+  try {
+    const apiUrl = process.env.INTERNAL_API_URL || 'http://backend:8000/api/v1';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
+    const res = await fetch(`${apiUrl}/public/company`, {
+      next: { revalidate: 60 },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      
+      const themeColor = data.theme_primary_color;
+      if (themeColor && themeColor.startsWith('#')) {
+        primaryHsl = hexToHSL(themeColor);
+        ringHsl = primaryHsl; // Use the same color for the ring/focus outline
+      }
+      
+      const themeFont = data.theme_font_family;
+      if (themeFont === 'inter') {
+         fontFamily = 'var(--font-inter), sans-serif';
+      } else if (themeFont === 'lato') {
+         fontFamily = 'var(--font-lato), sans-serif';
+      } else if (themeFont === 'playfair') {
+         fontFamily = 'var(--font-playfair), serif';
+      }
+    }
+  } catch (e) {
+    // Silently continue if fetch fails
+  }
+
+  // Create the dynamic style string
+  let dynamicStyles = '';
+  if (primaryHsl) {
+     dynamicStyles += `
+      :root {
+        --primary: ${primaryHsl};
+        --ring: ${ringHsl};
+      }
+      .dark {
+        --primary: ${primaryHsl};
+        --ring: ${ringHsl};
+      }
+    `;
+  }
+  if (fontFamily) {
+     dynamicStyles += `
+      body {
+        font-family: ${fontFamily} !important;
+      }
+    `;
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {dynamicStyles && (
+           <style dangerouslySetInnerHTML={{ __html: dynamicStyles }} />
+        )}
+      </head>
       <body className={`${inter.variable} ${playfair.variable} ${lato.variable} font-sans`}>
         <Providers>{children}</Providers>
       </body>

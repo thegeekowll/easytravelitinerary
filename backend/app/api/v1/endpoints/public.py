@@ -262,6 +262,12 @@ def get_company_info(db: Session = Depends(get_db)):
         CompanyAsset.is_active == True
     ).order_by(CompanyAsset.sort_order).all()
 
+    # 5. Get Theme settings
+    theme_contents = db.query(CompanyContent).filter(
+        CompanyContent.key.in_(["theme_primary_color", "theme_font_family"])
+    ).all()
+    theme_map = {c.key: c.content for c in theme_contents}
+
     return {
         "logo_url": logo_url,
         "company_name": app_name,
@@ -269,6 +275,8 @@ def get_company_info(db: Session = Depends(get_db)):
         "contact_email": "info@travelagency.com", # Placeholder until setting exists
         "contact_phone": "+1-555-0100", # Placeholder until setting exists
         "address": "123 Travel Street, City, Country", # Placeholder until setting exists
+        "theme_primary_color": theme_map.get("theme_primary_color", "#1d4ed8"), # Default blue
+        "theme_font_family": theme_map.get("theme_font_family", "sans"), # Default sans
         "awards": [
             {
                 "image_url": award.asset_url, # Check model, it's asset_url not image_url
