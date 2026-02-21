@@ -197,6 +197,7 @@ export default function SettingsPage() {
         <TabsList>
             <TabsTrigger value="platform">Platform Settings</TabsTrigger>
           <TabsTrigger value="theme">Theme & Design</TabsTrigger>
+          <TabsTrigger value="homepage">Homepage</TabsTrigger>
           <TabsTrigger value="content">Messages & Content</TabsTrigger>
           <TabsTrigger value="assets">Media Assets</TabsTrigger>
           <TabsTrigger value="defaults">Default Images</TabsTrigger>
@@ -445,6 +446,76 @@ export default function SettingsPage() {
                         handleTemplateSave('theme_font_family');
                         setTimeout(() => window.location.reload(), 1000); // Reload to apply theme
                     }}>Save Theme Preferences</Button>
+                </CardContent>
+            </Card>
+        </TabsContent>
+
+        {/* HOMEPAGE TAB */}
+        <TabsContent value="homepage" className="space-y-4">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Homepage Content</CardTitle>
+                    <CardDescription>Customize the text displayed on the public landing page.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-4 border-b pb-4">
+                        <h3 className="font-semibold text-lg">Hero Section</h3>
+                        <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="hero-title">Main Title</Label>
+                                <Input
+                                    id="hero-title"
+                                    value={templates['home_hero_title'] || ''}
+                                    placeholder="Travel Agency Management System"
+                                    onChange={(e) => setTemplates({...templates, home_hero_title: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="hero-subtitle">Subtitle</Label>
+                                <Input
+                                    id="hero-subtitle"
+                                    value={templates['home_hero_subtitle'] || ''}
+                                    placeholder="Comprehensive platform for creating..."
+                                    onChange={(e) => setTemplates({...templates, home_hero_subtitle: e.target.value})}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4 border-b pb-4">
+                        <h3 className="font-semibold text-lg">Features Section</h3>
+                        {[1, 2, 3, 4].map((num) => (
+                            <div key={num} className="grid gap-4 md:grid-cols-2 bg-slate-50 p-4 rounded-lg">
+                                <div className="space-y-2">
+                                    <Label htmlFor={`feat${num}-title`}>Feature {num} Title</Label>
+                                    <Input
+                                        id={`feat${num}-title`}
+                                        value={templates[`home_feat${num}_title`] || ''}
+                                        placeholder={`Feature ${num} Title`}
+                                        onChange={(e) => setTemplates({...templates, [`home_feat${num}_title`]: e.target.value})}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor={`feat${num}-desc`}>Feature {num} Description</Label>
+                                    <Input
+                                        id={`feat${num}-desc`}
+                                        value={templates[`home_feat${num}_desc`] || ''}
+                                        placeholder={`Feature ${num} validation text`}
+                                        onChange={(e) => setTemplates({...templates, [`home_feat${num}_desc`]: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <Button onClick={() => {
+                        handleTemplateSave('home_hero_title');
+                        handleTemplateSave('home_hero_subtitle');
+                        for(let i=1; i<=4; i++) {
+                            handleTemplateSave(`home_feat${i}_title`);
+                            handleTemplateSave(`home_feat${i}_desc`);
+                        }
+                    }}>Save Homepage Content</Button>
                 </CardContent>
             </Card>
         </TabsContent>

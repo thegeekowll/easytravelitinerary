@@ -268,6 +268,17 @@ def get_company_info(db: Session = Depends(get_db)):
     ).all()
     theme_map = {c.key: c.content for c in theme_contents}
 
+    # 6. Get Homepage Content settings
+    home_keys = [
+        "home_hero_title", "home_hero_subtitle",
+        "home_feat1_title", "home_feat1_desc",
+        "home_feat2_title", "home_feat2_desc",
+        "home_feat3_title", "home_feat3_desc",
+        "home_feat4_title", "home_feat4_desc"
+    ]
+    home_contents = db.query(CompanyContent).filter(CompanyContent.key.in_(home_keys)).all()
+    home_map = {c.key: c.content for c in home_contents}
+
     return {
         "logo_url": logo_url,
         "company_name": app_name,
@@ -277,6 +288,16 @@ def get_company_info(db: Session = Depends(get_db)):
         "address": "123 Travel Street, City, Country", # Placeholder until setting exists
         "theme_primary_color": theme_map.get("theme_primary_color", "#1d4ed8"), # Default blue
         "theme_font_family": theme_map.get("theme_font_family", "sans"), # Default sans
+        "home_hero_title": home_map.get("home_hero_title", "Travel Agency Management System"),
+        "home_hero_subtitle": home_map.get("home_hero_subtitle", "Comprehensive platform for creating and managing professional travel itineraries"),
+        "home_feat1_title": home_map.get("home_feat1_title", "200+ Tour Packages"),
+        "home_feat1_desc": home_map.get("home_feat1_desc", "Pre-loaded templates for quick itinerary creation"),
+        "home_feat2_title": home_map.get("home_feat2_title", "Smart Scheduling"),
+        "home_feat2_desc": home_map.get("home_feat2_desc", "Day-by-day itinerary builder with auto-fill"),
+        "home_feat3_title": home_map.get("home_feat3_title", "Role-Based Access"),
+        "home_feat3_desc": home_map.get("home_feat3_desc", "Admin, CS agents, and public view management"),
+        "home_feat4_title": home_map.get("home_feat4_title", "Analytics Dashboard"),
+        "home_feat4_desc": home_map.get("home_feat4_desc", "Real-time insights and performance metrics"),
         "awards": [
             {
                 "image_url": award.asset_url, # Check model, it's asset_url not image_url

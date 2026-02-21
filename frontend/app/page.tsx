@@ -2,17 +2,56 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plane, Calendar, Users, BarChart3 } from 'lucide-react';
 
-export default function HomePage() {
+export default async function HomePage() {
+  let homeContent = {
+    heroTitle: "Travel Agency Management System",
+    heroSubtitle: "Comprehensive platform for creating and managing professional travel itineraries",
+    feat1Title: "200+ Tour Packages", feat1Desc: "Pre-loaded templates for quick itinerary creation",
+    feat2Title: "Smart Scheduling", feat2Desc: "Day-by-day itinerary builder with auto-fill",
+    feat3Title: "Role-Based Access", feat3Desc: "Admin, CS agents, and public view management",
+    feat4Title: "Analytics Dashboard", feat4Desc: "Real-time insights and performance metrics"
+  };
+
+  try {
+    const apiUrl = process.env.INTERNAL_API_URL || 'http://backend:8000/api/v1';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
+    const res = await fetch(`${apiUrl}/public/company`, {
+      cache: 'no-store', // Always fetch fresh settings
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+        const data = await res.json();
+        homeContent = {
+            heroTitle: data.home_hero_title || homeContent.heroTitle,
+            heroSubtitle: data.home_hero_subtitle || homeContent.heroSubtitle,
+            feat1Title: data.home_feat1_title || homeContent.feat1Title,
+            feat1Desc: data.home_feat1_desc || homeContent.feat1Desc,
+            feat2Title: data.home_feat2_title || homeContent.feat2Title,
+            feat2Desc: data.home_feat2_desc || homeContent.feat2Desc,
+            feat3Title: data.home_feat3_title || homeContent.feat3Title,
+            feat3Desc: data.home_feat3_desc || homeContent.feat3Desc,
+            feat4Title: data.home_feat4_title || homeContent.feat4Title,
+            feat4Desc: data.home_feat4_desc || homeContent.feat4Desc,
+        };
+    }
+  } catch (e) {
+      // Fallback to internal defaults if fetch fails
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Travel Agency Management System
+            {homeContent.heroTitle}
           </h1>
           <p className="text-xl text-gray-600 mb-8">
-            Comprehensive platform for creating and managing professional travel itineraries
+            {homeContent.heroSubtitle}
           </p>
           <div className="flex gap-4 justify-center">
             <Link href="/auth/login">
@@ -32,23 +71,23 @@ export default function HomePage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mt-20">
           <FeatureCard
             icon={<Plane className="h-10 w-10 text-primary" />}
-            title="200+ Tour Packages"
-            description="Pre-loaded templates for quick itinerary creation"
+            title={homeContent.feat1Title}
+            description={homeContent.feat1Desc}
           />
           <FeatureCard
             icon={<Calendar className="h-10 w-10 text-primary" />}
-            title="Smart Scheduling"
-            description="Day-by-day itinerary builder with auto-fill"
+            title={homeContent.feat2Title}
+            description={homeContent.feat2Desc}
           />
           <FeatureCard
             icon={<Users className="h-10 w-10 text-primary" />}
-            title="Role-Based Access"
-            description="Admin, CS agents, and public view management"
+            title={homeContent.feat3Title}
+            description={homeContent.feat3Desc}
           />
           <FeatureCard
             icon={<BarChart3 className="h-10 w-10 text-primary" />}
-            title="Analytics Dashboard"
-            description="Real-time insights and performance metrics"
+            title={homeContent.feat4Title}
+            description={homeContent.feat4Desc}
           />
         </div>
 
