@@ -9,6 +9,7 @@ import { apiClient } from '@/lib/api/client';
 import toast from 'react-hot-toast';
 import { Loader2, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import DayEditor from './day-editor';
 import InclusionManager from './inclusion-manager';
 import ImageGalleryModal from '@/components/shared/image-gallery-modal';
@@ -56,6 +57,13 @@ export default function BaseTourForm({ initialData, isEditing = false, isCustomI
   const [targetImageRole, setTargetImageRole] = useState<string | null>(null);
 
   const [defaultImages, setDefaultImages] = useState<any[]>([]);
+
+  // Inline Creation State
+  const [isTypeDialogOpen, setIsTypeDialogOpen] = useState(false);
+  const [isLevelDialogOpen, setIsLevelDialogOpen] = useState(false);
+  const [newType, setNewType] = useState({ name: '', description: '' });
+  const [newLevel, setNewLevel] = useState({ name: '', description: '' });
+  const [creatingInline, setCreatingInline] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -124,6 +132,40 @@ export default function BaseTourForm({ initialData, isEditing = false, isCustomI
   }, [initialData]);
 
   // ... (keep generateDays and other methods)
+
+  const handleCreateType = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingInline(true);
+    try {
+      const created = await apiClient.createTourType(newType);
+      setTypes([...types, created]);
+      setFormData({ ...formData, tour_type_id: created.id });
+      setIsTypeDialogOpen(false);
+      setNewType({ name: '', description: '' });
+      toast.success('Tour Type created');
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Failed to create tour type');
+    } finally {
+      setCreatingInline(false);
+    }
+  };
+
+  const handleCreateLevel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingInline(true);
+    try {
+      const created = await apiClient.createAccommodationLevel(newLevel);
+      setLevels([...levels, created]);
+      setFormData({ ...formData, accommodation_level_id: created.id });
+      setIsLevelDialogOpen(false);
+      setNewLevel({ name: '', description: '' });
+      toast.success('Level created');
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Failed to create level');
+    } finally {
+      setCreatingInline(false);
+    }
+  };
 
   const generateDays = (count: number) => {
     const days = [];
@@ -336,7 +378,32 @@ export default function BaseTourForm({ initialData, isEditing = false, isCustomI
                         <Input value={formData.tour_code} onChange={e => setFormData({...formData, tour_code: e.target.value})} required placeholder="e.g. KEN001" />
                     </div>
                     <div className="space-y-2">
-                        <Label>Type</Label>
+                        <div className="flex items-center justify-between">
+                            <Label>Type</Label>
+                            <Dialog open={isTypeDialogOpen} onOpenChange={setIsTypeDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button type="button" variant="ghost" size="sm" className="h-4 p-0 px-2 text-xs text-blue-600">
+                                        <Plus className="h-3 w-3 mr-1" /> Add New
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-sm">
+                                    <DialogHeader><DialogTitle>Add Tour Type</DialogTitle></DialogHeader>
+                                    <div className="space-y-4 pt-4">
+                                        <div className="space-y-2">
+                                            <Label>Name</Label>
+                                            <Input value={newType.name} onChange={e => setNewType({...newType, name: e.target.value})} placeholder="e.g. Safari" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Description (Optional)</Label>
+                                            <Input value={newType.description} onChange={e => setNewType({...newType, description: e.target.value})} />
+                                        </div>
+                                        <Button type="button" onClick={handleCreateType} disabled={creatingInline || !newType.name} className="w-full">
+                                            {creatingInline ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Type'}
+                                        </Button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                         <Select 
                             value={formData.tour_type_id} 
                             onChange={(e) => setFormData({...formData, tour_type_id: e.target.value})} 
@@ -347,7 +414,32 @@ export default function BaseTourForm({ initialData, isEditing = false, isCustomI
                         </Select>
                     </div>
                      <div className="space-y-2">
-                        <Label>Level</Label>
+                        <div className="flex items-center justify-between">
+                            <Label>Level</Label>
+                            <Dialog open={isLevelDialogOpen} onOpenChange={setIsLevelDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button type="button" variant="ghost" size="sm" className="h-4 p-0 px-2 text-xs text-blue-600">
+                                        <Plus className="h-3 w-3 mr-1" /> Add New
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-sm">
+                                    <DialogHeader><DialogTitle>Add Accommodation Level</DialogTitle></DialogHeader>
+                                    <div className="space-y-4 pt-4">
+                                        <div className="space-y-2">
+                                            <Label>Name</Label>
+                                            <Input value={newLevel.name} onChange={e => setNewLevel({...newLevel, name: e.target.value})} placeholder="e.g. Luxury" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Description (Optional)</Label>
+                                            <Input value={newLevel.description} onChange={e => setNewLevel({...newLevel, description: e.target.value})} />
+                                        </div>
+                                        <Button type="button" onClick={handleCreateLevel} disabled={creatingInline || !newLevel.name} className="w-full">
+                                            {creatingInline ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create Level'}
+                                        </Button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                         <Select 
                             value={formData.accommodation_level_id} 
                             onChange={(e) => setFormData({...formData, accommodation_level_id: e.target.value})}
