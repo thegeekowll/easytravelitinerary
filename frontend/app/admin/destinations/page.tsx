@@ -56,7 +56,9 @@ export default function DestinationsPage() {
       resetForm();
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to create destination');
+      const detail = error.response?.data?.detail;
+      const message = Array.isArray(detail) ? detail[0].msg : (detail || 'Failed to create destination');
+      toast.error(message);
     },
   });
 
@@ -113,8 +115,8 @@ export default function DestinationsPage() {
   };
 
   const handleSubmit = () => {
-    // Filter empty image URLs
-    const validImages = imageUrls.filter(url => url.trim() !== '');
+    // Filter empty image URLs safely
+    const validImages = imageUrls.filter(url => url && typeof url === 'string' && url.trim() !== '');
 
     if (isEditing && currentId) {
       updateMutation.mutate({
@@ -148,7 +150,7 @@ export default function DestinationsPage() {
   };
 
   // Derived state
-  const countries = Array.from(new Set(destinations.map((d: any) => d.country)));
+  const countries = Array.from(new Set(destinations.map((d: any) => d.country).filter(Boolean)));
   const filteredDestinations = destinations.filter((destination: any) => {
     const matchesSearch =
       destination.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
