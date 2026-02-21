@@ -35,6 +35,8 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+# Restrict production memory to prevent the Node.js server from hogging RAM
+ENV NODE_OPTIONS="--max-old-space-size=512"
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs

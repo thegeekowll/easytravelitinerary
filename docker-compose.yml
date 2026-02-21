@@ -18,6 +18,10 @@ services:
       timeout: 5s
       retries: 5
     shm_size: 256m
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   # Redis for caching and Celery
   redis:
@@ -34,6 +38,10 @@ services:
       interval: 10s
       timeout: 3s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
 
   # Backend API
   backend:
@@ -77,6 +85,10 @@ services:
         condition: service_healthy
     networks:
       - travel_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   # Celery Worker for async tasks
   celery_worker:
@@ -108,7 +120,11 @@ services:
       - travel_network
     # Skip migrations for celery (backend handles them)
     entrypoint: []
-    command: ["celery", "-A", "app.services.celery_app", "worker", "--loglevel=info", "--concurrency=2", "-Q", "celery,emails,notifications,pdfs"]
+    command: ["celery", "-A", "app.services.celery_app", "worker", "--loglevel=info", "--concurrency=1", "--max-tasks-per-child=50", "-Q", "celery,emails,notifications,pdfs"]
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   # Celery Beat for scheduled tasks
   celery_beat:
@@ -135,6 +151,10 @@ services:
     # Skip migrations for celery beat (backend handles them)
     entrypoint: []
     command: ["celery", "-A", "app.services.celery_app", "beat", "--loglevel=info"]
+    deploy:
+      resources:
+        limits:
+          memory: 128M
 
   # Frontend Application
   frontend:
@@ -156,6 +176,10 @@ services:
         condition: service_started
     networks:
       - travel_network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
 
   # Nginx Reverse Proxy (config baked into image, no bind mount needed)
   nginx:
