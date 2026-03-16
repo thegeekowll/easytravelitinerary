@@ -79,9 +79,13 @@ def get_public_itinerary(
         tour_days = str(itinerary_obj.duration_days) if itinerary_obj.duration_days else "0"
         agent_name = itinerary_obj.creator.full_name if itinerary_obj.creator else "Your Travel Agent"
 
+        def numbered_list(items: list) -> str:
+            """Return a numbered list string, one item per line."""
+            return "\n".join(f"{i + 1}. {item}" for i, item in enumerate(items)) if items else ""
+
         # All travellers (full list)
         all_travelers = [t.full_name for t in (itinerary_obj.travelers or []) if t.full_name]
-        travelers_str = ", ".join(all_travelers) if all_travelers else client_name
+        travelers_str = numbered_list(all_travelers) if all_travelers else client_name
 
         # Dates (formatted as "Month DD, YYYY")
         from_date = itinerary_obj.departure_date.strftime("%B %d, %Y") if itinerary_obj.departure_date else ""
@@ -95,7 +99,7 @@ def get_public_itinerary(
                 if dest.id not in seen_dest:
                     seen_dest.add(dest.id)
                     dest_names.append(dest.name)
-        destinations_str = ", ".join(dest_names) if dest_names else ""
+        destinations_str = numbered_list(dest_names)
 
         # Unique accommodations across all days (in day order)
         seen_acc: set = set()
@@ -104,7 +108,7 @@ def get_public_itinerary(
             if day.accommodation and day.accommodation.id not in seen_acc:
                 seen_acc.add(day.accommodation.id)
                 acc_names.append(day.accommodation.name)
-        accommodations_str = ", ".join(acc_names) if acc_names else ""
+        accommodations_str = numbered_list(acc_names)
 
         return text\
             .replace("[Client Name]", client_name)\
