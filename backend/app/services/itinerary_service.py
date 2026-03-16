@@ -314,6 +314,7 @@ class ItineraryService:
                 description=base_day.description,
                 activities=base_day.activities,
                 meals_included=base_day.meals_included,
+                atmospheric_image_url=base_day.atmospheric_image_url,
                 is_description_custom=False,  # Came from base tour
                 is_activity_custom=False
             )
@@ -443,7 +444,7 @@ class ItineraryService:
                 day_title=day_data.day_title,
                 description=description,
                 activities=activities,
-                # meals_included=day_data.meals_included, # Field missing in model
+                meals_included=day_data.meals_included,
                 is_description_custom=is_description_custom,
                 is_activity_custom=is_activity_custom,
                 atmospheric_image_url=day_data.atmospheric_image_url

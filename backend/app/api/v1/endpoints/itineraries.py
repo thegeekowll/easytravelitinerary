@@ -735,6 +735,7 @@ def duplicate_itinerary(
                 description=original_day.description,
                 activities=original_day.activities,
                 meals_included=original_day.meals_included,
+                atmospheric_image_url=original_day.atmospheric_image_url,
                 is_description_custom=original_day.is_description_custom,
                 is_activity_custom=original_day.is_activity_custom
             )
