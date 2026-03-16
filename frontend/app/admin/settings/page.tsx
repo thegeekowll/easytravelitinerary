@@ -597,8 +597,25 @@ export default function SettingsPage() {
                     type="button"
                     title={desc}
                     onClick={() => {
-                      navigator.clipboard.writeText(tag);
-                      toast.success(`Copied ${tag}`);
+                      // navigator.clipboard requires HTTPS — use execCommand fallback for HTTP
+                      const copy = (text: string) => {
+                        if (navigator.clipboard && window.isSecureContext) {
+                          return navigator.clipboard.writeText(text);
+                        }
+                        const el = document.createElement('textarea');
+                        el.value = text;
+                        el.style.position = 'fixed';
+                        el.style.opacity = '0';
+                        document.body.appendChild(el);
+                        el.focus();
+                        el.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(el);
+                        return Promise.resolve();
+                      };
+                      copy(tag)
+                        .then(() => toast.success(`Copied ${tag}`))
+                        .catch(() => toast.error('Copy failed'));
                     }}
                     className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-400 transition-colors cursor-pointer shadow-sm"
                   >
