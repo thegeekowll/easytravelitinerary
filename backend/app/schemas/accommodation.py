@@ -88,9 +88,9 @@ class AccommodationLevelResponse(AccommodationLevelBase):
 class AccommodationImageBase(BaseModel):
     """Base accommodation image schema."""
 
-    image_url: HttpUrl = Field(
+    image_url: str = Field(
         ...,
-        description="URL to the accommodation image"
+        description="URL or path to the accommodation image"
     )
     caption: Optional[str] = Field(
         None,
@@ -122,9 +122,9 @@ class AccommodationImageCreate(AccommodationImageBase):
 class AccommodationImageUpdate(BaseModel):
     """Schema for updating an accommodation image."""
 
-    image_url: Optional[HttpUrl] = Field(
+    image_url: Optional[str] = Field(
         None,
-        description="Updated image URL"
+        description="Updated image URL or path"
     )
     caption: Optional[str] = Field(
         None,

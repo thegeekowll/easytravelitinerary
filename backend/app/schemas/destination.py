@@ -12,9 +12,9 @@ from pydantic import BaseModel, Field, ConfigDict, HttpUrl, field_validator
 class DestinationImageBase(BaseModel):
     """Base destination image schema."""
 
-    image_url: HttpUrl = Field(
+    image_url: str = Field(
         ...,
-        description="URL to the destination image"
+        description="URL or path to the destination image"
     )
     caption: Optional[str] = Field(
         None,
@@ -46,9 +46,9 @@ class DestinationImageCreate(DestinationImageBase):
 class DestinationImageUpdate(BaseModel):
     """Schema for updating a destination image."""
 
-    image_url: Optional[HttpUrl] = Field(
+    image_url: Optional[str] = Field(
         None,
-        description="Updated image URL"
+        description="Updated image URL or path"
     )
     caption: Optional[str] = Field(
         None,
