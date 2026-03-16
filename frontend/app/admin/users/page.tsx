@@ -35,7 +35,6 @@ export default function UsersPage() {
   const fetchPermissions = async () => {
     try {
       const data = await apiClient.getPermissions();
-      console.log('Permissions fetched:', data);
       setPermissions(data);
     } catch (error) {
       console.error('Failed to fetch permissions:', error);
@@ -51,12 +50,9 @@ export default function UsersPage() {
     try {
       setLoading(true);
       const data = await apiClient.getUsers();
-      console.log('API Response Data:', data);
       if (data.items) {
-        console.log('Items found:', data.items.length);
         setUsers(data.items);
       } else {
-        console.error('No items in response data:', data);
         setUsers([]);
       }
     } catch (error) {
@@ -303,49 +299,136 @@ export default function UsersPage() {
 
               {(newUser.role === 'cs_agent' || newUser.role === 'CS_AGENT') && (
                 <div className="pt-6 border-t mt-4">
-                  <Label className="text-lg font-semibold block mb-4">Permissions</Label>
+                  <div className="flex items-center justify-between mb-4">
+                    <Label className="text-lg font-semibold">Permissions</Label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        className="text-xs text-primary hover:underline font-medium"
+                        onClick={() => setNewUser({...newUser, permission_ids: permissions.map((p: any) => p.id)})}
+                      >
+                        Grant All
+                      </button>
+                      <span className="text-gray-300">|</span>
+                      <button
+                        type="button"
+                        className="text-xs text-gray-500 hover:underline font-medium"
+                        onClick={() => setNewUser({...newUser, permission_ids: []})}
+                      >
+                        Revoke All
+                      </button>
+                    </div>
+                  </div>
                   {permissions.length === 0 ? (
                     <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded">
-                      No permissions loaded. Ensure the backend has seeded permissions.
+                      No permissions loaded. Go to Settings and seed permissions first.
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries(permissions.reduce((acc: any, perm: any) => {
-                        const cat = perm.category || 'Other';
+                        const cat = perm.category || 'other';
                         if (!acc[cat]) acc[cat] = [];
                         acc[cat].push(perm);
                         return acc;
-                      }, {})).map(([category, perms]: [string, any]) => (
-                        <div key={category} className="space-y-2 border rounded-lg p-3 bg-gray-50/50">
-                          <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider border-b pb-2 mb-2">
-                            {category.replace(/_/g, ' ')}
-                          </h4>
-                          <div className="grid grid-cols-1 gap-2">
-                            {perms.map((perm: any) => (
-                              <div key={perm.id} className="flex items-start space-x-2">
-                                <input
-                                    type="checkbox"
-                                    id={`perm-${perm.id}`}
-                                    className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                    checked={newUser.permission_ids?.includes(perm.id)}
-                                    onChange={(e) => {
-                                      const current = newUser.permission_ids || [];
-                                      if (e.target.checked) {
-                                        setNewUser({...newUser, permission_ids: [...current, perm.id]});
-                                      } else {
-                                        setNewUser({...newUser, permission_ids: current.filter(id => id !== perm.id)});
-                                      }
-                                    }}
-                                />
-                                <label htmlFor={`perm-${perm.id}`} className="text-sm leading-tight cursor-pointer pb-1">
-                                    <span className="font-medium text-gray-900">{perm.name}</span>
-                                    {perm.description && <span className="block text-xs text-gray-500">{perm.description}</span>}
-                                </label>
-                              </div>
-                            ))}
+                      }, {})).sort(([a], [b]) => {
+                        const order = ['itinerary', 'destination', 'accommodation', 'tour_package', '2d_table', 'analytics', 'user_management', 'system'];
+                        return (order.indexOf(a) === -1 ? 99 : order.indexOf(a)) - (order.indexOf(b) === -1 ? 99 : order.indexOf(b));
+                      }).map(([category, perms]: [string, any]) => {
+                        const catPermIds = perms.map((p: any) => p.id);
+                        const allChecked = catPermIds.every((id: string) => newUser.permission_ids?.includes(id));
+                        const someChecked = catPermIds.some((id: string) => newUser.permission_ids?.includes(id));
+
+                        const categoryLabels: Record<string, string> = {
+                          itinerary: 'Itineraries',
+                          destination: 'Destinations',
+                          accommodation: 'Accommodations',
+                          tour_package: 'Base Tours',
+                          '2d_table': '2D Matrix',
+                          analytics: 'Analytics',
+                          user_management: 'User Management',
+                          system: 'System & Settings',
+                        };
+
+                        const permissionLabels: Record<string, string> = {
+                          create_itinerary: 'Create',
+                          edit_itinerary: 'Edit',
+                          delete_itinerary: 'Delete',
+                          view_all_itineraries: 'View All (not just own)',
+                          send_email: 'Send Email',
+                          generate_pdf: 'Generate PDF',
+                          view_destinations: 'View',
+                          add_destination: 'Add',
+                          edit_destination: 'Edit',
+                          delete_destination: 'Delete',
+                          view_accommodations: 'View',
+                          add_accommodation: 'Add',
+                          edit_accommodation: 'Edit',
+                          delete_accommodation: 'Delete',
+                          view_tour_packages: 'View',
+                          add_tour_package: 'Add',
+                          edit_tour_package: 'Edit',
+                          delete_tour_package: 'Delete',
+                          view_2d_table: 'View',
+                          edit_2d_table: 'Edit',
+                          view_analytics: 'View Dashboard',
+                          view_analytics_revenue: 'View Revenue',
+                          export_analytics: 'Export Reports',
+                          view_users: 'View Users',
+                          manage_users: 'Create/Edit/Delete Users',
+                          manage_agent_types: 'Settings & Config',
+                          view_activity_logs: 'Activity Logs',
+                        };
+
+                        return (
+                          <div key={category} className="border rounded-lg p-3 bg-gray-50/50">
+                            <div className="flex items-center justify-between border-b pb-2 mb-3">
+                              <h4 className="text-sm font-bold text-gray-700 uppercase tracking-wider">
+                                {categoryLabels[category] || category.replace(/_/g, ' ')}
+                              </h4>
+                              <input
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                checked={allChecked}
+                                ref={(el) => { if (el) el.indeterminate = someChecked && !allChecked; }}
+                                onChange={(e) => {
+                                  const current = newUser.permission_ids || [];
+                                  if (e.target.checked) {
+                                    const merged = [...new Set([...current, ...catPermIds])];
+                                    setNewUser({...newUser, permission_ids: merged});
+                                  } else {
+                                    setNewUser({...newUser, permission_ids: current.filter((id: string) => !catPermIds.includes(id))});
+                                  }
+                                }}
+                                title={allChecked ? 'Uncheck all in this section' : 'Check all in this section'}
+                              />
+                            </div>
+                            <div className="grid grid-cols-1 gap-2">
+                              {perms.map((perm: any) => (
+                                <div key={perm.id} className="flex items-start space-x-2">
+                                  <input
+                                      type="checkbox"
+                                      id={`perm-${perm.id}`}
+                                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                      checked={newUser.permission_ids?.includes(perm.id)}
+                                      onChange={(e) => {
+                                        const current = newUser.permission_ids || [];
+                                        if (e.target.checked) {
+                                          setNewUser({...newUser, permission_ids: [...current, perm.id]});
+                                        } else {
+                                          setNewUser({...newUser, permission_ids: current.filter((id: string) => id !== perm.id)});
+                                        }
+                                      }}
+                                  />
+                                  <label htmlFor={`perm-${perm.id}`} className="text-sm leading-tight cursor-pointer">
+                                      <span className="font-medium text-gray-900">{permissionLabels[perm.name] || perm.name.replace(/_/g, ' ')}</span>
+                                      {perm.description && <span className="block text-xs text-gray-500">{perm.description}</span>}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>

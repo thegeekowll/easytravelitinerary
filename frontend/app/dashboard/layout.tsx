@@ -17,6 +17,7 @@ import {
   Settings,
   LogOut,
   Grid,
+  ImageIcon,
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/use-notifications';
 
@@ -136,9 +137,11 @@ export default function DashboardLayout({
               {/* Notification Badge */}
               <NotificationBadge />
             </NavLink>
-            <NavLink href="/dashboard/analytics" icon={<BarChart3 className="h-4 w-4" />}>
-              Analytics
-            </NavLink>
+            {(isAdmin || hasPermission('view_analytics')) && (
+              <NavLink href="/dashboard/analytics" icon={<BarChart3 className="h-4 w-4" />}>
+                Analytics
+              </NavLink>
+            )}
 
             {/* Admin / Management Section */}
             {(isAdmin || 
@@ -186,6 +189,12 @@ export default function DashboardLayout({
                   </NavLink>
                 )}
                 
+                {isAdmin && (
+                  <NavLink href="/admin/gallery" icon={<ImageIcon className="h-4 w-4" />}>
+                    Image Gallery
+                  </NavLink>
+                )}
+
                 {isAdmin && (
                   <NavLink href="/admin/settings" icon={<Settings className="h-4 w-4" />}>
                     Settings

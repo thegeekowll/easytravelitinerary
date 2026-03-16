@@ -31,30 +31,48 @@ async def seed_permissions(
     """
     # Define default permissions
     default_permissions = [
-        # Accommodation
-        {"name": PermissionNames.VIEW_ACCOMMODATIONS, "description": "View accommodations", "category": PermissionCategories.ACCOMMODATION},
-        {"name": PermissionNames.ADD_ACCOMMODATION, "description": "Add new accommodations", "category": PermissionCategories.ACCOMMODATION},
-        {"name": PermissionNames.EDIT_ACCOMMODATION, "description": "Edit existing accommodations", "category": PermissionCategories.ACCOMMODATION},
-        {"name": PermissionNames.DELETE_ACCOMMODATION, "description": "Delete accommodations", "category": PermissionCategories.ACCOMMODATION},
-        
+        # Itinerary
+        {"name": PermissionNames.CREATE_ITINERARY, "description": "Create new itineraries", "category": PermissionCategories.ITINERARY},
+        {"name": PermissionNames.EDIT_ITINERARY, "description": "Edit existing itineraries", "category": PermissionCategories.ITINERARY},
+        {"name": PermissionNames.DELETE_ITINERARY, "description": "Delete itineraries", "category": PermissionCategories.ITINERARY},
+        {"name": PermissionNames.VIEW_ALL_ITINERARIES, "description": "View all agents' itineraries (not just own)", "category": PermissionCategories.ITINERARY},
+        {"name": PermissionNames.SEND_ITINERARY_EMAIL, "description": "Send itinerary emails to travelers", "category": PermissionCategories.ITINERARY},
+        {"name": PermissionNames.GENERATE_ITINERARY_PDF, "description": "Generate and download PDF itineraries", "category": PermissionCategories.ITINERARY},
+
         # Destination
-        {"name": PermissionNames.VIEW_DESTINATIONS, "description": "View destinations", "category": PermissionCategories.DESTINATION},
+        {"name": PermissionNames.VIEW_DESTINATIONS, "description": "View the destinations list", "category": PermissionCategories.DESTINATION},
         {"name": PermissionNames.ADD_DESTINATION, "description": "Add new destinations", "category": PermissionCategories.DESTINATION},
         {"name": PermissionNames.EDIT_DESTINATION, "description": "Edit existing destinations", "category": PermissionCategories.DESTINATION},
         {"name": PermissionNames.DELETE_DESTINATION, "description": "Delete destinations", "category": PermissionCategories.DESTINATION},
-        
+
+        # Accommodation
+        {"name": PermissionNames.VIEW_ACCOMMODATIONS, "description": "View the accommodations list", "category": PermissionCategories.ACCOMMODATION},
+        {"name": PermissionNames.ADD_ACCOMMODATION, "description": "Add new accommodations", "category": PermissionCategories.ACCOMMODATION},
+        {"name": PermissionNames.EDIT_ACCOMMODATION, "description": "Edit existing accommodations", "category": PermissionCategories.ACCOMMODATION},
+        {"name": PermissionNames.DELETE_ACCOMMODATION, "description": "Delete accommodations", "category": PermissionCategories.ACCOMMODATION},
+
         # Base Tours
-        {"name": PermissionNames.VIEW_TOUR_PACKAGES, "description": "View base tours", "category": PermissionCategories.TOUR_PACKAGE},
-        {"name": PermissionNames.ADD_TOUR_PACKAGE, "description": "Add new base tours", "category": PermissionCategories.TOUR_PACKAGE},
+        {"name": PermissionNames.VIEW_TOUR_PACKAGES, "description": "View base tour templates", "category": PermissionCategories.TOUR_PACKAGE},
+        {"name": PermissionNames.ADD_TOUR_PACKAGE, "description": "Create new base tours", "category": PermissionCategories.TOUR_PACKAGE},
         {"name": PermissionNames.EDIT_TOUR_PACKAGE, "description": "Edit existing base tours", "category": PermissionCategories.TOUR_PACKAGE},
         {"name": PermissionNames.DELETE_TOUR_PACKAGE, "description": "Delete base tours", "category": PermissionCategories.TOUR_PACKAGE},
-        
-        # 2D Table
-        {"name": PermissionNames.VIEW_2D_TABLE, "description": "View 2D Matrix", "category": PermissionCategories.TWO_D_TABLE},
-        {"name": PermissionNames.EDIT_2D_TABLE, "description": "Edit 2D Matrix", "category": PermissionCategories.TWO_D_TABLE},
-        
-        # Settings (System)
-        {"name": PermissionNames.MANAGE_AGENT_TYPES, "description": "Manage Settings & Configurations", "category": PermissionCategories.SYSTEM},
+
+        # 2D Matrix
+        {"name": PermissionNames.VIEW_2D_TABLE, "description": "View the destination combination matrix", "category": PermissionCategories.TWO_D_TABLE},
+        {"name": PermissionNames.EDIT_2D_TABLE, "description": "Edit matrix combinations", "category": PermissionCategories.TWO_D_TABLE},
+
+        # Analytics
+        {"name": PermissionNames.VIEW_ANALYTICS, "description": "View analytics dashboard", "category": PermissionCategories.ANALYTICS},
+        {"name": PermissionNames.VIEW_ANALYTICS_REVENUE, "description": "View revenue and financial analytics", "category": PermissionCategories.ANALYTICS},
+        {"name": PermissionNames.EXPORT_ANALYTICS, "description": "Export analytics reports", "category": PermissionCategories.ANALYTICS},
+
+        # User Management
+        {"name": PermissionNames.VIEW_USERS, "description": "View the users list", "category": PermissionCategories.USER_MANAGEMENT},
+        {"name": PermissionNames.MANAGE_USERS, "description": "Create, edit, and delete users", "category": PermissionCategories.USER_MANAGEMENT},
+
+        # System / Settings
+        {"name": PermissionNames.MANAGE_AGENT_TYPES, "description": "Manage company settings, branding, and configuration", "category": PermissionCategories.SYSTEM},
+        {"name": PermissionNames.VIEW_ACTIVITY_LOGS, "description": "View system activity logs", "category": PermissionCategories.SYSTEM},
     ]
 
     added_count = 0
