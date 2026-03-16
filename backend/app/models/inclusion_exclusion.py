@@ -141,6 +141,11 @@ class Exclusion(Base):
         nullable=True,
         comment="Detailed description"
     )
+    image_url: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+        comment="URL to an illustrative image"
+    )
     category: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True,
