@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { CreatableCombobox } from '@/components/ui/creatable-combobox';
 
 export default function DestinationsPage() {
   const queryClient = useQueryClient();
@@ -357,10 +358,13 @@ export default function DestinationsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Country *</Label>
-                <Input 
+                <CreatableCombobox
+                  options={countries.map((c: string) => ({ value: c, label: c }))}
                   value={formData.country}
-                  onChange={(e) => setFormData({...formData, country: e.target.value})}
-                  placeholder="e.g. Tanzania"
+                  onChange={(val) => setFormData({...formData, country: val})}
+                  placeholder="Select or type a country..."
+                  searchPlaceholder="Search countries..."
+                  createLabel="Add new country"
                 />
               </div>
               <div className="space-y-2">
