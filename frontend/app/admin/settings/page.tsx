@@ -569,19 +569,59 @@ export default function SettingsPage() {
 
         {/* CONTENT TAB */}
         <TabsContent value="content" className="space-y-4">
+
+          {/* Variable Reference Card */}
+          <Card className="border-blue-100 bg-blue-50/50">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold text-blue-800">Available Template Variables</CardTitle>
+              <CardDescription className="text-xs text-blue-600">
+                Click any variable to copy it. Paste it anywhere in the templates below — it will be replaced with real data when the itinerary is viewed.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { tag: '[Traveller Name]',         desc: 'Primary traveller\'s name' },
+                  { tag: '[Tour Name]',               desc: 'Name of the tour' },
+                  { tag: '[Tour Days]',               desc: 'Number of days' },
+                  { tag: '[From Date]',               desc: 'Departure date (e.g. March 20, 2026)' },
+                  { tag: '[To Date]',                 desc: 'Return date' },
+                  { tag: '[List of Travellers]',      desc: 'All traveller names, comma-separated' },
+                  { tag: '[List of Destinations]',    desc: 'All destinations in day order, comma-separated' },
+                  { tag: '[List of Accommodations]',  desc: 'All unique accommodations, comma-separated' },
+                  { tag: '[Agent Name]',              desc: 'Assigned agent\'s full name' },
+                  { tag: '[Client Name]',             desc: 'Alias for Traveller Name' },
+                ].map(({ tag, desc }) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    title={desc}
+                    onClick={() => {
+                      navigator.clipboard.writeText(tag);
+                      toast.success(`Copied ${tag}`);
+                    }}
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono font-medium bg-white border border-blue-200 text-blue-700 hover:bg-blue-100 hover:border-blue-400 transition-colors cursor-pointer shadow-sm"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Greeting Message</CardTitle>
               <CardDescription>
-                Default greeting for the itinerary intro page. Use <code>[Traveller Name]</code> as a placeholder.
+                Default greeting for the itinerary intro page.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Textarea 
+              <Textarea
                 value={templates['intro_letter_template'] || ''}
                 onChange={(e) => setTemplates({...templates, intro_letter_template: e.target.value})}
-                className="min-h-[200px]"
-                placeholder="Hello [Traveller Name]..."
+                className="min-h-[200px] font-mono text-sm"
+                placeholder="Hello [Traveller Name], we are excited to present your [Tour Name] itinerary from [From Date] to [To Date]..."
               />
               <Button onClick={() => handleTemplateSave('intro_letter_template')}>Save Changes</Button>
             </CardContent>
@@ -595,10 +635,10 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Textarea 
+              <Textarea
                 value={templates['about_company_template'] || ''}
                 onChange={(e) => setTemplates({...templates, about_company_template: e.target.value})}
-                className="min-h-[150px]"
+                className="min-h-[150px] font-mono text-sm"
                 placeholder="We are..."
               />
               <Button onClick={() => handleTemplateSave('about_company_template')}>Save Changes</Button>
@@ -613,11 +653,11 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Textarea 
+              <Textarea
                 value={templates['cta_message_template'] || ''}
                 onChange={(e) => setTemplates({...templates, cta_message_template: e.target.value})}
-                className="min-h-[100px]"
-                placeholder="We look forward..."
+                className="min-h-[100px] font-mono text-sm"
+                placeholder="We look forward to welcoming [List of Travellers] on their journey to [List of Destinations]..."
               />
               <Button onClick={() => handleTemplateSave('cta_message_template')}>Save Changes</Button>
             </CardContent>

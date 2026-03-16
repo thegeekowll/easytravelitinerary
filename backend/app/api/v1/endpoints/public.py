@@ -72,18 +72,56 @@ def get_public_itinerary(
     def replace_placeholders(text: str, itinerary_obj) -> str:
         if not text:
             return ""
-        
+
+        # Basic fields
         client_name = itinerary_obj.primary_traveler.full_name if itinerary_obj.primary_traveler else "Guest"
         tour_title = itinerary_obj.tour_title or ""
         tour_days = str(itinerary_obj.duration_days) if itinerary_obj.duration_days else "0"
         agent_name = itinerary_obj.creator.full_name if itinerary_obj.creator else "Your Travel Agent"
-        
-        return text.replace("[Client Name]", client_name)\
-                   .replace("[Traveller Name]", client_name)\
-                   .replace("[Tour name]", tour_title)\
-                   .replace("[Tour days]", tour_days)\
-                   .replace("[Agent name]", agent_name)\
-                   .replace("[Agent Name]", agent_name)
+
+        # All travellers (full list)
+        all_travelers = [t.full_name for t in (itinerary_obj.travelers or []) if t.full_name]
+        travelers_str = ", ".join(all_travelers) if all_travelers else client_name
+
+        # Dates (formatted as "Month DD, YYYY")
+        from_date = itinerary_obj.departure_date.strftime("%B %d, %Y") if itinerary_obj.departure_date else ""
+        to_date = itinerary_obj.return_date.strftime("%B %d, %Y") if itinerary_obj.return_date else ""
+
+        # Unique destinations across all days (in day order)
+        seen_dest: set = set()
+        dest_names = []
+        for day in sorted(itinerary_obj.days or [], key=lambda d: d.day_number):
+            for dest in (day.destinations or []):
+                if dest.id not in seen_dest:
+                    seen_dest.add(dest.id)
+                    dest_names.append(dest.name)
+        destinations_str = ", ".join(dest_names) if dest_names else ""
+
+        # Unique accommodations across all days (in day order)
+        seen_acc: set = set()
+        acc_names = []
+        for day in sorted(itinerary_obj.days or [], key=lambda d: d.day_number):
+            if day.accommodation and day.accommodation.id not in seen_acc:
+                seen_acc.add(day.accommodation.id)
+                acc_names.append(day.accommodation.name)
+        accommodations_str = ", ".join(acc_names) if acc_names else ""
+
+        return text\
+            .replace("[Client Name]", client_name)\
+            .replace("[Traveller Name]", client_name)\
+            .replace("[Tour Name]", tour_title)\
+            .replace("[Tour name]", tour_title)\
+            .replace("[Tour Days]", tour_days)\
+            .replace("[Tour days]", tour_days)\
+            .replace("[Agent Name]", agent_name)\
+            .replace("[Agent name]", agent_name)\
+            .replace("[List of Guests]", travelers_str)\
+            .replace("[List of Travellers]", travelers_str)\
+            .replace("[List of Travelers]", travelers_str)\
+            .replace("[From Date]", from_date)\
+            .replace("[To Date]", to_date)\
+            .replace("[List of Destinations]", destinations_str)\
+            .replace("[List of Accommodations]", accommodations_str)
 
     # Populate welcome_message dynamically
     if greeting_content and greeting_content.content:
