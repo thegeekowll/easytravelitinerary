@@ -553,79 +553,78 @@ export default function BaseTourForm({ initialData, isEditing = false, isCustomI
                                         )}
                                     </div>
 
-                                    {currentImage ? (
+                                    {currentImage && (
                                         <div className="relative aspect-video w-full overflow-hidden rounded-md border bg-muted">
-                                            <img 
-                                                src={currentImage.image_url} 
-                                                alt={slot.label} 
-                                                className="h-full w-full object-cover" 
+                                            <img
+                                                src={currentImage.image_url}
+                                                alt={slot.label}
+                                                className="h-full w-full object-cover"
                                             />
-                                        </div>
-                                    ) : (
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Button 
-                                                type="button" 
-                                                variant="outline" 
-                                                className="h-20 flex flex-col gap-2 border-dashed"
-                                                onClick={() => document.getElementById(`upload-${slot.role}`)?.click()}
-                                            >
-                                                <div className="h-6 w-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                    <Plus className="h-4 w-4" />
-                                                </div>
-                                                <span className="text-xs">Upload New</span>
-                                            </Button>
-                                            <input 
-                                                type="file" 
-                                                id={`upload-${slot.role}`} 
-                                                className="hidden" 
-                                                accept="image/*"
-                                                onChange={async (e) => {
-                                                    const file = e.target.files?.[0];
-                                                    if (!file) return;
-                                                    
-                                                    const loadingId = toast.loading("Uploading...");
-                                                    try {
-                                                        // 1. Upload generic
-                                                        const tourId_ = initialData?.id || formData.id; // Need ID
-                                                        if (!tourId_) {
-                                                            toast.error("Save tour first before adding images", {id: loadingId});
-                                                            return;
-                                                        }
-                                                        
-                                                        const uploaded = await apiClient.uploadBaseTourImages(tourId_, [file]);
-                                                        const newImage = uploaded[0];
-                                                        
-                                                        // 2. Set Role
-                                                        // Delete old if exists? Backend doesn't enforce unique role per tour automatically, but we should.
-                                                        // For now just update the new one.
-                                                        // Filter out old image locally or logic below.
-                                                        
-                                                        await apiClient.updateBaseTourImage(newImage.id, { image_role: slot.role });
-                                                        toast.success("Uploaded", { id: loadingId });
-                                                        window.location.reload(); 
-                                                    } catch (err) {
-                                                        console.error(err);
-                                                        toast.error("Failed", { id: loadingId });
-                                                    }
-                                                }}
-                                            />
-
-                                            <Button 
-                                                type="button" 
-                                                variant="outline" 
-                                                className="h-20 flex flex-col gap-2 border-dashed"
-                                                onClick={() => {
-                                                    setTargetImageRole(slot.role);
-                                                    setIsGalleryOpen(true);
-                                                }}
-                                            >
-                                                <div className="h-6 w-6 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
-                                                    <div className="h-4 w-4 border-2 border-current rounded-sm" /> 
-                                                </div>
-                                                <span className="text-xs">Library</span>
-                                            </Button>
                                         </div>
                                     )}
+
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="h-16 flex flex-col gap-1 border-dashed"
+                                            onClick={() => document.getElementById(`upload-${slot.role}`)?.click()}
+                                        >
+                                            <div className="h-6 w-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                <Plus className="h-4 w-4" />
+                                            </div>
+                                            <span className="text-xs">{currentImage ? 'Replace (Upload)' : 'Upload New'}</span>
+                                        </Button>
+                                        <input
+                                            type="file"
+                                            id={`upload-${slot.role}`}
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (!file) return;
+
+                                                const loadingId = toast.loading("Uploading...");
+                                                try {
+                                                    const tourId_ = initialData?.id || formData.id;
+                                                    if (!tourId_) {
+                                                        toast.error("Save tour first before adding images", {id: loadingId});
+                                                        return;
+                                                    }
+
+                                                    // Delete existing non-default image for this slot first
+                                                    const existingImg = initialData?.images?.find((img: any) => img.image_role === slot.role);
+                                                    if (existingImg) {
+                                                        await apiClient.deleteBaseTourImage(existingImg.id);
+                                                    }
+
+                                                    const uploaded = await apiClient.uploadBaseTourImages(tourId_, [file]);
+                                                    const newImage = uploaded[0];
+                                                    await apiClient.updateBaseTourImage(newImage.id, { image_role: slot.role });
+                                                    toast.success("Uploaded", { id: loadingId });
+                                                    window.location.reload();
+                                                } catch (err) {
+                                                    console.error(err);
+                                                    toast.error("Failed", { id: loadingId });
+                                                }
+                                            }}
+                                        />
+
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="h-16 flex flex-col gap-1 border-dashed"
+                                            onClick={() => {
+                                                setTargetImageRole(slot.role);
+                                                setIsGalleryOpen(true);
+                                            }}
+                                        >
+                                            <div className="h-6 w-6 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
+                                                <div className="h-4 w-4 border-2 border-current rounded-sm" />
+                                            </div>
+                                            <span className="text-xs">{currentImage ? 'Replace (Library)' : 'Library'}</span>
+                                        </Button>
+                                    </div>
                                 </div>
                             );
                         })}
@@ -647,6 +646,12 @@ export default function BaseTourForm({ initialData, isEditing = false, isCustomI
                                      return;
                                  }
                                 
+                                  // Delete existing non-default image for this slot first
+                                 const existingImg = initialData?.images?.find((img: any) => img.image_role === targetImageRole);
+                                 if (existingImg) {
+                                     await apiClient.deleteBaseTourImage(existingImg.id);
+                                 }
+
                                  // Add new image link
                                  await apiClient.linkBaseTourImages(tourId_, [{
                                      image_url: selected[0].url,
