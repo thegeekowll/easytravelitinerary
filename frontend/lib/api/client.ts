@@ -178,12 +178,12 @@ class APIClient {
   }
 
   async getTourTypes() {
-    const response = await this.client.get('/tour-types');
+    const response = await this.client.get('/base-tours/types');
     return response.data;
   }
 
   async createTourType(data: any) {
-    const response = await this.client.post('/tour-types', data);
+    const response = await this.client.post('/base-tours/types', data);
     return response.data;
   }
 
