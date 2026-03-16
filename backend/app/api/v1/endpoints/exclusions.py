@@ -51,6 +51,39 @@ async def create_exclusion(
     return exclusion
 
 
+@router.put("/{exclusion_id}", response_model=ExclusionResponse)
+async def update_exclusion(
+    exclusion_id: str,
+    exclusion_data: ExclusionUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Update an existing exclusion (admin only)."""
+    exclusion = db.query(Exclusion).filter(Exclusion.id == exclusion_id).first()
+    if not exclusion:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Exclusion not found"
+        )
+
+    # Check name uniqueness if name is being changed
+    if exclusion_data.name and exclusion_data.name != exclusion.name:
+        existing = db.query(Exclusion).filter(Exclusion.name == exclusion_data.name).first()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Exclusion with this name already exists"
+            )
+
+    update_data = exclusion_data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(exclusion, field, value)
+
+    db.commit()
+    db.refresh(exclusion)
+    return exclusion
+
+
 @router.delete("/{exclusion_id}", status_code=status.HTTP_200_OK)
 async def delete_exclusion(
     exclusion_id: str,

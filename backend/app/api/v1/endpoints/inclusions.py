@@ -51,6 +51,39 @@ async def create_inclusion(
     return inclusion
 
 
+@router.put("/{inclusion_id}", response_model=InclusionResponse)
+async def update_inclusion(
+    inclusion_id: str,
+    inclusion_data: InclusionUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Update an existing inclusion (admin only)."""
+    inclusion = db.query(Inclusion).filter(Inclusion.id == inclusion_id).first()
+    if not inclusion:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Inclusion not found"
+        )
+
+    # Check name uniqueness if name is being changed
+    if inclusion_data.name and inclusion_data.name != inclusion.name:
+        existing = db.query(Inclusion).filter(Inclusion.name == inclusion_data.name).first()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Inclusion with this name already exists"
+            )
+
+    update_data = inclusion_data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(inclusion, field, value)
+
+    db.commit()
+    db.refresh(inclusion)
+    return inclusion
+
+
 @router.delete("/{inclusion_id}", status_code=status.HTTP_200_OK)
 async def delete_inclusion(
     inclusion_id: str,

@@ -18,6 +18,7 @@ import {
   LogOut,
   Grid,
   ImageIcon,
+  CheckCircle2,
 } from 'lucide-react';
 import { useNotifications } from '@/hooks/use-notifications';
 
@@ -188,7 +189,13 @@ export default function DashboardLayout({
                     Base Tours
                   </NavLink>
                 )}
-                
+
+                {isAdmin && (
+                  <NavLink href="/admin/inclusions" icon={<CheckCircle2 className="h-4 w-4" />}>
+                    Inclusions &amp; Exclusions
+                  </NavLink>
+                )}
+
                 {isAdmin && (
                   <NavLink href="/admin/gallery" icon={<ImageIcon className="h-4 w-4" />}>
                     Image Gallery

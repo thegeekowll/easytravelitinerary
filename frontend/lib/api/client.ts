@@ -344,8 +344,13 @@ class APIClient {
     return response.data;
   }
 
-  async createInclusion(data: { name: string; category?: string; icon_name?: string }) {
+  async createInclusion(data: { name: string; description?: string; category?: string; icon_name?: string; image_url?: string | null }) {
     const response = await this.client.post('/inclusions', data);
+    return response.data;
+  }
+
+  async updateInclusion(id: string, data: { name?: string; description?: string; category?: string; icon_name?: string; image_url?: string | null; sort_order?: number }) {
+    const response = await this.client.put(`/inclusions/${id}`, data);
     return response.data;
   }
 
@@ -359,8 +364,13 @@ class APIClient {
     return response.data;
   }
 
-  async createExclusion(data: { name: string; category?: string; icon_name?: string }) {
+  async createExclusion(data: { name: string; description?: string; category?: string; icon_name?: string; image_url?: string | null }) {
     const response = await this.client.post('/exclusions', data);
+    return response.data;
+  }
+
+  async updateExclusion(id: string, data: { name?: string; description?: string; category?: string; icon_name?: string; image_url?: string | null; sort_order?: number }) {
+    const response = await this.client.put(`/exclusions/${id}`, data);
     return response.data;
   }
 
