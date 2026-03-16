@@ -29,8 +29,9 @@ export default function UsersPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<any[]>([]);
   
-  // Gallery State
+  // Gallery / Upload State
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   const fetchPermissions = async () => {
     try {
@@ -123,6 +124,23 @@ export default function UsersPage() {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingPhoto(true);
+    const toastId = toast.loading('Uploading photo...');
+    try {
+      const url = await apiClient.uploadMediaFile(file);
+      setNewUser(prev => ({ ...prev, profile_photo_url: url }));
+      toast.success('Photo uploaded', { id: toastId });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || 'Upload failed', { id: toastId });
+    } finally {
+      setIsUploadingPhoto(false);
+      e.target.value = '';
+    }
+  };
+
   const handleDeleteUser = async (userId: string) => {
     if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
     
@@ -209,27 +227,70 @@ export default function UsersPage() {
             <form onSubmit={handleSaveUser} className="space-y-4 py-4 overflow-y-auto flex-1 px-2">
               
               {/* Profile Image Picker */}
-              <div className="flex flex-col items-center justify-center space-y-4 mb-6">
+              <div className="flex flex-col items-center justify-center space-y-3 mb-6">
                 <div className="relative h-24 w-24 rounded-full overflow-hidden border-2 border-gray-100 bg-gray-50 group">
                     {newUser.profile_photo_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img 
-                            src={newUser.profile_photo_url} 
-                            alt="Profile" 
-                            className="h-full w-full object-cover" 
+                        <img
+                            src={newUser.profile_photo_url}
+                            alt="Profile"
+                            className="h-full w-full object-cover"
                         />
                     ) : (
                         <div className="h-full w-full flex items-center justify-center">
                             <UserIcon className="h-10 w-10 text-gray-300" />
                         </div>
                     )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer" onClick={() => setIsGalleryOpen(true)}>
-                        <Camera className="text-white h-6 w-6" />
-                    </div>
+                    {isUploadingPhoto && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        </div>
+                    )}
                 </div>
-                <Button type="button" variant="outline" size="sm" onClick={() => setIsGalleryOpen(true)}>
-                    {newUser.profile_photo_url ? 'Change Photo' : 'Select Photo'}
-                </Button>
+                <div className="flex gap-2">
+                    {/* Upload from device */}
+                    <input
+                        type="file"
+                        id="profile-photo-upload"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handlePhotoUpload}
+                        disabled={isUploadingPhoto}
+                    />
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={isUploadingPhoto}
+                        onClick={() => document.getElementById('profile-photo-upload')?.click()}
+                    >
+                        <UploadIcon className="h-3.5 w-3.5 mr-1.5" />
+                        Upload
+                    </Button>
+                    {/* Pick from gallery */}
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={isUploadingPhoto}
+                        onClick={() => setIsGalleryOpen(true)}
+                    >
+                        <Camera className="h-3.5 w-3.5 mr-1.5" />
+                        Gallery
+                    </Button>
+                    {/* Clear photo */}
+                    {newUser.profile_photo_url && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:text-red-600"
+                            onClick={() => setNewUser(prev => ({ ...prev, profile_photo_url: '' }))}
+                        >
+                            Remove
+                        </Button>
+                    )}
+                </div>
               </div>
 
               <div className="space-y-2">

@@ -461,6 +461,15 @@ class APIClient {
     return response.data;
   }
 
+  async uploadMediaFile(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await this.client.post('/media/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.url as string;
+  }
+
   async linkItineraryImages(id: string, images: {image_url: string, caption?: string}[]) {
       const response = await this.client.post(`/itineraries/${id}/images/link`, images);
       return response.data;
