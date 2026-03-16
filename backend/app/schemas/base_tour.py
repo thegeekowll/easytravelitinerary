@@ -283,6 +283,10 @@ class BaseTourDayResponse(BaseTourDayBase):
         None,
         description="ID of the accommodation"
     )
+    atmospheric_image_url: Optional[str] = Field(
+        None,
+        description="Atmospheric image URL for this day"
+    )
 
     model_config = ConfigDict(from_attributes=True)
 
