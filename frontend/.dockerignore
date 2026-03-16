@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Next.js
+.next
+out
+
+# Environment - exclude all env files (vars passed via build args)
+.env*
+.env.local
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# Misc
+.DS_Store
+*.pem

@@ -1,0 +1,278 @@
+name: Deploy Travel Agency Platform
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE_NAME: ${{ github.repository }}/backend
+  FRONTEND_IMAGE_NAME: ${{ github.repository }}/frontend
+
+jobs:
+  # Run tests
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright
+        working-directory: ./backend
+        run: playwright install chromium
+
+      - name: Run tests
+        working-directory: ./backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          REDIS_URL: redis://localhost:6379/0
+          SECRET_KEY: test-secret-key-for-ci
+          ENVIRONMENT: testing
+        run: |
+          pytest --cov=app --cov-report=xml --cov-report=term
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./backend/coverage.xml
+          flags: backend
+          name: backend-coverage
+
+  # Lint and code quality
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          pip install black flake8 mypy isort
+
+      - name: Run Black
+        working-directory: ./backend
+        run: black --check .
+
+      - name: Run Flake8
+        working-directory: ./backend
+        run: flake8 app
+
+      - name: Run isort
+        working-directory: ./backend
+        run: isort --check-only .
+
+      - name: Run mypy
+        working-directory: ./backend
+        run: mypy app --ignore-missing-imports
+
+  # Build and push Docker images
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Backend
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:buildcache,mode=max
+
+      - name: Extract metadata for Frontend
+        id: meta-frontend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:buildcache,mode=max
+
+  # Deploy to production
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+      url: https://your-domain.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /var/www/travel-agency
+            git pull origin main
+            docker-compose pull
+            docker-compose up -d --remove-orphans
+            docker system prune -af
+
+      - name: Run database migrations
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            cd /var/www/travel-agency
+            docker-compose exec -T backend alembic upgrade head
+
+      - name: Health check
+        run: |
+          sleep 10
+          curl -f ${{ secrets.PRODUCTION_URL }}/health || exit 1
+
+  # Deploy to staging
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+
+    environment:
+      name: staging
+      url: https://staging.your-domain.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to staging server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /var/www/travel-agency-staging
+            git pull origin develop
+            docker-compose pull
+            docker-compose up -d --remove-orphans
+            docker system prune -af
+
+      - name: Run database migrations
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /var/www/travel-agency-staging
+            docker-compose exec -T backend alembic upgrade head
+
+      - name: Health check
+        run: |
+          sleep 10
+          curl -f ${{ secrets.STAGING_URL }}/health || exit 1
+
+  # Notify deployment status
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy, deploy-staging]
+    if: always()
+
+    steps:
+      - name: Send notification
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Deployment ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: always()
