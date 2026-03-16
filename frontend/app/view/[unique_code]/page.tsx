@@ -189,7 +189,7 @@ export default function ClientPresentationView() {
               <div key={day.id} className="flex flex-col md:flex-row border-b border-gray-100 last:border-b-0 w-full">
                 
                 {/* Left Column (Image) - original width, taller height */}
-                <div className="md:w-[calc(40%+100px)] relative min-h-[700px] md:min-h-[910px]">
+                <div className="md:w-[calc(40%+100px)] relative min-h-[735px] md:min-h-[956px]">
                   <div className="relative h-full w-full">
                      {day.atmospheric_image_url || (day.destinations?.[0]?.images?.[0]?.image_url) ? (
                        // eslint-disable-next-line @next/next/no-img-element
