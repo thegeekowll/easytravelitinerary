@@ -193,6 +193,7 @@ async def create_base_tour(
             day_title=day_data.day_title,
             description=day_data.description,
             activities=day_data.activities,
+            meals_included=day_data.meals_included,
             accommodation_id=day_data.accommodation_id,
             atmospheric_image_url=day_data.atmospheric_image_url
         )
@@ -265,6 +266,7 @@ async def update_base_tour(
                 day_title=day_data["day_title"],
                 description=day_data.get("description"),
                 activities=day_data.get("activities"),
+                meals_included=day_data.get("meals_included"),
                 accommodation_id=day_data.get("accommodation_id"),
                 atmospheric_image_url=day_data.get("atmospheric_image_url")
             )
