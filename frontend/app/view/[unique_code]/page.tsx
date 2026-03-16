@@ -216,9 +216,9 @@ export default function ClientPresentationView() {
 
                       {/* Day Header */}
                       <div className="mb-10">
-                         <h3 className="text-2xl font-sans font-semibold text-gray-900 mb-3">
+                         <h3 className="text-[22px] font-sans font-semibold text-gray-900 mb-3">
                            Day {day.day_number}
-                           <span className="font-light text-gray-600 block mt-2 text-xl font-sans">
+                           <span className="font-semibold text-gray-600 block mt-2 text-[22px] font-sans">
                               {day.destinations && day.destinations.length > 0
                                 ? day.destinations.map((d: any) => d.name).join(' - ')
                                 : (day.title || 'Leisure Day')}
