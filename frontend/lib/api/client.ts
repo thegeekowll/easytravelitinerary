@@ -277,6 +277,13 @@ class APIClient {
     return response.data;
   }
 
+  async addAccommodationImageUrl(accommodationId: string, imageUrl: string) {
+    const response = await this.client.post(`/accommodations/${accommodationId}/images/url`, {
+      image_url: imageUrl,
+    });
+    return response.data;
+  }
+
   // Admin Destinatinos Management
   async getDestinations(params?: any) {
     const response = await this.client.get('/destinations', { params });

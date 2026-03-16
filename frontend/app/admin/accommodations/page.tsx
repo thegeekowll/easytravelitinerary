@@ -13,7 +13,6 @@ import { useAuth } from '@/lib/hooks/useAuth';
 
 
 import AttributeManager from '@/components/accommodations/attribute-manager';
-import Image from 'next/image';
 
 export default function AccommodationsPage() {
   const { user, hasPermission } = useAuth();
@@ -207,11 +206,11 @@ export default function AccommodationsPage() {
             <Card key={acc.id} className="overflow-hidden hover:shadow-md transition-shadow group">
                <div className="h-48 bg-gray-200 relative">
                   {acc.images && acc.images.length > 0 ? (
-                      <Image 
-                        src={acc.images[0].image_url} 
-                        alt={acc.name} 
-                        fill 
-                        className="object-cover"
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={acc.images[0].image_url}
+                        alt={acc.name}
+                        className="w-full h-full object-cover"
                       />
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-400">

@@ -24,7 +24,8 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
   const [types, setTypes] = useState<any[]>([]);
   const [levels, setLevels] = useState<any[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  
+  const [galleryImageUrls, setGalleryImageUrls] = useState<string[]>([]);
+
   // Inline creation states
   const [isTypeDialogOpen, setIsTypeDialogOpen] = useState(false);
   const [isLevelDialogOpen, setIsLevelDialogOpen] = useState(false);
@@ -83,13 +84,25 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
         toast.success('Accommodation created successfully');
       }
 
-      // Upload images if allowed
+      // Upload file images if any
       if (selectedFiles.length > 0 && newAccommodation?.id) {
          try {
              await apiClient.uploadAccommodationImages(newAccommodation.id, selectedFiles);
          } catch (uploadError) {
              console.error("Image upload failed", uploadError);
-             toast.error("Accommodation created, but image upload failed");
+             toast.error("Accommodation saved, but image upload failed");
+         }
+      }
+
+      // Save gallery-selected image URLs
+      if (galleryImageUrls.length > 0 && newAccommodation?.id) {
+         try {
+             for (const url of galleryImageUrls) {
+               await apiClient.addAccommodationImageUrl(newAccommodation.id, url);
+             }
+         } catch (galleryError) {
+             console.error("Gallery image save failed", galleryError);
+             toast.error("Accommodation saved, but gallery image linking failed");
          }
       }
 
@@ -301,8 +314,9 @@ export default function AccommodationForm({ initialData, onSuccess }: Accommodat
 
       <div className="space-y-2 border-t pt-4">
         <Label>Images</Label>
-        <ImageUpload 
+        <ImageUpload
             onImagesSelected={setSelectedFiles}
+            onGalleryImagesSelected={setGalleryImageUrls}
             existingImages={initialData?.images || []}
             onDeleteExisting={async (id) => {
                 if (confirm('Delete this image?')) {

@@ -325,6 +325,49 @@ async def upload_accommodation_images(
         )
 
 
+@router.post("/{accommodation_id}/images/url", response_model=AccommodationImageResponse)
+async def add_accommodation_image_url(
+    accommodation_id: UUID,
+    body: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission("edit_accommodation"))
+):
+    """Add an image to an accommodation by URL (e.g. from the image gallery)."""
+    accommodation = db.query(Accommodation).filter(
+        Accommodation.id == accommodation_id
+    ).first()
+
+    if not accommodation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Accommodation not found"
+        )
+
+    image_url = body.get("image_url", "").strip()
+    if not image_url:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="image_url is required"
+        )
+
+    # Count existing images to set display_order
+    existing_count = db.query(AccommodationImage).filter(
+        AccommodationImage.accommodation_id == accommodation_id
+    ).count()
+
+    image = AccommodationImage(
+        accommodation_id=accommodation_id,
+        image_url=image_url,
+        caption="",
+        is_primary=(existing_count == 0),
+        display_order=existing_count
+    )
+    db.add(image)
+    db.commit()
+    db.refresh(image)
+    return image
+
+
 @router.delete("/images/{image_id}", response_model=MessageResponse)
 async def delete_accommodation_image(
     image_id: UUID,
