@@ -193,7 +193,8 @@ async def create_base_tour(
             day_title=day_data.day_title,
             description=day_data.description,
             activities=day_data.activities,
-            accommodation_id=day_data.accommodation_id
+            accommodation_id=day_data.accommodation_id,
+            atmospheric_image_url=day_data.atmospheric_image_url
         )
         db.add(day)
         db.flush() # Get Day ID
@@ -264,8 +265,8 @@ async def update_base_tour(
                 day_title=day_data["day_title"],
                 description=day_data.get("description"),
                 activities=day_data.get("activities"),
-
-                accommodation_id=day_data.get("accommodation_id")
+                accommodation_id=day_data.get("accommodation_id"),
+                atmospheric_image_url=day_data.get("atmospheric_image_url")
             )
             db.add(day)
             db.flush()
@@ -369,7 +370,8 @@ async def duplicate_base_tour(
                 description=original_day.description,
                 activities=original_day.activities,
                 meals_included=original_day.meals_included,
-                accommodation_id=original_day.accommodation_id
+                accommodation_id=original_day.accommodation_id,
+                atmospheric_image_url=original_day.atmospheric_image_url
             )
             db.add(new_day)
             db.flush()

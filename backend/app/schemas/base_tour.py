@@ -213,6 +213,10 @@ class BaseTourDayCreate(BaseTourDayBase):
         None,
         description="ID of the accommodation for this day"
     )
+    atmospheric_image_url: Optional[str] = Field(
+        None,
+        description="Atmospheric image URL for this day"
+    )
 
 
 class BaseTourDayUpdate(BaseModel):
@@ -251,6 +255,10 @@ class BaseTourDayUpdate(BaseModel):
     accommodation_id: Optional[UUID] = Field(
         None,
         description="Updated accommodation ID"
+    )
+    atmospheric_image_url: Optional[str] = Field(
+        None,
+        description="Atmospheric image URL for this day"
     )
 
     model_config = ConfigDict(from_attributes=True)
