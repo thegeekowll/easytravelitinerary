@@ -283,10 +283,14 @@ class ItineraryService:
         itinerary = Itinerary(
             created_from_base_tour_id=base_tour_id,
             tour_title=base_tour.tour_name,
+            tour_code=base_tour.tour_code,
             tour_type_id=base_tour.tour_type_id,
+            accommodation_level_id=base_tour.accommodation_level_id,
             number_of_days=base_tour.number_of_days,
             number_of_nights=base_tour.number_of_nights,
             description=base_tour.description,
+            highlights=base_tour.highlights,
+            difficulty_level=base_tour.difficulty_level,
             departure_date=departure_date,
             return_date=return_date,
             status=ItineraryStatusEnum.DRAFT,
@@ -295,7 +299,6 @@ class ItineraryService:
             assigned_to_user_id=assigned_to_user_id,
             created_by_user_id=created_by_user_id,
             can_edit_after_tour=False
-
         )
 
         db.add(itinerary)
@@ -394,10 +397,14 @@ class ItineraryService:
         itinerary = Itinerary(
             created_from_base_tour_id=base_tour_id,
             tour_title=tour_modifications.get('title', base_tour.tour_name),
+            tour_code=base_tour.tour_code,
             tour_type_id=base_tour.tour_type_id,
+            accommodation_level_id=tour_modifications.get('accommodation_level_id', base_tour.accommodation_level_id),
             number_of_days=duration_days,
-            number_of_nights=duration_days - 1, # Approximation
+            number_of_nights=duration_days - 1,
             description=tour_modifications.get('description', base_tour.description),
+            highlights=tour_modifications.get('highlights', base_tour.highlights),
+            difficulty_level=tour_modifications.get('difficulty_level', base_tour.difficulty_level),
             departure_date=departure_date,
             return_date=return_date,
             status=ItineraryStatusEnum.DRAFT,

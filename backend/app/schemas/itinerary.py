@@ -331,6 +331,7 @@ class ItineraryResponse(ItineraryBase):
 
     id: UUID
     unique_code: str
+    tour_code: Optional[str] = None
     creation_method: CreationMethodEnum
     base_tour_id: Optional[UUID] = None
     base_tour_title: Optional[str] = None
@@ -343,7 +344,7 @@ class ItineraryResponse(ItineraryBase):
     created_at: datetime
     updated_at: datetime
     images: List[ItineraryImageResponse] = Field(default_factory=list)
-    
+
     # Nested Relationships (for easy display)
     tour_type: Optional['TourTypeResponse'] = None
     accommodation_level: Optional['AccommodationLevelResponse'] = None
