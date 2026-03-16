@@ -216,7 +216,7 @@ export default function ClientPresentationView() {
 
                       {/* Day Header */}
                       <div className="mb-10 border-l-4 border-primary pl-6">
-                         <h3 className="text-3xl font-sans font-bold text-gray-900 mb-3">
+                         <h3 className="text-2xl font-sans font-semibold text-gray-900 mb-3">
                            Day {day.day_number}
                            {day.day_number === 1 ? (
                               <span className="font-light text-gray-600 block mt-2 text-xl font-sans">Arrival Day: {day.destinations?.map((d: any) => d.name).join(' - ') || 'Arrival'}</span>
