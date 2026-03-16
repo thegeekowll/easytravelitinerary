@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Define protected routes
-  const isProtectedRoute = path.startsWith('/dashboard') || path.startsWith('/admin');
+  const isProtectedRoute = path.startsWith('/dashboard') || path.startsWith('/admin') || path.startsWith('/create-tour');
   
   // Define public routes (that might be inside protected areas, though usually not)
   // const isPublicRoute = path === '/dashboard/public-share'; // Example
@@ -30,6 +30,7 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/admin/:path*',
-    // Add other protected routes here
+    '/create-tour',
+    '/create-tour/:path*',
   ],
 };

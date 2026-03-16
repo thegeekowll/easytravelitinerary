@@ -63,7 +63,7 @@ export default function DashboardPage() {
               : "Here's your personal activity and upcoming tasks."}
           </p>
         </div>
-        <Link href="/dashboard/itineraries/new">
+        <Link href="/create-tour">
             <Button>
                 <FileText className="mr-2 h-4 w-4" /> Create New Itinerary
             </Button>
