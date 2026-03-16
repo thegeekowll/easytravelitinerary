@@ -188,8 +188,8 @@ export default function ClientPresentationView() {
             {itinerary.days && itinerary.days.map((day: any, index: number) => (
               <div key={day.id} className="flex flex-col md:flex-row border-b border-gray-100 last:border-b-0 w-full">
                 
-                {/* Left Column (Image) - 54% + 100px (~35% wider than before) */}
-                <div className="md:w-[calc(54%+100px)] relative min-h-[400px] md:min-h-full">
+                {/* Left Column (Image) - original width, taller height */}
+                <div className="md:w-[calc(40%+100px)] relative min-h-[540px] md:min-h-[700px]">
                   <div className="relative h-full w-full">
                      {day.atmospheric_image_url || (day.destinations?.[0]?.images?.[0]?.image_url) ? (
                        // eslint-disable-next-line @next/next/no-img-element
@@ -207,7 +207,7 @@ export default function ClientPresentationView() {
                 </div>
 
                 {/* Right Column (Content) - 60% - 100px */}
-                <div className="md:w-[calc(46%-100px)] bg-white p-8 md:pl-24 md:pr-16 md:py-[100px] flex flex-col justify-center">
+                <div className="md:w-[calc(60%-100px)] bg-white p-8 md:pl-24 md:pr-16 md:py-[100px] flex flex-col justify-center">
                    <div className="w-full">
                       {/* ITINERARY Heading - Only on Day 1 */}
                       {index === 0 && (
