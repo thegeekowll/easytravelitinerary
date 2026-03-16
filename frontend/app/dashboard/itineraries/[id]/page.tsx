@@ -145,6 +145,7 @@ export default function ItineraryDetailPage({
       const updateData = {
         // Basic Info
         tour_title: itinerary.tour_title,
+        tour_code: itinerary.tour_code || null,
         status: newStatus,
         notes: itinerary.notes,
 
@@ -281,7 +282,11 @@ export default function ItineraryDetailPage({
             </Badge>
           </div>
           <p className="text-gray-500 text-sm">
-            Ref: {itinerary.unique_code} •{" "}
+            Ref: {itinerary.unique_code}
+            {itinerary.tour_code && (
+              <span className="ml-1 font-medium text-gray-700">• Tour Code: {itinerary.tour_code}</span>
+            )}
+            {" "}•{" "}
             {itinerary.duration_days === 1
               ? "1 Day"
               : `${itinerary.duration_days} Days / ${itinerary.duration_nights !== undefined ? itinerary.duration_nights : itinerary.duration_days - 1} ${(itinerary.duration_nights !== undefined ? itinerary.duration_nights : itinerary.duration_days - 1) === 1 ? "Night" : "Nights"}`}
@@ -688,6 +693,23 @@ export default function ItineraryDetailPage({
                   />
                 ) : (
                   <p className="text-lg font-medium">{itinerary.tour_title}</p>
+                )}
+              </div>
+
+              <div>
+                <Label className="text-xs text-gray-500 uppercase mb-1 block">
+                  Tour Code
+                </Label>
+                {isEditing ? (
+                  <Input
+                    value={itinerary.tour_code || ''}
+                    onChange={(e) =>
+                      setItinerary({ ...itinerary, tour_code: e.target.value })
+                    }
+                    placeholder="e.g. KEN001"
+                  />
+                ) : (
+                  <p className="font-medium">{itinerary.tour_code || <span className="text-gray-400 italic">None</span>}</p>
                 )}
               </div>
 
