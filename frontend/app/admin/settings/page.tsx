@@ -796,690 +796,481 @@ export default function SettingsPage() {
         </TabsContent>
 
         {/* ITINERARY PAGE TAB */}
-        <TabsContent value="itinerary-page" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold">Itinerary Page Editor</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Customise every piece of text shown on the client-facing itinerary view page. Changes apply to all itineraries instantly.
-              </p>
-            </div>
+        <TabsContent value="itinerary-page" className="space-y-3">
+          <div>
+            <h2 className="text-xl font-semibold">Itinerary Page Editor</h2>
+            <p className="text-sm text-muted-foreground mt-1">Click any section to expand it. Desktop and mobile settings are shown side-by-side within each typography section.</p>
           </div>
 
-          {/* Section Headings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Section Headings</CardTitle>
-              <CardDescription>The large uppercase headings that appear between each section of the itinerary.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                {[
-                  { key: 'page_heading_itinerary',           label: 'Day-by-Day Section Heading',    placeholder: 'Itinerary' },
-                  { key: 'page_heading_accommodations',      label: 'Accommodations Heading',         placeholder: 'ACCOMMODATIONS' },
-                  { key: 'page_heading_whats_included',      label: "What's Included Heading",        placeholder: "What's Included" },
-                  { key: 'page_heading_whats_excluded',      label: "What's Excluded Heading",        placeholder: "What's Excluded" },
-                  { key: 'page_heading_about',               label: 'About Section Heading',          placeholder: 'ABOUT EASY TRAVEL' },
-                ].map(({ key, label, placeholder }) => (
-                  <div key={key} className="space-y-2">
-                    <Label>{label}</Label>
-                    <Input
-                      value={templates[key] || ''}
-                      placeholder={placeholder}
-                      onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })}
-                    />
-                  </div>
-                ))}
-              </div>
-              <Button onClick={() => {
-                ['page_heading_itinerary','page_heading_accommodations','page_heading_whats_included','page_heading_whats_excluded','page_heading_about'].forEach(handleTemplateSave);
-              }}>Save Headings</Button>
-            </CardContent>
-          </Card>
+          {/* Helper fragments used repeatedly */}
+          {(() => {
+            const A = "border rounded-lg overflow-hidden";
+            const S = "px-6 py-4 cursor-pointer list-none select-none flex items-center justify-between bg-muted/30 hover:bg-muted/60 transition-colors [&::marker]:hidden";
+            const B = "p-6 space-y-5 border-t";
+            const DT = "text-xs font-bold text-blue-600 uppercase tracking-wider flex items-center gap-1.5";
+            const MB = "text-xs font-bold text-orange-600 uppercase tracking-wider flex items-center gap-1.5";
+            const SUB = "text-xs font-semibold text-muted-foreground uppercase tracking-wider";
+            const LS = <>
+              <option value="0">None (0)</option>
+              <option value="0.02em">Very Tight</option>
+              <option value="0.05em">Tight</option>
+              <option value="0.1em">Normal</option>
+              <option value="0.15em">Wide</option>
+              <option value="0.2em">Wider</option>
+              <option value="0.3em">Widest</option>
+            </>;
+            const WS = <>
+              <option value="0">None (0)</option>
+              <option value="-1px">Tight (−1px)</option>
+              <option value="2px">2px</option>
+              <option value="4px">4px</option>
+              <option value="6px">6px</option>
+              <option value="8px">8px</option>
+            </>;
+            const FW = (extra?: boolean) => <>
+              <option value="300">Light (300)</option>
+              <option value="400">Regular (400)</option>
+              <option value="500">Medium (500)</option>
+              <option value="600">Semi Bold (600)</option>
+              <option value="700">Bold (700)</option>
+              {extra && <option value="800">Extra Bold (800)</option>}
+            </>;
 
-          {/* Day Labels */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Day Detail Labels</CardTitle>
-              <CardDescription>Labels shown inside each day card for accommodation, meals, and activities.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  { key: 'page_label_overnight_at',         label: '"Overnight At" Label',            placeholder: 'Overnight At:' },
-                  { key: 'page_label_meal_plan',            label: '"Meal Plan" Label',               placeholder: 'Meal Plan:' },
-                  { key: 'page_label_todays_activities',    label: '"Today\'s Activities" Label',     placeholder: "Today's Activities" },
-                ].map(({ key, label, placeholder }) => (
-                  <div key={key} className="space-y-2">
-                    <Label>{label}</Label>
-                    <Input
-                      value={templates[key] || ''}
-                      placeholder={placeholder}
-                      onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })}
-                    />
-                  </div>
-                ))}
-              </div>
-              <Button onClick={() => {
-                ['page_label_overnight_at','page_label_meal_plan','page_label_todays_activities'].forEach(handleTemplateSave);
-              }}>Save Labels</Button>
-            </CardContent>
-          </Card>
-
-          {/* Contact Block */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Welcome Letter Contact Block</CardTitle>
-              <CardDescription>The company name, phone, and email shown below the welcome message on every itinerary.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                {[
-                  { key: 'page_contact_company_name',     label: 'Company Display Name',    placeholder: 'Easy Travel Tanzania' },
-                  { key: 'page_contact_company_phone',    label: 'Display Phone Number',     placeholder: '+ 255 786 400 148' },
-                  { key: 'page_contact_fallback_email',   label: 'Fallback Email Address',   placeholder: 'info@easytravel.co.tz' },
-                ].map(({ key, label, placeholder }) => (
-                  <div key={key} className="space-y-2">
-                    <Label>{label}</Label>
-                    <Input
-                      value={templates[key] || ''}
-                      placeholder={placeholder}
-                      onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })}
-                    />
-                  </div>
-                ))}
-              </div>
-              <Button onClick={() => {
-                ['page_contact_company_name','page_contact_company_phone','page_contact_fallback_email'].forEach(handleTemplateSave);
-              }}>Save Contact Info</Button>
-            </CardContent>
-          </Card>
-
-          {/* ── Typography & Spacing ─────────────────────────────── */}
-          <div className="pt-4 border-t">
-            <h2 className="text-xl font-semibold mb-1">Typography & Spacing</h2>
-            <p className="text-sm text-muted-foreground mb-4">Font size (px), weight, and family for each section. Spacing controls gaps and padding. All changes apply instantly.</p>
-          </div>
-
-          {/* Global Fonts */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Global Font Families</CardTitle>
-              <CardDescription>Base font stacks used throughout the page. Sans-serif for body/labels, serif for headings like the hero title.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Sans-serif Family</Label>
-                  <select className={SEL} value={getStyle('global_sans', 'system-ui, sans-serif')} onChange={e => setStyle('global_sans', e.target.value)}>
-                    <option value="system-ui, sans-serif">System Default</option>
-                    <option value="Arial, sans-serif">Arial</option>
-                    <option value="'Helvetica Neue', sans-serif">Helvetica</option>
-                    <option value="Verdana, sans-serif">Verdana</option>
-                    <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
-                    <option value="'Gill Sans', sans-serif">Gill Sans</option>
-                    <option value="Tahoma, sans-serif">Tahoma</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Serif Family (hero title, etc.)</Label>
-                  <select className={SEL} value={getStyle('global_serif', 'Georgia, serif')} onChange={e => setStyle('global_serif', e.target.value)}>
-                    <option value="Georgia, serif">Georgia</option>
-                    <option value="'Times New Roman', serif">Times New Roman</option>
-                    <option value="Palatino, serif">Palatino</option>
-                    <option value="Garamond, serif">Garamond</option>
-                    <option value="'Book Antiqua', serif">Book Antiqua</option>
-                    <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
-                  </select>
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Global Fonts</Button>
-            </CardContent>
-          </Card>
-
-          {/* Hero Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Hero Section</CardTitle>
-              <CardDescription>The full-screen opening image with tour title and description.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tour Title</div>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('hero_title_size', '56')} onChange={e => setStyle('hero_title_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('hero_title_weight', '700')} onChange={e => setStyle('hero_title_weight', e.target.value)}>
-                    <option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option><option value="800">Extra Bold (800)</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Family</Label>
-                  <select className={SEL} value={getStyle('hero_title_family', 'serif')} onChange={e => setStyle('hero_title_family', e.target.value)}>
-                    <option value="serif">Serif (global serif)</option>
-                    <option value="sans-serif">Sans-serif (global sans)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Tour Description / Subtitle</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('hero_desc_size', '20')} onChange={e => setStyle('hero_desc_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('hero_desc_weight', '300')} onChange={e => setStyle('hero_desc_weight', e.target.value)}>
-                    <option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Hero Typography</Button>
-            </CardContent>
-          </Card>
-
-          {/* Section Headings Typography */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Section Headings Typography</CardTitle>
-              <CardDescription>Applies to Itinerary, Accommodations, What's Included, What's Excluded, and About headings.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('heading_size', '48')} onChange={e => setStyle('heading_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('heading_weight', '600')} onChange={e => setStyle('heading_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option><option value="800">Extra Bold (800)</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Letter Spacing</Label>
-                  <select className={SEL} value={getStyle('heading_spacing', '0.2em')} onChange={e => setStyle('heading_spacing', e.target.value)}>
-                    <option value="0">None</option>
-                    <option value="0.05em">Tight (0.05em)</option>
-                    <option value="0.1em">Normal (0.1em)</option>
-                    <option value="0.2em">Wide (0.2em)</option>
-                    <option value="0.3em">Wider (0.3em)</option>
-                    <option value="0.4em">Widest (0.4em)</option>
-                  </select>
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Heading Typography</Button>
-            </CardContent>
-          </Card>
-
-          {/* Day Cards Typography */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Day Cards Typography</CardTitle>
-              <CardDescription>Text inside each day's content block — title, description, and detail labels.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Day Title</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('day_title_size', '22')} onChange={e => setStyle('day_title_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('day_title_weight', '600')} onChange={e => setStyle('day_title_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Day Description</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('day_desc_size', '16')} onChange={e => setStyle('day_desc_size', e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Detail Labels (Overnight At, Meal Plan, etc.)</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('day_label_size', '16')} onChange={e => setStyle('day_label_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('day_label_weight', '700')} onChange={e => setStyle('day_label_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Day Card Internal Padding</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Horizontal Padding (px)</Label>
-                  <Input type="number" value={getStyle('day_padding_x', '96')} onChange={e => setStyle('day_padding_x', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Vertical Padding (px)</Label>
-                  <Input type="number" value={getStyle('day_padding_y', '100')} onChange={e => setStyle('day_padding_y', e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Day Card Typography</Button>
-            </CardContent>
-          </Card>
-
-          {/* Inclusions & Exclusions Typography + Layout */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Inclusions & Exclusions Typography & Layout</CardTitle>
-              <CardDescription>Font styling for item titles and descriptions, plus spacing between items.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item Title</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('inc_title_size', '20')} onChange={e => setStyle('inc_title_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('inc_title_weight', '700')} onChange={e => setStyle('inc_title_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Item Description</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('inc_desc_size', '16')} onChange={e => setStyle('inc_desc_size', e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Layout Spacing</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Row Gap — between items vertically (px)</Label>
-                  <Input type="number" value={getStyle('inc_row_gap', '80')} onChange={e => setStyle('inc_row_gap', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Column Gap — space between the 2 columns (px)</Label>
-                  <Input type="number" value={getStyle('inc_col_gap', '450')} onChange={e => setStyle('inc_col_gap', e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Inclusions/Exclusions Styles</Button>
-            </CardContent>
-          </Card>
-
-          {/* Welcome Letter & Closing */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Welcome Letter & Closing Message</CardTitle>
-              <CardDescription>Typography for the personalised welcome text and the final closing message.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Welcome Letter Body</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('welcome_size', '16')} onChange={e => setStyle('welcome_size', e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Contact Block (Company Name / Phone / Email)</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('contact_name_size', '16')} onChange={e => setStyle('contact_name_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Company Name Weight</Label>
-                  <select className={SEL} value={getStyle('contact_name_weight', '700')} onChange={e => setStyle('contact_name_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Closing Message</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('closing_size', '20')} onChange={e => setStyle('closing_size', e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Welcome & Closing Styles</Button>
-            </CardContent>
-          </Card>
-
-          {/* Footer Typography */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Footer Typography</CardTitle>
-              <CardDescription>Agent name, position, and contact text sizing in the footer section.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label>Agent Name — Font Size (px)</Label>
-                  <Input type="number" value={getStyle('footer_name_size', '20')} onChange={e => setStyle('footer_name_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Agent Name — Font Weight</Label>
-                  <select className={SEL} value={getStyle('footer_name_weight', '700')} onChange={e => setStyle('footer_name_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Agent Position — Font Size (px)</Label>
-                  <Input type="number" value={getStyle('footer_position_size', '14')} onChange={e => setStyle('footer_position_size', e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Section Spacing</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Footer Top Padding (px)</Label>
-                  <Input type="number" value={getStyle('footer_padding_top', '96')} onChange={e => setStyle('footer_padding_top', e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Footer Styles</Button>
-            </CardContent>
-          </Card>
-
-          {/* ── Mobile Overrides ─────────────────────────────────── */}
-          <div className="pt-4 border-t">
-            <h2 className="text-xl font-semibold mb-1">Mobile Typography & Spacing</h2>
-            <p className="text-sm text-muted-foreground mb-4">Separate values applied on screens narrower than 768 px. Overrides the desktop values above for each element.</p>
-          </div>
-
-          {/* Mobile Hero */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mobile — Hero Section</CardTitle>
-              <CardDescription>Tour title and description on mobile.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tour Title</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_hero_title_size', '28')} onChange={e => setStyle('m_hero_title_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('m_hero_title_weight', '700')} onChange={e => setStyle('m_hero_title_weight', e.target.value)}>
-                    <option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option><option value="800">Extra Bold (800)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Tour Description / Subtitle</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_hero_desc_size', '14')} onChange={e => setStyle('m_hero_desc_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('m_hero_desc_weight', '300')} onChange={e => setStyle('m_hero_desc_weight', e.target.value)}>
-                    <option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Mobile Hero</Button>
-            </CardContent>
-          </Card>
-
-          {/* Mobile Section Headings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mobile — Section Headings Typography</CardTitle>
-              <CardDescription>Applies to all section headings (Itinerary, Accommodations, Included, Excluded, About) on mobile.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_heading_size', '22')} onChange={e => setStyle('m_heading_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('m_heading_weight', '600')} onChange={e => setStyle('m_heading_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option><option value="800">Extra Bold (800)</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Letter Spacing</Label>
-                  <select className={SEL} value={getStyle('m_heading_spacing', '0.1em')} onChange={e => setStyle('m_heading_spacing', e.target.value)}>
-                    <option value="0">None</option>
-                    <option value="0.05em">Tight (0.05em)</option>
-                    <option value="0.1em">Normal (0.1em)</option>
-                    <option value="0.2em">Wide (0.2em)</option>
-                    <option value="0.3em">Wider (0.3em)</option>
-                  </select>
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Mobile Headings</Button>
-            </CardContent>
-          </Card>
-
-          {/* Mobile Day Cards */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mobile — Day Cards Typography</CardTitle>
-              <CardDescription>Text inside each day card on mobile — title, description, labels, and padding.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Day Title</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_day_title_size', '18')} onChange={e => setStyle('m_day_title_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('m_day_title_weight', '600')} onChange={e => setStyle('m_day_title_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Day Description</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_day_desc_size', '14')} onChange={e => setStyle('m_day_desc_size', e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Detail Labels</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_day_label_size', '13')} onChange={e => setStyle('m_day_label_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('m_day_label_weight', '700')} onChange={e => setStyle('m_day_label_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Day Card Internal Padding</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Horizontal Padding (px)</Label>
-                  <Input type="number" value={getStyle('m_day_padding_x', '16')} onChange={e => setStyle('m_day_padding_x', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Vertical Padding (px)</Label>
-                  <Input type="number" value={getStyle('m_day_padding_y', '24')} onChange={e => setStyle('m_day_padding_y', e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Mobile Day Cards</Button>
-            </CardContent>
-          </Card>
-
-          {/* Mobile Inclusions & Exclusions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mobile — Inclusions & Exclusions Typography & Layout</CardTitle>
-              <CardDescription>Font and spacing for inclusions/exclusions on mobile.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item Title</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_inc_title_size', '15')} onChange={e => setStyle('m_inc_title_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Font Weight</Label>
-                  <select className={SEL} value={getStyle('m_inc_title_weight', '700')} onChange={e => setStyle('m_inc_title_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Item Description</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_inc_desc_size', '13')} onChange={e => setStyle('m_inc_desc_size', e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Layout Spacing</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Row Gap — between items vertically (px)</Label>
-                  <Input type="number" value={getStyle('m_inc_row_gap', '20')} onChange={e => setStyle('m_inc_row_gap', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Column Gap (px) — use 0 for single-column</Label>
-                  <Input type="number" value={getStyle('m_inc_col_gap', '0')} onChange={e => setStyle('m_inc_col_gap', e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Mobile Inc/Exc Styles</Button>
-            </CardContent>
-          </Card>
-
-          {/* Mobile Welcome & Closing */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mobile — Welcome Letter & Closing Message</CardTitle>
-              <CardDescription>Typography for welcome text and closing message on mobile.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Welcome Letter Body</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_welcome_size', '14')} onChange={e => setStyle('m_welcome_size', e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Contact Block</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_contact_name_size', '14')} onChange={e => setStyle('m_contact_name_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Company Name Weight</Label>
-                  <select className={SEL} value={getStyle('m_contact_name_weight', '700')} onChange={e => setStyle('m_contact_name_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Closing Message</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_closing_size', '16')} onChange={e => setStyle('m_closing_size', e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Mobile Welcome & Closing</Button>
-            </CardContent>
-          </Card>
-
-          {/* Mobile Footer */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Mobile — Footer Typography</CardTitle>
-              <CardDescription>Agent name, position sizing, and footer top padding on mobile.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label>Agent Name — Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_footer_name_size', '16')} onChange={e => setStyle('m_footer_name_size', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Agent Name — Font Weight</Label>
-                  <select className={SEL} value={getStyle('m_footer_name_weight', '700')} onChange={e => setStyle('m_footer_name_weight', e.target.value)}>
-                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
-                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Agent Position — Font Size (px)</Label>
-                  <Input type="number" value={getStyle('m_footer_position_size', '12')} onChange={e => setStyle('m_footer_position_size', e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Section Spacing</div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Footer Top Padding (px)</Label>
-                  <Input type="number" value={getStyle('m_footer_padding_top', '40')} onChange={e => setStyle('m_footer_padding_top', e.target.value)} />
-                </div>
-              </div>
-              <Button onClick={saveStyles}>Save Mobile Footer</Button>
-            </CardContent>
-          </Card>
-
-          {/* Brand Colours */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Brand Colours</CardTitle>
-              <CardDescription>Colours used throughout the itinerary view. Enter valid hex codes (e.g. #5B7444).</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-6 md:grid-cols-3">
-                {[
-                  { key: 'page_color_primary',       label: 'Primary (headings, accents)',     placeholder: '#5B7444',  preview: templates['page_color_primary'] || '#5B7444' },
-                  { key: 'page_color_exclusions',    label: "What's Excluded heading colour",  placeholder: '#c25d2a',  preview: templates['page_color_exclusions'] || '#c25d2a' },
-                  { key: 'page_footer_bg_color',     label: 'Footer Background Colour',        placeholder: '#EFE9E6',  preview: templates['page_footer_bg_color'] || '#EFE9E6' },
-                ].map(({ key, label, placeholder, preview }) => (
-                  <div key={key} className="space-y-2">
-                    <Label>{label}</Label>
-                    <div className="flex gap-2 items-center">
-                      <div
-                        className="h-10 w-10 rounded-md border shadow-sm flex-shrink-0"
-                        style={{ backgroundColor: preview }}
-                      />
-                      <Input
-                        value={templates[key] || ''}
-                        placeholder={placeholder}
-                        onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })}
-                        className="font-mono"
-                      />
+            return (
+              <>
+                {/* ── 1. Labels & Text ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Labels &amp; Text</span>
+                    <span className="text-xs text-muted-foreground">Section headings, day labels, contact block</span>
+                  </summary>
+                  <div className={B}>
+                    <p className={SUB}>Section Headings</p>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {[
+                        { key: 'page_heading_itinerary', label: 'Day-by-Day Heading', placeholder: 'Itinerary' },
+                        { key: 'page_heading_accommodations', label: 'Accommodations Heading', placeholder: 'ACCOMMODATIONS' },
+                        { key: 'page_heading_whats_included', label: "What's Included Heading", placeholder: "What's Included" },
+                        { key: 'page_heading_whats_excluded', label: "What's Excluded Heading", placeholder: "What's Excluded" },
+                        { key: 'page_heading_about', label: 'About Section Heading', placeholder: 'ABOUT EASY TRAVEL' },
+                      ].map(({ key, label, placeholder }) => (
+                        <div key={key} className="space-y-1.5">
+                          <Label className="text-xs">{label}</Label>
+                          <Input value={templates[key] || ''} placeholder={placeholder} onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })} />
+                        </div>
+                      ))}
+                    </div>
+                    <Button size="sm" onClick={() => { ['page_heading_itinerary','page_heading_accommodations','page_heading_whats_included','page_heading_whats_excluded','page_heading_about'].forEach(handleTemplateSave); }}>Save Headings</Button>
+                    <div className="border-t pt-4">
+                      <p className={`${SUB} mb-3`}>Day Detail Labels</p>
+                      <div className="grid gap-3 md:grid-cols-3">
+                        {[
+                          { key: 'page_label_overnight_at', label: '"Overnight At" Label', placeholder: 'Overnight At:' },
+                          { key: 'page_label_meal_plan', label: '"Meal Plan" Label', placeholder: 'Meal Plan:' },
+                          { key: 'page_label_todays_activities', label: "\"Today's Activities\" Label", placeholder: "Today's Activities" },
+                        ].map(({ key, label, placeholder }) => (
+                          <div key={key} className="space-y-1.5">
+                            <Label className="text-xs">{label}</Label>
+                            <Input value={templates[key] || ''} placeholder={placeholder} onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })} />
+                          </div>
+                        ))}
+                      </div>
+                      <Button className="mt-3" size="sm" onClick={() => { ['page_label_overnight_at','page_label_meal_plan','page_label_todays_activities'].forEach(handleTemplateSave); }}>Save Labels</Button>
+                    </div>
+                    <div className="border-t pt-4">
+                      <p className={`${SUB} mb-3`}>Welcome Letter Contact Block</p>
+                      <div className="grid gap-3 md:grid-cols-3">
+                        {[
+                          { key: 'page_contact_company_name', label: 'Company Display Name', placeholder: 'Easy Travel Tanzania' },
+                          { key: 'page_contact_company_phone', label: 'Display Phone', placeholder: '+ 255 786 400 148' },
+                          { key: 'page_contact_fallback_email', label: 'Fallback Email', placeholder: 'info@easytravel.co.tz' },
+                        ].map(({ key, label, placeholder }) => (
+                          <div key={key} className="space-y-1.5">
+                            <Label className="text-xs">{label}</Label>
+                            <Input value={templates[key] || ''} placeholder={placeholder} onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })} />
+                          </div>
+                        ))}
+                      </div>
+                      <Button className="mt-3" size="sm" onClick={() => { ['page_contact_company_name','page_contact_company_phone','page_contact_fallback_email'].forEach(handleTemplateSave); }}>Save Contact Info</Button>
                     </div>
                   </div>
-                ))}
-              </div>
-              <Button onClick={() => {
-                ['page_color_primary','page_color_exclusions','page_footer_bg_color'].forEach(handleTemplateSave);
-              }}>Save Colours</Button>
-            </CardContent>
-          </Card>
+                </details>
+
+                {/* ── 2. Brand Colours ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Brand Colours</span>
+                    <span className="text-xs text-muted-foreground">Primary, exclusions, footer background</span>
+                  </summary>
+                  <div className={B}>
+                    <div className="grid gap-5 md:grid-cols-3">
+                      {[
+                        { key: 'page_color_primary', label: 'Primary (headings, accents)', placeholder: '#5B7444', preview: templates['page_color_primary'] || '#5B7444' },
+                        { key: 'page_color_exclusions', label: "What's Excluded heading colour", placeholder: '#c25d2a', preview: templates['page_color_exclusions'] || '#c25d2a' },
+                        { key: 'page_footer_bg_color', label: 'Footer Background Colour', placeholder: '#EFE9E6', preview: templates['page_footer_bg_color'] || '#EFE9E6' },
+                      ].map(({ key, label, placeholder, preview }) => (
+                        <div key={key} className="space-y-1.5">
+                          <Label className="text-xs">{label}</Label>
+                          <div className="flex gap-2 items-center">
+                            <div className="h-10 w-10 rounded-md border shadow-sm flex-shrink-0" style={{ backgroundColor: preview }} />
+                            <Input value={templates[key] || ''} placeholder={placeholder} onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })} className="font-mono" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button size="sm" onClick={() => { ['page_color_primary','page_color_exclusions','page_footer_bg_color'].forEach(handleTemplateSave); }}>Save Colours</Button>
+                  </div>
+                </details>
+
+                {/* ── 3. Global Font Families ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Global Font Families</span>
+                    <span className="text-xs text-muted-foreground">Sans-serif and serif font stacks</span>
+                  </summary>
+                  <div className={B}>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Sans-serif Family</Label>
+                        <select className={SEL} value={getStyle('global_sans','system-ui, sans-serif')} onChange={e=>setStyle('global_sans',e.target.value)}>
+                          <option value="system-ui, sans-serif">System Default</option>
+                          <option value="Arial, sans-serif">Arial</option>
+                          <option value="'Helvetica Neue', sans-serif">Helvetica</option>
+                          <option value="Verdana, sans-serif">Verdana</option>
+                          <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                          <option value="'Gill Sans', sans-serif">Gill Sans</option>
+                          <option value="Tahoma, sans-serif">Tahoma</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">Serif Family (hero title, closing)</Label>
+                        <select className={SEL} value={getStyle('global_serif','Georgia, serif')} onChange={e=>setStyle('global_serif',e.target.value)}>
+                          <option value="Georgia, serif">Georgia</option>
+                          <option value="'Times New Roman', serif">Times New Roman</option>
+                          <option value="Palatino, serif">Palatino</option>
+                          <option value="Garamond, serif">Garamond</option>
+                          <option value="'Book Antiqua', serif">Book Antiqua</option>
+                          <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
+                        </select>
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={saveStyles}>Save Global Fonts</Button>
+                  </div>
+                </details>
+
+                {/* ── 4. Hero Section ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Hero Section</span>
+                    <span className="text-xs text-muted-foreground">Tour title and description on the cover image</span>
+                  </summary>
+                  <div className={B}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:divide-x">
+                      <div className="space-y-4">
+                        <p className={DT}><span className="h-2 w-2 rounded-full bg-blue-500 inline-block"/>Desktop</p>
+                        <p className={SUB}>Tour Title</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('hero_title_size','56')} onChange={e=>setStyle('hero_title_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('hero_title_weight','700')} onChange={e=>setStyle('hero_title_weight',e.target.value)}>{FW(true)}</select></div>
+                          <div className="space-y-1.5 col-span-2"><Label className="text-xs">Family</Label><select className={SEL} value={getStyle('hero_title_family','serif')} onChange={e=>setStyle('hero_title_family',e.target.value)}><option value="serif">Serif</option><option value="sans-serif">Sans-serif</option></select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('hero_title_letter_spacing','0')} onChange={e=>setStyle('hero_title_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('hero_title_word_spacing','0')} onChange={e=>setStyle('hero_title_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Tour Description</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('hero_desc_size','20')} onChange={e=>setStyle('hero_desc_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('hero_desc_weight','300')} onChange={e=>setStyle('hero_desc_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('hero_desc_letter_spacing','0')} onChange={e=>setStyle('hero_desc_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('hero_desc_word_spacing','0')} onChange={e=>setStyle('hero_desc_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                      </div>
+                      <div className="space-y-4 lg:pl-8">
+                        <p className={MB}><span className="h-2 w-2 rounded-full bg-orange-500 inline-block"/>Mobile (&lt; 768px)</p>
+                        <p className={SUB}>Tour Title</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_hero_title_size','28')} onChange={e=>setStyle('m_hero_title_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('m_hero_title_weight','700')} onChange={e=>setStyle('m_hero_title_weight',e.target.value)}>{FW(true)}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_hero_title_letter_spacing','0')} onChange={e=>setStyle('m_hero_title_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_hero_title_word_spacing','0')} onChange={e=>setStyle('m_hero_title_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Tour Description</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_hero_desc_size','14')} onChange={e=>setStyle('m_hero_desc_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('m_hero_desc_weight','300')} onChange={e=>setStyle('m_hero_desc_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_hero_desc_letter_spacing','0')} onChange={e=>setStyle('m_hero_desc_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_hero_desc_word_spacing','0')} onChange={e=>setStyle('m_hero_desc_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={saveStyles}>Save Hero Styles</Button>
+                  </div>
+                </details>
+
+                {/* ── 5. Section Headings Typography ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Section Headings Typography</span>
+                    <span className="text-xs text-muted-foreground">Itinerary, Accommodations, Included, Excluded, About</span>
+                  </summary>
+                  <div className={B}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:divide-x">
+                      <div className="space-y-4">
+                        <p className={DT}><span className="h-2 w-2 rounded-full bg-blue-500 inline-block"/>Desktop</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('heading_size','48')} onChange={e=>setStyle('heading_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('heading_weight','600')} onChange={e=>setStyle('heading_weight',e.target.value)}>{FW(true)}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('heading_spacing','0.2em')} onChange={e=>setStyle('heading_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('heading_word_spacing','0')} onChange={e=>setStyle('heading_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                      </div>
+                      <div className="space-y-4 lg:pl-8">
+                        <p className={MB}><span className="h-2 w-2 rounded-full bg-orange-500 inline-block"/>Mobile (&lt; 768px)</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_heading_size','22')} onChange={e=>setStyle('m_heading_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('m_heading_weight','600')} onChange={e=>setStyle('m_heading_weight',e.target.value)}>{FW(true)}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_heading_spacing','0.1em')} onChange={e=>setStyle('m_heading_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_heading_word_spacing','0')} onChange={e=>setStyle('m_heading_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={saveStyles}>Save Heading Styles</Button>
+                  </div>
+                </details>
+
+                {/* ── 6. Day Cards ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Day Cards</span>
+                    <span className="text-xs text-muted-foreground">Title, description, labels, padding</span>
+                  </summary>
+                  <div className={B}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:divide-x">
+                      <div className="space-y-4">
+                        <p className={DT}><span className="h-2 w-2 rounded-full bg-blue-500 inline-block"/>Desktop</p>
+                        <p className={SUB}>Day Title</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('day_title_size','22')} onChange={e=>setStyle('day_title_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('day_title_weight','600')} onChange={e=>setStyle('day_title_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('day_title_letter_spacing','0')} onChange={e=>setStyle('day_title_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('day_title_word_spacing','0')} onChange={e=>setStyle('day_title_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Day Description</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('day_desc_size','16')} onChange={e=>setStyle('day_desc_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('day_desc_letter_spacing','0')} onChange={e=>setStyle('day_desc_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('day_desc_word_spacing','0')} onChange={e=>setStyle('day_desc_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Detail Labels</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('day_label_size','16')} onChange={e=>setStyle('day_label_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('day_label_weight','700')} onChange={e=>setStyle('day_label_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('day_label_letter_spacing','0')} onChange={e=>setStyle('day_label_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('day_label_word_spacing','0')} onChange={e=>setStyle('day_label_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Card Padding</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Horizontal (px)</Label><Input type="number" value={getStyle('day_padding_x','96')} onChange={e=>setStyle('day_padding_x',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Vertical (px)</Label><Input type="number" value={getStyle('day_padding_y','100')} onChange={e=>setStyle('day_padding_y',e.target.value)}/></div>
+                        </div>
+                      </div>
+                      <div className="space-y-4 lg:pl-8">
+                        <p className={MB}><span className="h-2 w-2 rounded-full bg-orange-500 inline-block"/>Mobile (&lt; 768px)</p>
+                        <p className={SUB}>Day Title</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_day_title_size','18')} onChange={e=>setStyle('m_day_title_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('m_day_title_weight','600')} onChange={e=>setStyle('m_day_title_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_day_title_letter_spacing','0')} onChange={e=>setStyle('m_day_title_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_day_title_word_spacing','0')} onChange={e=>setStyle('m_day_title_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Day Description</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_day_desc_size','14')} onChange={e=>setStyle('m_day_desc_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_day_desc_letter_spacing','0')} onChange={e=>setStyle('m_day_desc_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_day_desc_word_spacing','0')} onChange={e=>setStyle('m_day_desc_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Detail Labels</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_day_label_size','13')} onChange={e=>setStyle('m_day_label_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('m_day_label_weight','700')} onChange={e=>setStyle('m_day_label_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_day_label_letter_spacing','0')} onChange={e=>setStyle('m_day_label_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_day_label_word_spacing','0')} onChange={e=>setStyle('m_day_label_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Card Padding</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Horizontal (px)</Label><Input type="number" value={getStyle('m_day_padding_x','16')} onChange={e=>setStyle('m_day_padding_x',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Vertical (px)</Label><Input type="number" value={getStyle('m_day_padding_y','24')} onChange={e=>setStyle('m_day_padding_y',e.target.value)}/></div>
+                        </div>
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={saveStyles}>Save Day Card Styles</Button>
+                  </div>
+                </details>
+
+                {/* ── 7. Inclusions & Exclusions ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Inclusions &amp; Exclusions</span>
+                    <span className="text-xs text-muted-foreground">Item title, description, row/column gap</span>
+                  </summary>
+                  <div className={B}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:divide-x">
+                      <div className="space-y-4">
+                        <p className={DT}><span className="h-2 w-2 rounded-full bg-blue-500 inline-block"/>Desktop</p>
+                        <p className={SUB}>Item Title</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('inc_title_size','20')} onChange={e=>setStyle('inc_title_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('inc_title_weight','700')} onChange={e=>setStyle('inc_title_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('inc_title_letter_spacing','0')} onChange={e=>setStyle('inc_title_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('inc_title_word_spacing','0')} onChange={e=>setStyle('inc_title_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Item Description</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('inc_desc_size','16')} onChange={e=>setStyle('inc_desc_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('inc_desc_letter_spacing','0')} onChange={e=>setStyle('inc_desc_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('inc_desc_word_spacing','0')} onChange={e=>setStyle('inc_desc_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Layout Spacing</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Row Gap (px)</Label><Input type="number" value={getStyle('inc_row_gap','80')} onChange={e=>setStyle('inc_row_gap',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Column Gap (px)</Label><Input type="number" value={getStyle('inc_col_gap','450')} onChange={e=>setStyle('inc_col_gap',e.target.value)}/></div>
+                        </div>
+                      </div>
+                      <div className="space-y-4 lg:pl-8">
+                        <p className={MB}><span className="h-2 w-2 rounded-full bg-orange-500 inline-block"/>Mobile (&lt; 768px)</p>
+                        <p className={SUB}>Item Title</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_inc_title_size','15')} onChange={e=>setStyle('m_inc_title_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('m_inc_title_weight','700')} onChange={e=>setStyle('m_inc_title_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_inc_title_letter_spacing','0')} onChange={e=>setStyle('m_inc_title_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_inc_title_word_spacing','0')} onChange={e=>setStyle('m_inc_title_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Item Description</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_inc_desc_size','13')} onChange={e=>setStyle('m_inc_desc_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_inc_desc_letter_spacing','0')} onChange={e=>setStyle('m_inc_desc_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_inc_desc_word_spacing','0')} onChange={e=>setStyle('m_inc_desc_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Layout Spacing</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Row Gap (px)</Label><Input type="number" value={getStyle('m_inc_row_gap','20')} onChange={e=>setStyle('m_inc_row_gap',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Column Gap (0 = single col)</Label><Input type="number" value={getStyle('m_inc_col_gap','0')} onChange={e=>setStyle('m_inc_col_gap',e.target.value)}/></div>
+                        </div>
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={saveStyles}>Save Inc/Exc Styles</Button>
+                  </div>
+                </details>
+
+                {/* ── 8. Welcome Letter & Closing ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Welcome Letter &amp; Closing</span>
+                    <span className="text-xs text-muted-foreground">Welcome body, contact block, closing message</span>
+                  </summary>
+                  <div className={B}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:divide-x">
+                      <div className="space-y-4">
+                        <p className={DT}><span className="h-2 w-2 rounded-full bg-blue-500 inline-block"/>Desktop</p>
+                        <p className={SUB}>Welcome Letter Body</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('welcome_size','16')} onChange={e=>setStyle('welcome_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('welcome_letter_spacing','0')} onChange={e=>setStyle('welcome_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('welcome_word_spacing','0')} onChange={e=>setStyle('welcome_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Contact Block</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('contact_name_size','16')} onChange={e=>setStyle('contact_name_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Name Weight</Label><select className={SEL} value={getStyle('contact_name_weight','700')} onChange={e=>setStyle('contact_name_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('contact_letter_spacing','0')} onChange={e=>setStyle('contact_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('contact_word_spacing','0')} onChange={e=>setStyle('contact_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Closing Message</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('closing_size','20')} onChange={e=>setStyle('closing_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('closing_letter_spacing','0')} onChange={e=>setStyle('closing_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('closing_word_spacing','0')} onChange={e=>setStyle('closing_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                      </div>
+                      <div className="space-y-4 lg:pl-8">
+                        <p className={MB}><span className="h-2 w-2 rounded-full bg-orange-500 inline-block"/>Mobile (&lt; 768px)</p>
+                        <p className={SUB}>Welcome Letter Body</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_welcome_size','14')} onChange={e=>setStyle('m_welcome_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_welcome_letter_spacing','0')} onChange={e=>setStyle('m_welcome_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_welcome_word_spacing','0')} onChange={e=>setStyle('m_welcome_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Contact Block</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_contact_name_size','14')} onChange={e=>setStyle('m_contact_name_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Name Weight</Label><select className={SEL} value={getStyle('m_contact_name_weight','700')} onChange={e=>setStyle('m_contact_name_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_contact_letter_spacing','0')} onChange={e=>setStyle('m_contact_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_contact_word_spacing','0')} onChange={e=>setStyle('m_contact_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Closing Message</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_closing_size','16')} onChange={e=>setStyle('m_closing_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_closing_letter_spacing','0')} onChange={e=>setStyle('m_closing_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_closing_word_spacing','0')} onChange={e=>setStyle('m_closing_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={saveStyles}>Save Welcome &amp; Closing Styles</Button>
+                  </div>
+                </details>
+
+                {/* ── 9. Footer ── */}
+                <details className={A}>
+                  <summary className={S}>
+                    <span className="font-semibold">Footer</span>
+                    <span className="text-xs text-muted-foreground">Agent name, position, top padding</span>
+                  </summary>
+                  <div className={B}>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:divide-x">
+                      <div className="space-y-4">
+                        <p className={DT}><span className="h-2 w-2 rounded-full bg-blue-500 inline-block"/>Desktop</p>
+                        <p className={SUB}>Agent Name</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('footer_name_size','20')} onChange={e=>setStyle('footer_name_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('footer_name_weight','700')} onChange={e=>setStyle('footer_name_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('footer_name_letter_spacing','0')} onChange={e=>setStyle('footer_name_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('footer_name_word_spacing','0')} onChange={e=>setStyle('footer_name_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Agent Position</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('footer_position_size','14')} onChange={e=>setStyle('footer_position_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('footer_pos_letter_spacing','0')} onChange={e=>setStyle('footer_pos_letter_spacing',e.target.value)}>{LS}</select></div>
+                        </div>
+                        <p className={SUB}>Spacing</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Top Padding (px)</Label><Input type="number" value={getStyle('footer_padding_top','96')} onChange={e=>setStyle('footer_padding_top',e.target.value)}/></div>
+                        </div>
+                      </div>
+                      <div className="space-y-4 lg:pl-8">
+                        <p className={MB}><span className="h-2 w-2 rounded-full bg-orange-500 inline-block"/>Mobile (&lt; 768px)</p>
+                        <p className={SUB}>Agent Name</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_footer_name_size','16')} onChange={e=>setStyle('m_footer_name_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Weight</Label><select className={SEL} value={getStyle('m_footer_name_weight','700')} onChange={e=>setStyle('m_footer_name_weight',e.target.value)}>{FW()}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_footer_name_letter_spacing','0')} onChange={e=>setStyle('m_footer_name_letter_spacing',e.target.value)}>{LS}</select></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Word Spacing</Label><select className={SEL} value={getStyle('m_footer_name_word_spacing','0')} onChange={e=>setStyle('m_footer_name_word_spacing',e.target.value)}>{WS}</select></div>
+                        </div>
+                        <p className={SUB}>Agent Position</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Size (px)</Label><Input type="number" value={getStyle('m_footer_position_size','12')} onChange={e=>setStyle('m_footer_position_size',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Letter Spacing</Label><select className={SEL} value={getStyle('m_footer_pos_letter_spacing','0')} onChange={e=>setStyle('m_footer_pos_letter_spacing',e.target.value)}>{LS}</select></div>
+                        </div>
+                        <p className={SUB}>Spacing</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Top Padding (px)</Label><Input type="number" value={getStyle('m_footer_padding_top','40')} onChange={e=>setStyle('m_footer_padding_top',e.target.value)}/></div>
+                        </div>
+                      </div>
+                    </div>
+                    <Button size="sm" onClick={saveStyles}>Save Footer Styles</Button>
+                  </div>
+                </details>
+              </>
+            );
+          })()}
         </TabsContent>
 
         {/* ASSETS TAB */}
