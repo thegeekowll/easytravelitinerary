@@ -374,25 +374,25 @@ export default function ClientPresentationView() {
             {itinerary.inclusions && itinerary.inclusions.length > 0 && (
                 <div className="mb-12">
                     <h2 className="text-5xl font-semibold font-sans text-center mb-16 text-[#5B7444] tracking-widest uppercase">What's Included</h2>
-                     <div className="flex flex-wrap justify-start gap-y-[80px] gap-x-[550px]">
+                     <div className="flex flex-wrap justify-start gap-y-[80px] gap-x-[450px]">
                          {itinerary.inclusions.map((item: any, idx: number) => (
-                             <div key={idx} className="w-full md:w-[calc(50%-275px)] flex flex-row gap-6 items-start text-left">
+                             <div key={idx} className="w-full md:w-[calc(50%-225px)] flex flex-row gap-6 items-start text-left">
                                  <div className="flex-shrink-0 mt-1">
                                     {item.image_url ? (
                                         // eslint-disable-next-line @next/next/no-img-element
-                                        <img 
-                                            src={item.image_url} 
-                                            alt={item.name} 
-                                            className="h-12 w-12 object-cover rounded-md shadow-sm border border-gray-100" 
+                                        <img
+                                            src={item.image_url}
+                                            alt={item.name}
+                                            className="h-12 w-12 object-cover rounded-md shadow-sm border border-gray-100"
                                         />
                                     ) : (
                                         <CheckCircle2 className="h-6 w-6 text-green-600" />
                                     )}
                                  </div>
-                                 <div className="max-w-xs font-sans">
-                                     <h3 className="font-bold text-lg text-gray-900 mb-1">{item.name}</h3>
+                                 <div className="max-w-[350px] font-sans">
+                                     <h3 className="font-bold text-[20px] text-gray-900 mb-1">{item.name}</h3>
                                      {item.description && (
-                                         <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                                         <p className="text-gray-600 text-[16px] leading-relaxed">{item.description}</p>
                                      )}
                                  </div>
                              </div>
@@ -405,25 +405,25 @@ export default function ClientPresentationView() {
             {itinerary.exclusions && itinerary.exclusions.length > 0 && (
                 <div>
                      <h2 className="text-5xl font-semibold font-sans text-center mb-16 text-[#c25d2a] tracking-widest uppercase">What's Excluded</h2>
-                     <div className="flex flex-wrap justify-start gap-y-[80px] gap-x-[550px]">
+                     <div className="flex flex-wrap justify-start gap-y-[80px] gap-x-[450px]">
                          {itinerary.exclusions.map((item: any, idx: number) => (
-                             <div key={idx} className="w-full md:w-[calc(50%-275px)] flex flex-row gap-6 items-start text-left">
+                             <div key={idx} className="w-full md:w-[calc(50%-225px)] flex flex-row gap-6 items-start text-left">
                                  <div className="flex-shrink-0 mt-1">
                                     {item.image_url ? (
                                         // eslint-disable-next-line @next/next/no-img-element
-                                        <img 
-                                            src={item.image_url} 
-                                            alt={item.name} 
-                                            className="h-12 w-12 object-cover rounded-md shadow-sm border border-gray-100" 
+                                        <img
+                                            src={item.image_url}
+                                            alt={item.name}
+                                            className="h-12 w-12 object-cover rounded-md shadow-sm border border-gray-100"
                                         />
                                     ) : (
                                         <XCircle className="h-6 w-6 text-red-500" />
                                     )}
                                  </div>
-                                 <div className="max-w-xs font-sans">
-                                     <h3 className="font-bold text-lg text-gray-900 mb-1">{item.name}</h3>
+                                 <div className="max-w-[350px] font-sans">
+                                     <h3 className="font-bold text-[20px] text-gray-900 mb-1">{item.name}</h3>
                                      {item.description && (
-                                         <p className="text-gray-600 text-sm leading-relaxed">{item.description}</p>
+                                         <p className="text-gray-600 text-[16px] leading-relaxed">{item.description}</p>
                                      )}
                                  </div>
                              </div>
