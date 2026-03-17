@@ -374,9 +374,9 @@ export default function ClientPresentationView() {
             {itinerary.inclusions && itinerary.inclusions.length > 0 && (
                 <div className="mb-12">
                     <h2 className="text-5xl font-semibold font-sans text-center mb-16 text-[#5B7444] tracking-widest uppercase">What's Included</h2>
-                     <div className="flex flex-wrap justify-center gap-y-[80px] gap-x-[550px]">
+                     <div className="flex flex-wrap justify-start gap-y-[80px] gap-x-[550px]">
                          {itinerary.inclusions.map((item: any, idx: number) => (
-                             <div key={idx} className="w-full md:w-[calc(50%-275px)] flex flex-row gap-6 items-start justify-center text-left">
+                             <div key={idx} className="w-full md:w-[calc(50%-275px)] flex flex-row gap-6 items-start text-left">
                                  <div className="flex-shrink-0 mt-1">
                                     {item.image_url ? (
                                         // eslint-disable-next-line @next/next/no-img-element
@@ -405,9 +405,9 @@ export default function ClientPresentationView() {
             {itinerary.exclusions && itinerary.exclusions.length > 0 && (
                 <div>
                      <h2 className="text-5xl font-semibold font-sans text-center mb-16 text-[#c25d2a] tracking-widest uppercase">What's Excluded</h2>
-                     <div className="flex flex-wrap justify-center gap-y-[80px] gap-x-[550px]">
+                     <div className="flex flex-wrap justify-start gap-y-[80px] gap-x-[550px]">
                          {itinerary.exclusions.map((item: any, idx: number) => (
-                             <div key={idx} className="w-full md:w-[calc(50%-275px)] flex flex-row gap-6 items-start justify-center text-left">
+                             <div key={idx} className="w-full md:w-[calc(50%-275px)] flex flex-row gap-6 items-start text-left">
                                  <div className="flex-shrink-0 mt-1">
                                     {item.image_url ? (
                                         // eslint-disable-next-line @next/next/no-img-element
