@@ -383,10 +383,10 @@ export default function ClientPresentationView() {
                                         <img
                                             src={item.image_url}
                                             alt={item.name}
-                                            className="h-12 w-12 object-cover rounded-md shadow-sm border border-gray-100"
+                                            className="h-[58px] w-[58px] object-cover rounded-md shadow-sm border border-gray-100"
                                         />
                                     ) : (
-                                        <CheckCircle2 className="h-6 w-6 text-green-600" />
+                                        <CheckCircle2 className="h-[34px] w-[34px] text-green-600" />
                                     )}
                                  </div>
                                  <div className="max-w-[350px] font-sans">
@@ -414,10 +414,10 @@ export default function ClientPresentationView() {
                                         <img
                                             src={item.image_url}
                                             alt={item.name}
-                                            className="h-12 w-12 object-cover rounded-md shadow-sm border border-gray-100"
+                                            className="h-[58px] w-[58px] object-cover rounded-md shadow-sm border border-gray-100"
                                         />
                                     ) : (
-                                        <XCircle className="h-6 w-6 text-red-500" />
+                                        <XCircle className="h-[34px] w-[34px] text-red-500" />
                                     )}
                                  </div>
                                  <div className="max-w-[350px] font-sans">
