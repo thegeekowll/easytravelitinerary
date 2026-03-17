@@ -490,6 +490,12 @@ class APIClient {
     return response.data.types as string[];
   }
 
+  async getPageLabels(): Promise<Record<string, string>> {
+    // Public endpoint — no auth required
+    const response = await axios.get(`${API_URL}/public/page-labels`);
+    return response.data as Record<string, string>;
+  }
+
   // Generic Import/Export Data (CSV)
   async exportData(endpoint: string) {
     const response = await this.client.get(`/${endpoint}/export/csv`, {

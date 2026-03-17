@@ -281,11 +281,12 @@ export default function SettingsPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto gap-1">
             <TabsTrigger value="platform">Platform Settings</TabsTrigger>
           <TabsTrigger value="theme">Theme & Design</TabsTrigger>
           <TabsTrigger value="homepage">Homepage</TabsTrigger>
           <TabsTrigger value="content">Messages & Content</TabsTrigger>
+          <TabsTrigger value="itinerary-page">Itinerary Page</TabsTrigger>
           <TabsTrigger value="assets">Media Assets</TabsTrigger>
           <TabsTrigger value="defaults">Default Images</TabsTrigger>
         </TabsList>
@@ -767,6 +768,143 @@ export default function SettingsPage() {
                 placeholder="We look forward to welcoming [List of Travellers] on their journey to [List of Destinations]..."
               />
               <Button onClick={() => handleTemplateSave('cta_message_template')}>Save Changes</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ITINERARY PAGE TAB */}
+        <TabsContent value="itinerary-page" className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">Itinerary Page Editor</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Customise every piece of text shown on the client-facing itinerary view page. Changes apply to all itineraries instantly.
+              </p>
+            </div>
+          </div>
+
+          {/* Section Headings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Section Headings</CardTitle>
+              <CardDescription>The large uppercase headings that appear between each section of the itinerary.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  { key: 'page_heading_itinerary',           label: 'Day-by-Day Section Heading',    placeholder: 'Itinerary' },
+                  { key: 'page_heading_accommodations',      label: 'Accommodations Heading',         placeholder: 'ACCOMMODATIONS' },
+                  { key: 'page_heading_whats_included',      label: "What's Included Heading",        placeholder: "What's Included" },
+                  { key: 'page_heading_whats_excluded',      label: "What's Excluded Heading",        placeholder: "What's Excluded" },
+                  { key: 'page_heading_about',               label: 'About Section Heading',          placeholder: 'ABOUT EASY TRAVEL' },
+                ].map(({ key, label, placeholder }) => (
+                  <div key={key} className="space-y-2">
+                    <Label>{label}</Label>
+                    <Input
+                      value={templates[key] || ''}
+                      placeholder={placeholder}
+                      onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })}
+                    />
+                  </div>
+                ))}
+              </div>
+              <Button onClick={() => {
+                ['page_heading_itinerary','page_heading_accommodations','page_heading_whats_included','page_heading_whats_excluded','page_heading_about'].forEach(handleTemplateSave);
+              }}>Save Headings</Button>
+            </CardContent>
+          </Card>
+
+          {/* Day Labels */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Day Detail Labels</CardTitle>
+              <CardDescription>Labels shown inside each day card for accommodation, meals, and activities.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                {[
+                  { key: 'page_label_overnight_at',         label: '"Overnight At" Label',            placeholder: 'Overnight At:' },
+                  { key: 'page_label_meal_plan',            label: '"Meal Plan" Label',               placeholder: 'Meal Plan:' },
+                  { key: 'page_label_todays_activities',    label: '"Today\'s Activities" Label',     placeholder: "Today's Activities" },
+                ].map(({ key, label, placeholder }) => (
+                  <div key={key} className="space-y-2">
+                    <Label>{label}</Label>
+                    <Input
+                      value={templates[key] || ''}
+                      placeholder={placeholder}
+                      onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })}
+                    />
+                  </div>
+                ))}
+              </div>
+              <Button onClick={() => {
+                ['page_label_overnight_at','page_label_meal_plan','page_label_todays_activities'].forEach(handleTemplateSave);
+              }}>Save Labels</Button>
+            </CardContent>
+          </Card>
+
+          {/* Contact Block */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Welcome Letter Contact Block</CardTitle>
+              <CardDescription>The company name, phone, and email shown below the welcome message on every itinerary.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                {[
+                  { key: 'page_contact_company_name',     label: 'Company Display Name',    placeholder: 'Easy Travel Tanzania' },
+                  { key: 'page_contact_company_phone',    label: 'Display Phone Number',     placeholder: '+ 255 786 400 148' },
+                  { key: 'page_contact_fallback_email',   label: 'Fallback Email Address',   placeholder: 'info@easytravel.co.tz' },
+                ].map(({ key, label, placeholder }) => (
+                  <div key={key} className="space-y-2">
+                    <Label>{label}</Label>
+                    <Input
+                      value={templates[key] || ''}
+                      placeholder={placeholder}
+                      onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })}
+                    />
+                  </div>
+                ))}
+              </div>
+              <Button onClick={() => {
+                ['page_contact_company_name','page_contact_company_phone','page_contact_fallback_email'].forEach(handleTemplateSave);
+              }}>Save Contact Info</Button>
+            </CardContent>
+          </Card>
+
+          {/* Brand Colours */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Brand Colours</CardTitle>
+              <CardDescription>Colours used throughout the itinerary view. Enter valid hex codes (e.g. #5B7444).</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-6 md:grid-cols-3">
+                {[
+                  { key: 'page_color_primary',       label: 'Primary (headings, accents)',     placeholder: '#5B7444',  preview: templates['page_color_primary'] || '#5B7444' },
+                  { key: 'page_color_exclusions',    label: "What's Excluded heading colour",  placeholder: '#c25d2a',  preview: templates['page_color_exclusions'] || '#c25d2a' },
+                  { key: 'page_footer_bg_color',     label: 'Footer Background Colour',        placeholder: '#EFE9E6',  preview: templates['page_footer_bg_color'] || '#EFE9E6' },
+                ].map(({ key, label, placeholder, preview }) => (
+                  <div key={key} className="space-y-2">
+                    <Label>{label}</Label>
+                    <div className="flex gap-2 items-center">
+                      <div
+                        className="h-10 w-10 rounded-md border shadow-sm flex-shrink-0"
+                        style={{ backgroundColor: preview }}
+                      />
+                      <Input
+                        value={templates[key] || ''}
+                        placeholder={placeholder}
+                        onChange={(e) => setTemplates({ ...templates, [key]: e.target.value })}
+                        className="font-mono"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button onClick={() => {
+                ['page_color_primary','page_color_exclusions','page_footer_bg_color'].forEach(handleTemplateSave);
+              }}>Save Colours</Button>
             </CardContent>
           </Card>
         </TabsContent>

@@ -3,8 +3,27 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { getItineraryPublic } from '@/lib/api';
+import { apiClient } from '@/lib/api/client';
 import { Loader2, Hotel, CheckCircle2, XCircle, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+// Default page labels (used as fallback while loading or on error)
+const DEFAULT_LABELS: Record<string, string> = {
+  page_heading_itinerary:        'Itinerary',
+  page_heading_accommodations:   'ACCOMMODATIONS',
+  page_heading_whats_included:   "What's Included",
+  page_heading_whats_excluded:   "What's Excluded",
+  page_heading_about:            'ABOUT EASY TRAVEL',
+  page_label_overnight_at:       'Overnight At:',
+  page_label_meal_plan:          'Meal Plan:',
+  page_label_todays_activities:  "Today's Activities",
+  page_contact_company_name:     'Easy Travel Tanzania',
+  page_contact_company_phone:    '+ 255 786 400 148',
+  page_contact_fallback_email:   'info@easytravel.co.tz',
+  page_color_primary:            '#5B7444',
+  page_color_exclusions:         '#c25d2a',
+  page_footer_bg_color:          '#EFE9E6',
+};
 
 // Define types locally or import from shared types
 interface ItineraryPublicData {
@@ -46,13 +65,21 @@ export default function ClientPresentationView() {
   const [itinerary, setItinerary] = useState<ItineraryPublicData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [labels, setLabels] = useState<Record<string, string>>(DEFAULT_LABELS);
+
+  // Helper: get a label with its default fallback
+  const lbl = (key: string) => labels[key] || DEFAULT_LABELS[key] || key;
 
   useEffect(() => {
     async function loadItinerary() {
       try {
         if (!params.unique_code) return;
-        const data = await getItineraryPublic(params.unique_code as string);
+        const [data, pageLabels] = await Promise.all([
+          getItineraryPublic(params.unique_code as string),
+          apiClient.getPageLabels().catch(() => DEFAULT_LABELS),
+        ]);
         setItinerary(data);
+        setLabels({ ...DEFAULT_LABELS, ...pageLabels });
       } catch (err: any) {
         console.error('Failed to load itinerary:', err);
         setError(err.message || 'Failed to load itinerary');
@@ -165,9 +192,9 @@ export default function ClientPresentationView() {
               )}
             </div>
             <div className="flex flex-col gap-1.5">
-              <p className="font-bold text-gray-900 text-base md:text-lg font-sans leading-none">Easy Travel Tanzania</p>
-              <p className="text-gray-600 text-sm font-sans leading-none">+ 255 786 400 148</p>
-              <p className="text-gray-900 text-sm font-sans leading-none">{itinerary.agent_email || 'info@easytravel.co.tz'}</p>
+              <p className="font-bold text-gray-900 text-base md:text-lg font-sans leading-none">{lbl('page_contact_company_name')}</p>
+              <p className="text-gray-600 text-sm font-sans leading-none">{lbl('page_contact_company_phone')}</p>
+              <p className="text-gray-900 text-sm font-sans leading-none">{itinerary.agent_email || lbl('page_contact_fallback_email')}</p>
             </div>
           </div>
         </div>
@@ -203,7 +230,7 @@ export default function ClientPresentationView() {
                   <div className="w-full">
                     {/* ITINERARY heading — only Day 1 */}
                     {index === 0 && (
-                      <h2 className="text-3xl md:text-4xl font-bold font-sans text-[#5B7444] tracking-widest mb-8 md:mb-10">Itinerary</h2>
+                      <h2 className="text-3xl md:text-4xl font-bold font-sans tracking-widest mb-8 md:mb-10" style={{ color: lbl('page_color_primary') }}>{lbl('page_heading_itinerary')}</h2>
                     )}
 
                     {/* Day Header */}
@@ -227,13 +254,13 @@ export default function ClientPresentationView() {
                     <div className="mb-6 md:mb-8 space-y-1 text-gray-700 font-sans">
                       {day.accommodation && (
                         <div className="flex gap-2">
-                          <span className="font-bold">Overnight At:</span>
+                          <span className="font-bold">{lbl('page_label_overnight_at')}</span>
                           <span>{day.accommodation.name}</span>
                         </div>
                       )}
                       {day.meals_included && (
                         <div className="flex gap-2">
-                          <span className="font-bold">Meal Plan:</span>
+                          <span className="font-bold">{lbl('page_label_meal_plan')}</span>
                           <span>{day.meals_included}</span>
                         </div>
                       )}
@@ -242,7 +269,7 @@ export default function ClientPresentationView() {
                     {/* Activities */}
                     {day.activities && (
                       <div className="mb-10 md:mb-12">
-                        <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3 md:mb-4 font-sans">Today's Activities</h4>
+                        <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3 md:mb-4 font-sans">{lbl('page_label_todays_activities')}</h4>
                         <div className="prose text-gray-700 font-medium font-sans">
                           <p>{day.activities}</p>
                         </div>
@@ -259,7 +286,7 @@ export default function ClientPresentationView() {
 
       {/* ── Accommodations Section ────────────────────────────────── */}
       <div className="bg-white pt-12 md:pt-24 pb-0 w-full">
-        <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 text-[#5B7444] tracking-widest">ACCOMMODATIONS</h2>
+        <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 tracking-widest" style={{ color: lbl('page_color_primary') }}>{lbl('page_heading_accommodations')}</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 w-full">
           {Object.values(
@@ -338,7 +365,7 @@ export default function ClientPresentationView() {
           {/* Inclusions */}
           {itinerary.inclusions && itinerary.inclusions.length > 0 && (
             <div className="mb-8 md:mb-12">
-              <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 text-[#5B7444] tracking-widest uppercase">What's Included</h2>
+              <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 tracking-widest uppercase" style={{ color: lbl('page_color_primary') }}>{lbl('page_heading_whats_included')}</h2>
               <div className="flex flex-wrap justify-start gap-y-[40px] md:gap-y-[80px] gap-x-[450px]">
                 {itinerary.inclusions.map((item: any, idx: number) => (
                   <div key={idx} className="w-full md:w-[calc(50%-225px)] flex flex-row gap-4 md:gap-6 items-start text-left">
@@ -365,7 +392,7 @@ export default function ClientPresentationView() {
           {/* Exclusions */}
           {itinerary.exclusions && itinerary.exclusions.length > 0 && (
             <div>
-              <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 text-[#c25d2a] tracking-widest uppercase">What's Excluded</h2>
+              <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 tracking-widest uppercase" style={{ color: lbl('page_color_exclusions') }}>{lbl('page_heading_whats_excluded')}</h2>
               <div className="flex flex-wrap justify-start gap-y-[40px] md:gap-y-[80px] gap-x-[450px]">
                 {itinerary.exclusions.map((item: any, idx: number) => (
                   <div key={idx} className="w-full md:w-[calc(50%-225px)] flex flex-row gap-4 md:gap-6 items-start text-left">
@@ -415,8 +442,8 @@ export default function ClientPresentationView() {
                 <img src={aboutImage.image_url} alt="About Easy Travel" className="w-full h-full object-cover" />
 
                 {/* Overlay heading box */}
-                <div className="absolute bottom-0 right-0 translate-y-1/2 bg-[#5B7444] text-white px-4 py-3 md:px-8 md:py-6 shadow-lg">
-                  <h3 className="text-xl md:text-5xl font-semibold font-sans tracking-widest uppercase">ABOUT EASY TRAVEL</h3>
+                <div className="absolute bottom-0 right-0 translate-y-1/2 text-white px-4 py-3 md:px-8 md:py-6 shadow-lg" style={{ backgroundColor: lbl('page_color_primary') }}>
+                  <h3 className="text-xl md:text-5xl font-semibold font-sans tracking-widest uppercase">{lbl('page_heading_about')}</h3>
                 </div>
               </div>
             </div>
@@ -472,7 +499,7 @@ export default function ClientPresentationView() {
       )}
 
       {/* ── Footer ────────────────────────────────────────────────── */}
-      <div className="pt-12 md:pt-24 pb-10" style={{ backgroundColor: '#EFE9E6' }}>
+      <div className="pt-12 md:pt-24 pb-10" style={{ backgroundColor: lbl('page_footer_bg_color') }}>
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
 
@@ -485,7 +512,7 @@ export default function ClientPresentationView() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={itinerary.agent_profile_photo_url} alt="Agent" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="h-full w-full bg-[#5B7444] flex items-center justify-center text-white font-bold text-4xl">
+                    <div className="h-full w-full flex items-center justify-center text-white font-bold text-4xl" style={{ backgroundColor: lbl('page_color_primary') }}>
                       {itinerary.agent_name ? itinerary.agent_name.charAt(0) : 'A'}
                     </div>
                   )}
@@ -541,7 +568,7 @@ export default function ClientPresentationView() {
               </div>
 
               {/* Vertical Divider — desktop only */}
-              <div className="hidden md:block absolute right-[-24px] top-0 bottom-0 w-[1px] bg-[#5B7444] h-full opacity-50"></div>
+              <div className="hidden md:block absolute right-[-24px] top-0 bottom-0 w-[1px] h-full opacity-50" style={{ backgroundColor: lbl('page_color_primary') }}></div>
             </div>
 
             {/* Right — Review Image */}

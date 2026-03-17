@@ -227,6 +227,38 @@ def get_public_itinerary(
     return itinerary
 
 
+@router.get("/page-labels")
+def get_page_labels(db: Session = Depends(get_db)):
+    """
+    Get configurable text labels for the itinerary view page (no auth required).
+    Falls back to defaults if not configured.
+    """
+    DEFAULTS = {
+        "page_heading_accommodations": "ACCOMMODATIONS",
+        "page_heading_whats_included": "What's Included",
+        "page_heading_whats_excluded": "What's Excluded",
+        "page_heading_about": "ABOUT EASY TRAVEL",
+        "page_heading_itinerary": "Itinerary",
+        "page_label_overnight_at": "Overnight At:",
+        "page_label_meal_plan": "Meal Plan:",
+        "page_label_todays_activities": "Today's Activities",
+        "page_contact_company_name": "Easy Travel Tanzania",
+        "page_contact_company_phone": "+ 255 786 400 148",
+        "page_contact_fallback_email": "info@easytravel.co.tz",
+        "page_color_primary": "#5B7444",
+        "page_color_exclusions": "#c25d2a",
+        "page_footer_bg_color": "#EFE9E6",
+    }
+    records = db.query(CompanyContent).filter(
+        CompanyContent.key.in_(list(DEFAULTS.keys()))
+    ).all()
+    result = dict(DEFAULTS)
+    for record in records:
+        if record.content:
+            result[record.key] = record.content
+    return result
+
+
 @router.get("/itineraries/{unique_code}/hero-image")
 def get_itinerary_hero_image(
     unique_code: str,
