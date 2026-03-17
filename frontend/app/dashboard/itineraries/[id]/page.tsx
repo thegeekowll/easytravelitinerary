@@ -54,6 +54,7 @@ export default function ItineraryDetailPage({
   const searchParams = useSearchParams();
   const shouldEdit = searchParams.get("edit") === "true";
   const [isEditing, setIsEditing] = useState(shouldEdit);
+  const [groupTypes, setGroupTypes] = useState<string[]>([]);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [targetImageRole, setTargetImageRole] = useState<string | null>(null);
 
@@ -91,6 +92,13 @@ export default function ItineraryDetailPage({
 
   // Local state for editing
   const [itinerary, setItinerary] = useState<any>(null);
+
+  // Load group types from API
+  useEffect(() => {
+    apiClient.getGroupTypes()
+      .then(setGroupTypes)
+      .catch(() => setGroupTypes(['Solo', 'Couple', 'Family', 'Friends', 'Corporate']));
+  }, []);
 
   // Sync initial state
   useEffect(() => {
@@ -719,22 +727,16 @@ export default function ItineraryDetailPage({
                   Group Type
                 </Label>
                 {isEditing ? (
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {['solo','couple','family','friends','corporate'].map(gt => (
-                      <button
-                        key={gt}
-                        type="button"
-                        onClick={() => setItinerary({ ...itinerary, group_type: itinerary.group_type === gt ? null : gt })}
-                        className={`px-3 py-1 rounded-full border text-sm font-medium capitalize transition-all
-                          ${itinerary.group_type === gt
-                            ? 'border-primary bg-primary text-white'
-                            : 'border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
-                          }`}
-                      >
-                        {gt}
-                      </button>
+                  <select
+                    value={itinerary.group_type || ''}
+                    onChange={e => setItinerary({ ...itinerary, group_type: e.target.value || null })}
+                    className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  >
+                    <option value="">— Select group type —</option>
+                    {groupTypes.map(gt => (
+                      <option key={gt} value={gt.toLowerCase()}>{gt}</option>
                     ))}
-                  </div>
+                  </select>
                 ) : (
                   <p className="font-medium capitalize">
                     {itinerary.group_type || <span className="text-gray-400 italic">Not set</span>}

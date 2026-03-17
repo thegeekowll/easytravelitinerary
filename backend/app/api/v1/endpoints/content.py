@@ -539,6 +539,52 @@ async def delete_company_asset(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ==================== Group Types ====================
+
+@router.get("/group-types")
+async def get_group_types(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    """Get the configurable list of group types."""
+    import json
+    record = db.query(CompanyContent).filter(CompanyContent.key == "group_types").first()
+    if not record:
+        return {"types": ["Solo", "Couple", "Family", "Friends", "Corporate"]}
+    try:
+        return {"types": json.loads(record.content)}
+    except Exception:
+        return {"types": ["Solo", "Couple", "Family", "Friends", "Corporate"]}
+
+
+@router.put("/group-types")
+async def update_group_types(
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+    """Update the list of group types (admin only)."""
+    import json
+    types = data.get("types", [])
+    if not isinstance(types, list):
+        raise HTTPException(status_code=400, detail="types must be a list")
+
+    record = db.query(CompanyContent).filter(CompanyContent.key == "group_types").first()
+    if not record:
+        record = CompanyContent(
+            key="group_types",
+            content=json.dumps(types),
+            updated_by_user_id=current_user.id
+        )
+        db.add(record)
+    else:
+        record.content = json.dumps(types)
+        record.updated_by_user_id = current_user.id
+
+    db.commit()
+    return {"types": types}
+
+
 @router.post("/company/assets/link", response_model=CompanyAssetResponse)
 async def link_company_asset(
     link_data: CompanyAssetLink,

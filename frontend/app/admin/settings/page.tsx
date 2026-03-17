@@ -12,6 +12,92 @@ import toast from 'react-hot-toast';
 import { Loader2, Trash2, Upload, Plus } from 'lucide-react';
 import ImageGalleryModal from '@/components/shared/image-gallery-modal';
 
+// ── Group Types Card ────────────────────────────────────────────────────────
+function GroupTypesCard() {
+  const [types, setTypes] = useState<string[]>([]);
+  const [newType, setNewType] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    apiClient.getGroupTypes().then(setTypes).catch(() => {});
+  }, []);
+
+  const save = async (updated: string[]) => {
+    setSaving(true);
+    try {
+      await apiClient.updateGroupTypes(updated);
+      setTypes(updated);
+      toast.success('Group types saved');
+    } catch {
+      toast.error('Failed to save');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAdd = () => {
+    const trimmed = newType.trim();
+    if (!trimmed) return;
+    if (types.map(t => t.toLowerCase()).includes(trimmed.toLowerCase())) {
+      toast.error('Already exists');
+      return;
+    }
+    setNewType('');
+    save([...types, trimmed]);
+  };
+
+  const handleRemove = (idx: number) => {
+    save(types.filter((_, i) => i !== idx));
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Group Types</CardTitle>
+        <CardDescription>
+          Manage the list of group types available when creating an itinerary (e.g. Solo, Family, Friends).
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          {types.map((t, i) => (
+            <span
+              key={i}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-muted text-sm font-medium"
+            >
+              {t}
+              <button
+                type="button"
+                onClick={() => handleRemove(i)}
+                className="text-gray-400 hover:text-red-500 transition-colors"
+                title="Remove"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+          {types.length === 0 && (
+            <p className="text-sm text-muted-foreground italic">No group types defined yet.</p>
+          )}
+        </div>
+        <div className="flex gap-2 max-w-sm">
+          <Input
+            placeholder="e.g. Honeymoon"
+            value={newType}
+            onChange={e => setNewType(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAdd())}
+          />
+          <Button type="button" onClick={handleAdd} disabled={saving || !newType.trim()}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+            Add
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 interface Template {
   key: string;
   content: string;
@@ -394,6 +480,10 @@ export default function SettingsPage() {
                     </CardContent>
                  </Card>
              </div>
+
+             {/* Group Types Management */}
+             <GroupTypesCard />
+
         </TabsContent>
 
         {/* THEME TAB */}

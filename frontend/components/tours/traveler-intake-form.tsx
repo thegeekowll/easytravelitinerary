@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Trash2, User, Heart, Users, UserCheck, Briefcase } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
+import { apiClient } from '@/lib/api/client';
 
 export interface TravelerIntakeData {
   primaryName: string;
@@ -24,14 +25,6 @@ interface TravelerIntakeFormProps {
   onSubmit: (data: TravelerIntakeData) => void;
 }
 
-const GROUP_TYPES = [
-  { value: 'solo',      label: 'Solo',      icon: User },
-  { value: 'couple',   label: 'Couple',    icon: Heart },
-  { value: 'family',   label: 'Family',    icon: Users },
-  { value: 'friends',  label: 'Friends',   icon: UserCheck },
-  { value: 'corporate',label: 'Corporate', icon: Briefcase },
-];
-
 export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps) {
   const [formData, setFormData] = useState<TravelerIntakeData>({
     primaryName: '',
@@ -45,6 +38,14 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
     groupType: '',
     otherTravelers: []
   });
+
+  const [groupTypes, setGroupTypes] = useState<string[]>([]);
+
+  useEffect(() => {
+    apiClient.getGroupTypes().then(setGroupTypes).catch(() => {
+      setGroupTypes(['Solo', 'Couple', 'Family', 'Friends', 'Corporate']);
+    });
+  }, []);
 
   const updateField = (field: keyof TravelerIntakeData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -155,65 +156,53 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
             className="bg-gray-50"
           />
         </div>
-      </div>
-
-      {/* Group Type Selector */}
-      <div className="space-y-3">
-        <Label className="text-base">Group Type</Label>
-        <div className="flex flex-wrap gap-3">
-          {GROUP_TYPES.map(({ value, label, icon: Icon }) => {
-            const selected = formData.groupType === value;
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => updateField('groupType', selected ? '' : value)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-medium transition-all
-                  ${selected
-                    ? 'border-primary bg-primary text-white shadow-md'
-                    : 'border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
-                  }`}
-              >
-                <Icon className="h-4 w-4" />
-                {label}
-              </button>
-            );
-          })}
+        <div className="space-y-2">
+          <Label>Group Type</Label>
+          <select
+            value={formData.groupType}
+            onChange={e => updateField('groupType', e.target.value)}
+            className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+          >
+            <option value="">— Select group type —</option>
+            {groupTypes.map(gt => (
+              <option key={gt} value={gt.toLowerCase()}>{gt}</option>
+            ))}
+          </select>
         </div>
       </div>
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-            <Label className="text-lg">Other Travelers</Label>
-            <Button type="button" variant="outline" size="sm" onClick={addTraveler}>
-                <Plus className="h-4 w-4 mr-2" /> Add
-            </Button>
+          <Label className="text-lg">Other Travelers</Label>
+          <Button type="button" variant="outline" size="sm" onClick={addTraveler}>
+            <Plus className="h-4 w-4 mr-2" /> Add
+          </Button>
         </div>
 
         {formData.otherTravelers.map((traveler, index) => (
-            <Card key={index}>
-                <CardContent className="pt-6 flex gap-4 items-end">
-                    <div className="flex-1 space-y-2">
-                        <Label>Name</Label>
-                        <Input
-                            value={traveler.name}
-                            onChange={e => updateOtherTraveler(index, 'name', e.target.value)}
-                            placeholder="Traveler Name"
-                        />
-                    </div>
-                    <div className="w-24 space-y-2">
-                        <Label>Age</Label>
-                        <Input
-                            value={traveler.age}
-                            onChange={e => updateOtherTraveler(index, 'age', e.target.value)}
-                            placeholder="Age"
-                        />
-                    </div>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => removeTraveler(index)} className="text-red-500">
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                </CardContent>
-            </Card>
+          <Card key={index}>
+            <CardContent className="pt-6 flex gap-4 items-end">
+              <div className="flex-1 space-y-2">
+                <Label>Name</Label>
+                <Input
+                  value={traveler.name}
+                  onChange={e => updateOtherTraveler(index, 'name', e.target.value)}
+                  placeholder="Traveler Name"
+                />
+              </div>
+              <div className="w-24 space-y-2">
+                <Label>Age</Label>
+                <Input
+                  value={traveler.age}
+                  onChange={e => updateOtherTraveler(index, 'age', e.target.value)}
+                  placeholder="Age"
+                />
+              </div>
+              <Button type="button" variant="ghost" size="icon" onClick={() => removeTraveler(index)} className="text-red-500">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
         ))}
       </div>
 

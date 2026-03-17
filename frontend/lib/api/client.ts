@@ -480,6 +480,16 @@ class APIClient {
       return response.data;
   }
 
+  async getGroupTypes(): Promise<string[]> {
+    const response = await this.client.get('/content/group-types');
+    return response.data.types as string[];
+  }
+
+  async updateGroupTypes(types: string[]): Promise<string[]> {
+    const response = await this.client.put('/content/group-types', { types });
+    return response.data.types as string[];
+  }
+
   // Generic Import/Export Data (CSV)
   async exportData(endpoint: string) {
     const response = await this.client.get(`/${endpoint}/export/csv`, {
