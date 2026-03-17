@@ -1192,6 +1192,259 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
+          {/* ── Mobile Overrides ─────────────────────────────────── */}
+          <div className="pt-4 border-t">
+            <h2 className="text-xl font-semibold mb-1">Mobile Typography & Spacing</h2>
+            <p className="text-sm text-muted-foreground mb-4">Separate values applied on screens narrower than 768 px. Overrides the desktop values above for each element.</p>
+          </div>
+
+          {/* Mobile Hero */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Mobile — Hero Section</CardTitle>
+              <CardDescription>Tour title and description on mobile.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tour Title</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_hero_title_size', '28')} onChange={e => setStyle('m_hero_title_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('m_hero_title_weight', '700')} onChange={e => setStyle('m_hero_title_weight', e.target.value)}>
+                    <option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option><option value="800">Extra Bold (800)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Tour Description / Subtitle</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_hero_desc_size', '14')} onChange={e => setStyle('m_hero_desc_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('m_hero_desc_weight', '300')} onChange={e => setStyle('m_hero_desc_weight', e.target.value)}>
+                    <option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Mobile Hero</Button>
+            </CardContent>
+          </Card>
+
+          {/* Mobile Section Headings */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Mobile — Section Headings Typography</CardTitle>
+              <CardDescription>Applies to all section headings (Itinerary, Accommodations, Included, Excluded, About) on mobile.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_heading_size', '22')} onChange={e => setStyle('m_heading_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('m_heading_weight', '600')} onChange={e => setStyle('m_heading_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option><option value="800">Extra Bold (800)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Letter Spacing</Label>
+                  <select className={SEL} value={getStyle('m_heading_spacing', '0.1em')} onChange={e => setStyle('m_heading_spacing', e.target.value)}>
+                    <option value="0">None</option>
+                    <option value="0.05em">Tight (0.05em)</option>
+                    <option value="0.1em">Normal (0.1em)</option>
+                    <option value="0.2em">Wide (0.2em)</option>
+                    <option value="0.3em">Wider (0.3em)</option>
+                  </select>
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Mobile Headings</Button>
+            </CardContent>
+          </Card>
+
+          {/* Mobile Day Cards */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Mobile — Day Cards Typography</CardTitle>
+              <CardDescription>Text inside each day card on mobile — title, description, labels, and padding.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Day Title</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_day_title_size', '18')} onChange={e => setStyle('m_day_title_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('m_day_title_weight', '600')} onChange={e => setStyle('m_day_title_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Day Description</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_day_desc_size', '14')} onChange={e => setStyle('m_day_desc_size', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Detail Labels</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_day_label_size', '13')} onChange={e => setStyle('m_day_label_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('m_day_label_weight', '700')} onChange={e => setStyle('m_day_label_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Day Card Internal Padding</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Horizontal Padding (px)</Label>
+                  <Input type="number" value={getStyle('m_day_padding_x', '16')} onChange={e => setStyle('m_day_padding_x', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Vertical Padding (px)</Label>
+                  <Input type="number" value={getStyle('m_day_padding_y', '24')} onChange={e => setStyle('m_day_padding_y', e.target.value)} />
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Mobile Day Cards</Button>
+            </CardContent>
+          </Card>
+
+          {/* Mobile Inclusions & Exclusions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Mobile — Inclusions & Exclusions Typography & Layout</CardTitle>
+              <CardDescription>Font and spacing for inclusions/exclusions on mobile.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item Title</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_inc_title_size', '15')} onChange={e => setStyle('m_inc_title_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('m_inc_title_weight', '700')} onChange={e => setStyle('m_inc_title_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Item Description</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_inc_desc_size', '13')} onChange={e => setStyle('m_inc_desc_size', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Layout Spacing</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Row Gap — between items vertically (px)</Label>
+                  <Input type="number" value={getStyle('m_inc_row_gap', '20')} onChange={e => setStyle('m_inc_row_gap', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Column Gap (px) — use 0 for single-column</Label>
+                  <Input type="number" value={getStyle('m_inc_col_gap', '0')} onChange={e => setStyle('m_inc_col_gap', e.target.value)} />
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Mobile Inc/Exc Styles</Button>
+            </CardContent>
+          </Card>
+
+          {/* Mobile Welcome & Closing */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Mobile — Welcome Letter & Closing Message</CardTitle>
+              <CardDescription>Typography for welcome text and closing message on mobile.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Welcome Letter Body</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_welcome_size', '14')} onChange={e => setStyle('m_welcome_size', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Contact Block</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_contact_name_size', '14')} onChange={e => setStyle('m_contact_name_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Company Name Weight</Label>
+                  <select className={SEL} value={getStyle('m_contact_name_weight', '700')} onChange={e => setStyle('m_contact_name_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Closing Message</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_closing_size', '16')} onChange={e => setStyle('m_closing_size', e.target.value)} />
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Mobile Welcome & Closing</Button>
+            </CardContent>
+          </Card>
+
+          {/* Mobile Footer */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Mobile — Footer Typography</CardTitle>
+              <CardDescription>Agent name, position sizing, and footer top padding on mobile.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Agent Name — Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_footer_name_size', '16')} onChange={e => setStyle('m_footer_name_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Agent Name — Font Weight</Label>
+                  <select className={SEL} value={getStyle('m_footer_name_weight', '700')} onChange={e => setStyle('m_footer_name_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Agent Position — Font Size (px)</Label>
+                  <Input type="number" value={getStyle('m_footer_position_size', '12')} onChange={e => setStyle('m_footer_position_size', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Section Spacing</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Footer Top Padding (px)</Label>
+                  <Input type="number" value={getStyle('m_footer_padding_top', '40')} onChange={e => setStyle('m_footer_padding_top', e.target.value)} />
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Mobile Footer</Button>
+            </CardContent>
+          </Card>
+
           {/* Brand Colours */}
           <Card>
             <CardHeader>

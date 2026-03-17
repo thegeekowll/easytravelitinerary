@@ -41,6 +41,37 @@ const DEFAULT_STYLES: Record<string, string> = {
   footer_padding_top:   '96',
 };
 
+// Default mobile style overrides (applied when viewport < 768px)
+const DEFAULT_MOBILE_STYLES: Record<string, string> = {
+  m_hero_title_size:      '28',
+  m_hero_title_weight:    '700',
+  m_hero_desc_size:       '14',
+  m_hero_desc_weight:     '300',
+  m_heading_size:         '22',
+  m_heading_weight:       '600',
+  m_heading_spacing:      '0.1em',
+  m_day_title_size:       '18',
+  m_day_title_weight:     '600',
+  m_day_desc_size:        '14',
+  m_day_label_size:       '13',
+  m_day_label_weight:     '700',
+  m_day_padding_x:        '16',
+  m_day_padding_y:        '24',
+  m_inc_title_size:       '15',
+  m_inc_title_weight:     '700',
+  m_inc_desc_size:        '13',
+  m_inc_row_gap:          '20',
+  m_inc_col_gap:          '0',
+  m_welcome_size:         '14',
+  m_contact_name_size:    '14',
+  m_contact_name_weight:  '700',
+  m_closing_size:         '16',
+  m_footer_name_size:     '16',
+  m_footer_name_weight:   '700',
+  m_footer_position_size: '12',
+  m_footer_padding_top:   '40',
+};
+
 // Default page labels (used as fallback while loading or on error)
 const DEFAULT_LABELS: Record<string, string> = {
   page_heading_itinerary:        'Itinerary',
@@ -101,11 +132,27 @@ export default function ClientPresentationView() {
   const [error, setError] = useState('');
   const [labels, setLabels] = useState<Record<string, string>>(DEFAULT_LABELS);
   const [pageStyles, setPageStyles] = useState<Record<string, string>>(DEFAULT_STYLES);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile viewport (< 768px) and update on resize
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   // Helper: get a label with its default fallback
   const lbl = (key: string) => labels[key] || DEFAULT_LABELS[key] || key;
-  // Helpers for styles
-  const sty = (key: string) => pageStyles[key] || DEFAULT_STYLES[key] || '';
+  // Helpers for styles — automatically use mobile overrides (m_ prefix) on small screens
+  const sty = (key: string) => {
+    if (isMobile) {
+      const mk = `m_${key}`;
+      const mv = pageStyles[mk] ?? DEFAULT_MOBILE_STYLES[mk];
+      if (mv !== undefined) return mv;
+    }
+    return pageStyles[key] || DEFAULT_STYLES[key] || '';
+  };
   const px  = (key: string) => `${sty(key)}px`;
   // Resolve font family shorthand to actual CSS value
   const ff  = (key: string) => sty(key) === 'serif' ? sty('global_serif') : sty('global_sans');
