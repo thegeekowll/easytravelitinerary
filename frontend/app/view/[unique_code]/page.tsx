@@ -227,12 +227,12 @@ export default function ClientPresentationView() {
                       </div>
                       
                       {/* Description */}
-                      <div className="prose prose-lg text-gray-600 mb-12 max-w-none text-justify leading-relaxed font-sans">
+                      <div className="prose prose-lg text-gray-600 mb-4 max-w-none text-justify leading-relaxed font-sans">
                         <p>{day.description}</p>
                       </div>
 
                       {/* Stay & Meals - Plain Text */}
-                      <div className="mb-8 space-y-2 text-gray-700 font-sans text-lg">
+                      <div className="mb-8 space-y-1 text-gray-700 font-sans">
                         {day.accommodation && (
                           <div className="flex gap-2">
                             <span className="font-bold">Overnight At:</span>
