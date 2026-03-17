@@ -46,7 +46,8 @@ def get_public_itinerary(
         ItineraryStatusEnum.CONFIRMED,
         ItineraryStatusEnum.COMPLETED,
         ItineraryStatusEnum.SENT,
-        ItineraryStatusEnum.DRAFT  # Allow DRAFT so agents can preview before confirming
+        ItineraryStatusEnum.DRAFT,        # Allow DRAFT so agents can preview before confirming
+        ItineraryStatusEnum.UNDER_REVIEW, # Allow UNDER_REVIEW so agents can review before sending
     ]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
