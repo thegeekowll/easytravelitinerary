@@ -267,7 +267,7 @@ export default function ClientPresentationView() {
 
       {/* Accommodations Section */}
       <div className="bg-white pt-24 pb-0 w-full">
-        <h2 className="text-[32px] font-semibold font-sans text-center mb-16 text-[#5B7444] tracking-widest">ACCOMMODATIONS</h2>
+        <h2 className="text-5xl font-semibold font-sans text-center mb-16 text-[#5B7444] tracking-widest">ACCOMMODATIONS</h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 w-full">
           {Object.values(
@@ -373,7 +373,7 @@ export default function ClientPresentationView() {
             {/* Inclusions */}
             {itinerary.inclusions && itinerary.inclusions.length > 0 && (
                 <div className="mb-12">
-                    <h2 className="text-[32px] font-semibold font-sans text-center mb-16 text-[#5B7444] tracking-widest uppercase">What's Included</h2>
+                    <h2 className="text-5xl font-semibold font-sans text-center mb-16 text-[#5B7444] tracking-widest uppercase">What's Included</h2>
                      <div className="flex flex-wrap justify-center gap-y-[80px] gap-x-[550px]">
                          {itinerary.inclusions.map((item: any, idx: number) => (
                              <div key={idx} className="w-full md:w-[calc(50%-275px)] flex flex-row gap-6 items-start justify-center text-left">
@@ -404,7 +404,7 @@ export default function ClientPresentationView() {
             {/* Exclusions */}
             {itinerary.exclusions && itinerary.exclusions.length > 0 && (
                 <div>
-                     <h2 className="text-[32px] font-semibold font-sans text-center mb-16 text-[#c25d2a] tracking-widest uppercase">What's Excluded</h2>
+                     <h2 className="text-5xl font-semibold font-sans text-center mb-16 text-[#c25d2a] tracking-widest uppercase">What's Excluded</h2>
                      <div className="flex flex-wrap justify-center gap-y-[80px] gap-x-[550px]">
                          {itinerary.exclusions.map((item: any, idx: number) => (
                              <div key={idx} className="w-full md:w-[calc(50%-275px)] flex flex-row gap-6 items-start justify-center text-left">
