@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, User, Heart, Users, UserCheck, Briefcase } from 'lucide-react';
 
 export interface TravelerIntakeData {
   primaryName: string;
@@ -16,12 +16,21 @@ export interface TravelerIntakeData {
   arrivalDate: string;
   numberOfDays: number;
   numberOfTravelers: number;
+  groupType: string;
   otherTravelers: { name: string; age: string }[];
 }
 
 interface TravelerIntakeFormProps {
   onSubmit: (data: TravelerIntakeData) => void;
 }
+
+const GROUP_TYPES = [
+  { value: 'solo',      label: 'Solo',      icon: User },
+  { value: 'couple',   label: 'Couple',    icon: Heart },
+  { value: 'family',   label: 'Family',    icon: Users },
+  { value: 'friends',  label: 'Friends',   icon: UserCheck },
+  { value: 'corporate',label: 'Corporate', icon: Briefcase },
+];
 
 export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps) {
   const [formData, setFormData] = useState<TravelerIntakeData>({
@@ -33,6 +42,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
     arrivalDate: '',
     numberOfDays: 3,
     numberOfTravelers: 1,
+    groupType: '',
     otherTravelers: []
   });
 
@@ -73,7 +83,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <Label>Primary Traveler Name</Label>
-          <Input 
+          <Input
             required
             value={formData.primaryName}
             onChange={e => updateField('primaryName', e.target.value)}
@@ -82,7 +92,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
         </div>
         <div className="space-y-2">
           <Label>Email Address</Label>
-          <Input 
+          <Input
             type="email"
             value={formData.primaryEmail}
             onChange={e => updateField('primaryEmail', e.target.value)}
@@ -91,7 +101,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
         </div>
         <div className="space-y-2">
           <Label>Phone Number</Label>
-          <Input 
+          <Input
             type="tel"
             value={formData.primaryPhone}
             onChange={e => updateField('primaryPhone', e.target.value)}
@@ -100,7 +110,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
         </div>
         <div className="space-y-2">
           <Label>Age</Label>
-          <Input 
+          <Input
             required
             type="number"
             value={formData.primaryAge}
@@ -110,7 +120,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
         </div>
         <div className="space-y-2">
           <Label>Country / Nationality</Label>
-          <Input 
+          <Input
             required
             value={formData.primaryCountry}
             onChange={e => updateField('primaryCountry', e.target.value)}
@@ -119,7 +129,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
         </div>
         <div className="space-y-2">
           <Label>Date of Arrival</Label>
-          <Input 
+          <Input
             required
             type="date"
             value={formData.arrivalDate}
@@ -128,7 +138,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
         </div>
         <div className="space-y-2">
           <Label>Tour Duration (Days)</Label>
-          <Input 
+          <Input
             required
             type="number"
             min={1}
@@ -138,7 +148,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
         </div>
         <div className="space-y-2">
           <Label>Total Travelers</Label>
-          <Input 
+          <Input
             type="number"
             readOnly
             value={formData.numberOfTravelers}
@@ -147,20 +157,45 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
         </div>
       </div>
 
+      {/* Group Type Selector */}
+      <div className="space-y-3">
+        <Label className="text-base">Group Type</Label>
+        <div className="flex flex-wrap gap-3">
+          {GROUP_TYPES.map(({ value, label, icon: Icon }) => {
+            const selected = formData.groupType === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => updateField('groupType', selected ? '' : value)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-medium transition-all
+                  ${selected
+                    ? 'border-primary bg-primary text-white shadow-md'
+                    : 'border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
+                  }`}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="space-y-4">
         <div className="flex justify-between items-center">
             <Label className="text-lg">Other Travelers</Label>
             <Button type="button" variant="outline" size="sm" onClick={addTraveler}>
-                <Plus className="h-4 w-4 mr-2" /> Add 
+                <Plus className="h-4 w-4 mr-2" /> Add
             </Button>
         </div>
-        
+
         {formData.otherTravelers.map((traveler, index) => (
             <Card key={index}>
                 <CardContent className="pt-6 flex gap-4 items-end">
                     <div className="flex-1 space-y-2">
                         <Label>Name</Label>
-                        <Input 
+                        <Input
                             value={traveler.name}
                             onChange={e => updateOtherTraveler(index, 'name', e.target.value)}
                             placeholder="Traveler Name"
@@ -168,7 +203,7 @@ export default function TravelerIntakeForm({ onSubmit }: TravelerIntakeFormProps
                     </div>
                     <div className="w-24 space-y-2">
                         <Label>Age</Label>
-                        <Input 
+                        <Input
                             value={traveler.age}
                             onChange={e => updateOtherTraveler(index, 'age', e.target.value)}
                             placeholder="Age"

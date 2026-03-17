@@ -88,6 +88,7 @@ function ChooseContent() {
         client_email: travelerData.primaryEmail,
         client_phone: travelerData.primaryPhone,
         number_of_travelers: travelerData.numberOfTravelers,
+        group_type: travelerData.groupType || null,
         return_date: calculateReturnDate(travelerData.arrivalDate, durationDays)
       };
 

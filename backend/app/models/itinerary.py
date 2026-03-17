@@ -322,6 +322,13 @@ class Itinerary(Base):
         comment="When PDF was last generated"
     )
 
+    # Group Type
+    group_type: Mapped[str | None] = mapped_column(
+        String(50),
+        nullable=True,
+        comment="Type of travelling group: solo, couple, family, friends, corporate"
+    )
+
     # Internal Notes
     internal_notes: Mapped[str | None] = mapped_column(
         Text,

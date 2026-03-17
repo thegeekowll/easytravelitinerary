@@ -146,6 +146,7 @@ export default function ItineraryDetailPage({
         // Basic Info
         tour_title: itinerary.tour_title,
         tour_code: itinerary.tour_code || null,
+        group_type: itinerary.group_type || null,
         status: newStatus,
         notes: itinerary.notes,
 
@@ -710,6 +711,34 @@ export default function ItineraryDetailPage({
                   />
                 ) : (
                   <p className="font-medium">{itinerary.tour_code || <span className="text-gray-400 italic">None</span>}</p>
+                )}
+              </div>
+
+              <div className="col-span-2">
+                <Label className="text-xs text-gray-500 uppercase mb-1 block">
+                  Group Type
+                </Label>
+                {isEditing ? (
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {['solo','couple','family','friends','corporate'].map(gt => (
+                      <button
+                        key={gt}
+                        type="button"
+                        onClick={() => setItinerary({ ...itinerary, group_type: itinerary.group_type === gt ? null : gt })}
+                        className={`px-3 py-1 rounded-full border text-sm font-medium capitalize transition-all
+                          ${itinerary.group_type === gt
+                            ? 'border-primary bg-primary text-white'
+                            : 'border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary'
+                          }`}
+                      >
+                        {gt}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="font-medium capitalize">
+                    {itinerary.group_type || <span className="text-gray-400 italic">Not set</span>}
+                  </p>
                 )}
               </div>
 

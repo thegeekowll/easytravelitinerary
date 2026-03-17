@@ -206,6 +206,7 @@ class ItineraryBase(BaseModel):
     difficulty_level: Optional[str] = None
     description: Optional[str] = None
     highlights: Optional[str] = None
+    group_type: Optional[str] = None
 
     @field_validator('currency')
     @classmethod
@@ -307,7 +308,8 @@ class ItineraryUpdate(BaseModel):
     difficulty_level: Optional[str] = None
     description: Optional[str] = None
     highlights: Optional[str] = None
-    
+    group_type: Optional[str] = None
+
     days: Optional[List[ItineraryDayUpdate]] = None
     inclusion_ids: Optional[List[UUID]] = None
     exclusion_ids: Optional[List[UUID]] = None
@@ -332,6 +334,7 @@ class ItineraryResponse(ItineraryBase):
     id: UUID
     unique_code: str
     tour_code: Optional[str] = None
+    group_type: Optional[str] = None
     creation_method: CreationMethodEnum
     base_tour_id: Optional[UUID] = None
     base_tour_title: Optional[str] = None
