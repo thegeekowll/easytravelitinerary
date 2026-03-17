@@ -496,6 +496,12 @@ class APIClient {
     return response.data as Record<string, string>;
   }
 
+  async getPageStyles(): Promise<Record<string, string>> {
+    // Public endpoint — no auth required
+    const response = await axios.get(`${API_URL}/public/page-styles`);
+    return response.data as Record<string, string>;
+  }
+
   // Generic Import/Export Data (CSV)
   async exportData(endpoint: string) {
     const response = await this.client.get(`/${endpoint}/export/csv`, {

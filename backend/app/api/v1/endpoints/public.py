@@ -227,6 +227,19 @@ def get_public_itinerary(
     return itinerary
 
 
+@router.get("/page-styles")
+def get_page_styles(db: Session = Depends(get_db)):
+    """Get configurable font/spacing styles for the itinerary view page (no auth required)."""
+    import json
+    record = db.query(CompanyContent).filter(CompanyContent.key == "page_styles").first()
+    if not record or not record.content:
+        return {}
+    try:
+        return json.loads(record.content)
+    except Exception:
+        return {}
+
+
 @router.get("/page-labels")
 def get_page_labels(db: Session = Depends(get_db)):
     """

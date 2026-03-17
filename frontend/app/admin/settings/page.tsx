@@ -269,7 +269,30 @@ export default function SettingsPage() {
     return defaults.find(d => d.asset_name === role);
   };
 
-  if (initialLoad) { 
+  // ── Page Styles helpers (stored as JSON in templates['page_styles']) ──────
+  const getStyle = (key: string, def: string = '') => {
+    try {
+      const s = JSON.parse(templates['page_styles'] || '{}');
+      return s[key] !== undefined ? String(s[key]) : def;
+    } catch { return def; }
+  };
+
+  const setStyle = (key: string, value: string) => {
+    try {
+      const s = JSON.parse(templates['page_styles'] || '{}');
+      s[key] = value;
+      setTemplates(prev => ({ ...prev, page_styles: JSON.stringify(s) }));
+    } catch {
+      setTemplates(prev => ({ ...prev, page_styles: JSON.stringify({ [key]: value }) }));
+    }
+  };
+
+  const saveStyles = () => handleTemplateSave('page_styles');
+
+  // Common select className reused from theme tab
+  const SEL = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+
+  if (initialLoad) {
     return <div className="p-8 flex justify-center"><Loader2 className="animate-spin" /></div>;
   }
 
@@ -869,6 +892,303 @@ export default function SettingsPage() {
               <Button onClick={() => {
                 ['page_contact_company_name','page_contact_company_phone','page_contact_fallback_email'].forEach(handleTemplateSave);
               }}>Save Contact Info</Button>
+            </CardContent>
+          </Card>
+
+          {/* ── Typography & Spacing ─────────────────────────────── */}
+          <div className="pt-4 border-t">
+            <h2 className="text-xl font-semibold mb-1">Typography & Spacing</h2>
+            <p className="text-sm text-muted-foreground mb-4">Font size (px), weight, and family for each section. Spacing controls gaps and padding. All changes apply instantly.</p>
+          </div>
+
+          {/* Global Fonts */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Global Font Families</CardTitle>
+              <CardDescription>Base font stacks used throughout the page. Sans-serif for body/labels, serif for headings like the hero title.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Sans-serif Family</Label>
+                  <select className={SEL} value={getStyle('global_sans', 'system-ui, sans-serif')} onChange={e => setStyle('global_sans', e.target.value)}>
+                    <option value="system-ui, sans-serif">System Default</option>
+                    <option value="Arial, sans-serif">Arial</option>
+                    <option value="'Helvetica Neue', sans-serif">Helvetica</option>
+                    <option value="Verdana, sans-serif">Verdana</option>
+                    <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    <option value="'Gill Sans', sans-serif">Gill Sans</option>
+                    <option value="Tahoma, sans-serif">Tahoma</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Serif Family (hero title, etc.)</Label>
+                  <select className={SEL} value={getStyle('global_serif', 'Georgia, serif')} onChange={e => setStyle('global_serif', e.target.value)}>
+                    <option value="Georgia, serif">Georgia</option>
+                    <option value="'Times New Roman', serif">Times New Roman</option>
+                    <option value="Palatino, serif">Palatino</option>
+                    <option value="Garamond, serif">Garamond</option>
+                    <option value="'Book Antiqua', serif">Book Antiqua</option>
+                    <option value="'Cormorant Garamond', serif">Cormorant Garamond</option>
+                  </select>
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Global Fonts</Button>
+            </CardContent>
+          </Card>
+
+          {/* Hero Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Hero Section</CardTitle>
+              <CardDescription>The full-screen opening image with tour title and description.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tour Title</div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('hero_title_size', '56')} onChange={e => setStyle('hero_title_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('hero_title_weight', '700')} onChange={e => setStyle('hero_title_weight', e.target.value)}>
+                    <option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option><option value="800">Extra Bold (800)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Family</Label>
+                  <select className={SEL} value={getStyle('hero_title_family', 'serif')} onChange={e => setStyle('hero_title_family', e.target.value)}>
+                    <option value="serif">Serif (global serif)</option>
+                    <option value="sans-serif">Sans-serif (global sans)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Tour Description / Subtitle</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('hero_desc_size', '20')} onChange={e => setStyle('hero_desc_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('hero_desc_weight', '300')} onChange={e => setStyle('hero_desc_weight', e.target.value)}>
+                    <option value="300">Light (300)</option><option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Hero Typography</Button>
+            </CardContent>
+          </Card>
+
+          {/* Section Headings Typography */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Section Headings Typography</CardTitle>
+              <CardDescription>Applies to Itinerary, Accommodations, What's Included, What's Excluded, and About headings.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('heading_size', '48')} onChange={e => setStyle('heading_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('heading_weight', '600')} onChange={e => setStyle('heading_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option><option value="800">Extra Bold (800)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Letter Spacing</Label>
+                  <select className={SEL} value={getStyle('heading_spacing', '0.2em')} onChange={e => setStyle('heading_spacing', e.target.value)}>
+                    <option value="0">None</option>
+                    <option value="0.05em">Tight (0.05em)</option>
+                    <option value="0.1em">Normal (0.1em)</option>
+                    <option value="0.2em">Wide (0.2em)</option>
+                    <option value="0.3em">Wider (0.3em)</option>
+                    <option value="0.4em">Widest (0.4em)</option>
+                  </select>
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Heading Typography</Button>
+            </CardContent>
+          </Card>
+
+          {/* Day Cards Typography */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Day Cards Typography</CardTitle>
+              <CardDescription>Text inside each day's content block — title, description, and detail labels.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Day Title</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('day_title_size', '22')} onChange={e => setStyle('day_title_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('day_title_weight', '600')} onChange={e => setStyle('day_title_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Day Description</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('day_desc_size', '16')} onChange={e => setStyle('day_desc_size', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Detail Labels (Overnight At, Meal Plan, etc.)</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('day_label_size', '16')} onChange={e => setStyle('day_label_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('day_label_weight', '700')} onChange={e => setStyle('day_label_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Day Card Internal Padding</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Horizontal Padding (px)</Label>
+                  <Input type="number" value={getStyle('day_padding_x', '96')} onChange={e => setStyle('day_padding_x', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Vertical Padding (px)</Label>
+                  <Input type="number" value={getStyle('day_padding_y', '100')} onChange={e => setStyle('day_padding_y', e.target.value)} />
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Day Card Typography</Button>
+            </CardContent>
+          </Card>
+
+          {/* Inclusions & Exclusions Typography + Layout */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Inclusions & Exclusions Typography & Layout</CardTitle>
+              <CardDescription>Font styling for item titles and descriptions, plus spacing between items.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item Title</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('inc_title_size', '20')} onChange={e => setStyle('inc_title_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Font Weight</Label>
+                  <select className={SEL} value={getStyle('inc_title_weight', '700')} onChange={e => setStyle('inc_title_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Item Description</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('inc_desc_size', '16')} onChange={e => setStyle('inc_desc_size', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Layout Spacing</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Row Gap — between items vertically (px)</Label>
+                  <Input type="number" value={getStyle('inc_row_gap', '80')} onChange={e => setStyle('inc_row_gap', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Column Gap — space between the 2 columns (px)</Label>
+                  <Input type="number" value={getStyle('inc_col_gap', '450')} onChange={e => setStyle('inc_col_gap', e.target.value)} />
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Inclusions/Exclusions Styles</Button>
+            </CardContent>
+          </Card>
+
+          {/* Welcome Letter & Closing */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Welcome Letter & Closing Message</CardTitle>
+              <CardDescription>Typography for the personalised welcome text and the final closing message.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Welcome Letter Body</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('welcome_size', '16')} onChange={e => setStyle('welcome_size', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Contact Block (Company Name / Phone / Email)</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('contact_name_size', '16')} onChange={e => setStyle('contact_name_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Company Name Weight</Label>
+                  <select className={SEL} value={getStyle('contact_name_weight', '700')} onChange={e => setStyle('contact_name_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Closing Message</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Font Size (px)</Label>
+                  <Input type="number" value={getStyle('closing_size', '20')} onChange={e => setStyle('closing_size', e.target.value)} />
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Welcome & Closing Styles</Button>
+            </CardContent>
+          </Card>
+
+          {/* Footer Typography */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Footer Typography</CardTitle>
+              <CardDescription>Agent name, position, and contact text sizing in the footer section.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Agent Name — Font Size (px)</Label>
+                  <Input type="number" value={getStyle('footer_name_size', '20')} onChange={e => setStyle('footer_name_size', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Agent Name — Font Weight</Label>
+                  <select className={SEL} value={getStyle('footer_name_weight', '700')} onChange={e => setStyle('footer_name_weight', e.target.value)}>
+                    <option value="400">Regular (400)</option><option value="500">Medium (500)</option>
+                    <option value="600">Semi Bold (600)</option><option value="700">Bold (700)</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Agent Position — Font Size (px)</Label>
+                  <Input type="number" value={getStyle('footer_position_size', '14')} onChange={e => setStyle('footer_position_size', e.target.value)} />
+                </div>
+              </div>
+              <div className="space-y-1 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2">Section Spacing</div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Footer Top Padding (px)</Label>
+                  <Input type="number" value={getStyle('footer_padding_top', '96')} onChange={e => setStyle('footer_padding_top', e.target.value)} />
+                </div>
+              </div>
+              <Button onClick={saveStyles}>Save Footer Styles</Button>
             </CardContent>
           </Card>
 

@@ -7,6 +7,40 @@ import { apiClient } from '@/lib/api/client';
 import { Loader2, Hotel, CheckCircle2, XCircle, Facebook, Instagram, Twitter, Linkedin } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+// Default style values — mirrors the defaults in the settings page
+const DEFAULT_STYLES: Record<string, string> = {
+  global_sans:          'system-ui, sans-serif',
+  global_serif:         'Georgia, serif',
+  hero_title_size:      '56',
+  hero_title_weight:    '700',
+  hero_title_family:    'serif',
+  hero_desc_size:       '20',
+  hero_desc_weight:     '300',
+  heading_size:         '48',
+  heading_weight:       '600',
+  heading_spacing:      '0.2em',
+  day_title_size:       '22',
+  day_title_weight:     '600',
+  day_desc_size:        '16',
+  day_label_size:       '16',
+  day_label_weight:     '700',
+  day_padding_x:        '96',
+  day_padding_y:        '100',
+  inc_title_size:       '20',
+  inc_title_weight:     '700',
+  inc_desc_size:        '16',
+  inc_row_gap:          '80',
+  inc_col_gap:          '450',
+  welcome_size:         '16',
+  contact_name_size:    '16',
+  contact_name_weight:  '700',
+  closing_size:         '20',
+  footer_name_size:     '20',
+  footer_name_weight:   '700',
+  footer_position_size: '14',
+  footer_padding_top:   '96',
+};
+
 // Default page labels (used as fallback while loading or on error)
 const DEFAULT_LABELS: Record<string, string> = {
   page_heading_itinerary:        'Itinerary',
@@ -66,20 +100,28 @@ export default function ClientPresentationView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [labels, setLabels] = useState<Record<string, string>>(DEFAULT_LABELS);
+  const [pageStyles, setPageStyles] = useState<Record<string, string>>(DEFAULT_STYLES);
 
   // Helper: get a label with its default fallback
   const lbl = (key: string) => labels[key] || DEFAULT_LABELS[key] || key;
+  // Helpers for styles
+  const sty = (key: string) => pageStyles[key] || DEFAULT_STYLES[key] || '';
+  const px  = (key: string) => `${sty(key)}px`;
+  // Resolve font family shorthand to actual CSS value
+  const ff  = (key: string) => sty(key) === 'serif' ? sty('global_serif') : sty('global_sans');
 
   useEffect(() => {
     async function loadItinerary() {
       try {
         if (!params.unique_code) return;
-        const [data, pageLabels] = await Promise.all([
+        const [data, pageLabels, rawStyles] = await Promise.all([
           getItineraryPublic(params.unique_code as string),
           apiClient.getPageLabels().catch(() => DEFAULT_LABELS),
+          apiClient.getPageStyles().catch(() => ({})),
         ]);
         setItinerary(data);
         setLabels({ ...DEFAULT_LABELS, ...pageLabels });
+        setPageStyles({ ...DEFAULT_STYLES, ...rawStyles });
       } catch (err: any) {
         console.error('Failed to load itinerary:', err);
         setError(err.message || 'Failed to load itinerary');
@@ -157,8 +199,8 @@ export default function ClientPresentationView() {
 
         {/* Hero Content */}
         <div className="absolute bottom-16 md:bottom-20 left-4 md:left-20 text-white max-w-[90vw] md:max-w-4xl z-10 pr-4">
-          <h1 className="text-4xl md:text-7xl font-bold mb-3 md:mb-4 font-serif leading-tight">{itinerary.tour_title}</h1>
-          <p className="text-lg md:text-2xl font-light italic opacity-90 font-sans">
+          <h1 className="mb-3 md:mb-4 leading-tight" style={{ fontSize: px('hero_title_size'), fontWeight: sty('hero_title_weight'), fontFamily: ff('hero_title_family') }}>{itinerary.tour_title}</h1>
+          <p className="italic opacity-90" style={{ fontSize: px('hero_desc_size'), fontWeight: sty('hero_desc_weight'), fontFamily: sty('global_sans') }}>
             {itinerary.description || `A Private Family Safari Curated for ${itinerary.primary_traveler?.full_name ? `the ${itinerary.primary_traveler.full_name.split(' ').pop()} Family` : 'You'}`}
           </p>
         </div>
@@ -173,7 +215,7 @@ export default function ClientPresentationView() {
 
       {/* ── Welcome Letter ────────────────────────────────────────── */}
       <div className="container mx-auto px-4 py-12 md:py-24 max-w-4xl">
-        <div className="prose prose-lg mx-auto text-gray-700 leading-relaxed font-sans tracking-wide">
+        <div className="prose mx-auto text-gray-700 leading-relaxed font-sans tracking-wide" style={{ fontSize: px('welcome_size') }}>
           {itinerary.welcome_message ? (
             <div className="whitespace-pre-wrap">{itinerary.welcome_message}</div>
           ) : (
@@ -192,9 +234,9 @@ export default function ClientPresentationView() {
               )}
             </div>
             <div className="flex flex-col gap-1.5">
-              <p className="font-bold text-gray-900 text-base md:text-lg font-sans leading-none">{lbl('page_contact_company_name')}</p>
-              <p className="text-gray-600 text-sm font-sans leading-none">{lbl('page_contact_company_phone')}</p>
-              <p className="text-gray-900 text-sm font-sans leading-none">{itinerary.agent_email || lbl('page_contact_fallback_email')}</p>
+              <p className="text-gray-900 font-sans leading-none" style={{ fontSize: px('contact_name_size'), fontWeight: sty('contact_name_weight') }}>{lbl('page_contact_company_name')}</p>
+              <p className="text-gray-600 font-sans leading-none" style={{ fontSize: px('contact_name_size') }}>{lbl('page_contact_company_phone')}</p>
+              <p className="text-gray-900 font-sans leading-none" style={{ fontSize: px('contact_name_size') }}>{itinerary.agent_email || lbl('page_contact_fallback_email')}</p>
             </div>
           </div>
         </div>
@@ -226,18 +268,18 @@ export default function ClientPresentationView() {
                 </div>
 
                 {/* Right Column — content */}
-                <div className="md:w-[calc(60%-100px)] bg-white p-6 md:pl-24 md:pr-16 md:py-[100px] flex flex-col justify-center">
+                <div className="md:w-[calc(60%-100px)] bg-white flex flex-col justify-center p-6" style={{ paddingLeft: `${sty('day_padding_x')}px`, paddingRight: `${Math.round(Number(sty('day_padding_x')) * 0.67)}px`, paddingTop: px('day_padding_y'), paddingBottom: px('day_padding_y') }}>
                   <div className="w-full">
                     {/* ITINERARY heading — only Day 1 */}
                     {index === 0 && (
-                      <h2 className="text-3xl md:text-4xl font-bold font-sans tracking-widest mb-8 md:mb-10" style={{ color: lbl('page_color_primary') }}>{lbl('page_heading_itinerary')}</h2>
+                      <h2 className="mb-8 md:mb-10" style={{ color: lbl('page_color_primary'), fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_itinerary')}</h2>
                     )}
 
                     {/* Day Header */}
                     <div className="mb-6 md:mb-10">
-                      <h3 className="text-[22px] font-sans font-semibold text-gray-900 mb-3">
+                      <h3 className="text-gray-900 mb-3" style={{ fontSize: px('day_title_size'), fontWeight: sty('day_title_weight'), fontFamily: sty('global_sans') }}>
                         Day {day.day_number}
-                        <span className="font-semibold text-gray-600 block mt-2 text-[22px] font-sans">
+                        <span className="text-gray-600 block mt-2" style={{ fontSize: px('day_title_size'), fontWeight: sty('day_title_weight'), fontFamily: sty('global_sans') }}>
                           {day.destinations && day.destinations.length > 0
                             ? day.destinations.map((d: any) => d.name).join(' - ')
                             : (day.title || 'Leisure Day')}
@@ -246,21 +288,21 @@ export default function ClientPresentationView() {
                     </div>
 
                     {/* Description */}
-                    <div className="prose prose-base md:prose-lg text-gray-600 mb-4 max-w-none text-justify leading-relaxed font-sans">
+                    <div className="prose text-gray-600 mb-4 max-w-none text-justify leading-relaxed font-sans" style={{ fontSize: px('day_desc_size') }}>
                       <p>{day.description}</p>
                     </div>
 
                     {/* Stay & Meals */}
-                    <div className="mb-6 md:mb-8 space-y-1 text-gray-700 font-sans">
+                    <div className="mb-6 md:mb-8 space-y-1 text-gray-700 font-sans" style={{ fontSize: px('day_label_size') }}>
                       {day.accommodation && (
                         <div className="flex gap-2">
-                          <span className="font-bold">{lbl('page_label_overnight_at')}</span>
+                          <span style={{ fontWeight: sty('day_label_weight') }}>{lbl('page_label_overnight_at')}</span>
                           <span>{day.accommodation.name}</span>
                         </div>
                       )}
                       {day.meals_included && (
                         <div className="flex gap-2">
-                          <span className="font-bold">{lbl('page_label_meal_plan')}</span>
+                          <span style={{ fontWeight: sty('day_label_weight') }}>{lbl('page_label_meal_plan')}</span>
                           <span>{day.meals_included}</span>
                         </div>
                       )}
@@ -269,7 +311,7 @@ export default function ClientPresentationView() {
                     {/* Activities */}
                     {day.activities && (
                       <div className="mb-10 md:mb-12">
-                        <h4 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-3 md:mb-4 font-sans">{lbl('page_label_todays_activities')}</h4>
+                        <h4 className="uppercase tracking-widest text-gray-400 mb-3 md:mb-4 font-sans" style={{ fontSize: px('day_label_size'), fontWeight: sty('day_label_weight') }}>{lbl('page_label_todays_activities')}</h4>
                         <div className="prose text-gray-700 font-medium font-sans">
                           <p>{day.activities}</p>
                         </div>
@@ -286,7 +328,7 @@ export default function ClientPresentationView() {
 
       {/* ── Accommodations Section ────────────────────────────────── */}
       <div className="bg-white pt-12 md:pt-24 pb-0 w-full">
-        <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 tracking-widest" style={{ color: lbl('page_color_primary') }}>{lbl('page_heading_accommodations')}</h2>
+        <h2 className="text-center mb-8 md:mb-16" style={{ color: lbl('page_color_primary'), fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_accommodations')}</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 w-full">
           {Object.values(
@@ -365,8 +407,8 @@ export default function ClientPresentationView() {
           {/* Inclusions */}
           {itinerary.inclusions && itinerary.inclusions.length > 0 && (
             <div className="mb-8 md:mb-12">
-              <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 tracking-widest uppercase" style={{ color: lbl('page_color_primary') }}>{lbl('page_heading_whats_included')}</h2>
-              <div className="flex flex-wrap justify-start gap-y-[40px] md:gap-y-[80px] gap-x-[450px]">
+              <h2 className="text-center mb-8 md:mb-16 uppercase" style={{ color: lbl('page_color_primary'), fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_whats_included')}</h2>
+              <div className="flex flex-wrap justify-start" style={{ rowGap: px('inc_row_gap'), columnGap: px('inc_col_gap') }}>
                 {itinerary.inclusions.map((item: any, idx: number) => (
                   <div key={idx} className="w-full md:w-[calc(50%-225px)] flex flex-row gap-4 md:gap-6 items-start text-left">
                     <div className="flex-shrink-0 mt-1">
@@ -378,9 +420,9 @@ export default function ClientPresentationView() {
                       )}
                     </div>
                     <div className="max-w-full md:max-w-[350px] font-sans">
-                      <h3 className="font-bold text-[18px] md:text-[20px] text-gray-900 mb-1">{item.name}</h3>
+                      <h3 className="text-gray-900 mb-1" style={{ fontSize: px('inc_title_size'), fontWeight: sty('inc_title_weight') }}>{item.name}</h3>
                       {item.description && (
-                        <p className="text-gray-600 text-[15px] md:text-[16px] leading-relaxed">{item.description}</p>
+                        <p className="text-gray-600 leading-relaxed" style={{ fontSize: px('inc_desc_size') }}>{item.description}</p>
                       )}
                     </div>
                   </div>
@@ -392,8 +434,8 @@ export default function ClientPresentationView() {
           {/* Exclusions */}
           {itinerary.exclusions && itinerary.exclusions.length > 0 && (
             <div>
-              <h2 className="text-3xl md:text-5xl font-semibold font-sans text-center mb-8 md:mb-16 tracking-widest uppercase" style={{ color: lbl('page_color_exclusions') }}>{lbl('page_heading_whats_excluded')}</h2>
-              <div className="flex flex-wrap justify-start gap-y-[40px] md:gap-y-[80px] gap-x-[450px]">
+              <h2 className="text-center mb-8 md:mb-16 uppercase" style={{ color: lbl('page_color_exclusions'), fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_whats_excluded')}</h2>
+              <div className="flex flex-wrap justify-start" style={{ rowGap: px('inc_row_gap'), columnGap: px('inc_col_gap') }}>
                 {itinerary.exclusions.map((item: any, idx: number) => (
                   <div key={idx} className="w-full md:w-[calc(50%-225px)] flex flex-row gap-4 md:gap-6 items-start text-left">
                     <div className="flex-shrink-0 mt-1">
@@ -405,9 +447,9 @@ export default function ClientPresentationView() {
                       )}
                     </div>
                     <div className="max-w-full md:max-w-[350px] font-sans">
-                      <h3 className="font-bold text-[18px] md:text-[20px] text-gray-900 mb-1">{item.name}</h3>
+                      <h3 className="text-gray-900 mb-1" style={{ fontSize: px('inc_title_size'), fontWeight: sty('inc_title_weight') }}>{item.name}</h3>
                       {item.description && (
-                        <p className="text-gray-600 text-[15px] md:text-[16px] leading-relaxed">{item.description}</p>
+                        <p className="text-gray-600 leading-relaxed" style={{ fontSize: px('inc_desc_size') }}>{item.description}</p>
                       )}
                     </div>
                   </div>
@@ -443,7 +485,7 @@ export default function ClientPresentationView() {
 
                 {/* Overlay heading box */}
                 <div className="absolute bottom-0 right-0 translate-y-1/2 text-white px-4 py-3 md:px-8 md:py-6 shadow-lg" style={{ backgroundColor: lbl('page_color_primary') }}>
-                  <h3 className="text-xl md:text-5xl font-semibold font-sans tracking-widest uppercase">{lbl('page_heading_about')}</h3>
+                  <h3 className="uppercase" style={{ fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_about')}</h3>
                 </div>
               </div>
             </div>
@@ -491,7 +533,7 @@ export default function ClientPresentationView() {
       {itinerary.closing_message && (
         <div className="py-12 md:py-24 bg-white">
           <div className="container mx-auto px-4 text-center max-w-4xl">
-            <p className="text-lg md:text-2xl font-serif italic text-gray-800 leading-relaxed whitespace-pre-line">
+            <p className="italic text-gray-800 leading-relaxed whitespace-pre-line" style={{ fontSize: px('closing_size'), fontFamily: sty('global_serif') }}>
               {itinerary.closing_message}
             </p>
           </div>
@@ -499,7 +541,7 @@ export default function ClientPresentationView() {
       )}
 
       {/* ── Footer ────────────────────────────────────────────────── */}
-      <div className="pt-12 md:pt-24 pb-10" style={{ backgroundColor: lbl('page_footer_bg_color') }}>
+      <div className="pb-10" style={{ backgroundColor: lbl('page_footer_bg_color'), paddingTop: px('footer_padding_top') }}>
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center">
 
@@ -522,8 +564,8 @@ export default function ClientPresentationView() {
               {/* Agent Details */}
               <div className="flex flex-col text-center md:text-left space-y-3 md:space-y-4 font-sans text-gray-800">
                 <div>
-                  <h3 className="text-xl md:text-2xl font-bold mb-1">{itinerary.agent_name || 'Travel Consultant'}</h3>
-                  <p className="text-sm tracking-wide uppercase text-gray-500">{itinerary.agent_position || 'Travel Consultant'}</p>
+                  <h3 className="mb-1" style={{ fontSize: px('footer_name_size'), fontWeight: sty('footer_name_weight') }}>{itinerary.agent_name || 'Travel Consultant'}</h3>
+                  <p className="tracking-wide uppercase text-gray-500" style={{ fontSize: px('footer_position_size') }}>{itinerary.agent_position || 'Travel Consultant'}</p>
                 </div>
                 <div className="space-y-1 text-base md:text-lg leading-relaxed">
                   {itinerary.agent_phone && (
