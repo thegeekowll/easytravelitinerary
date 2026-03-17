@@ -211,7 +211,7 @@ export default function ClientPresentationView() {
                    <div className="w-full">
                       {/* ITINERARY Heading - Only on Day 1 */}
                       {index === 0 && (
-                          <h2 className="text-4xl font-sans text-[#5B7444] tracking-widest mb-10">Itinerary</h2>
+                          <h2 className="text-4xl font-bold font-sans text-[#5B7444] tracking-widest mb-10">Itinerary</h2>
                       )}
 
                       {/* Day Header */}
