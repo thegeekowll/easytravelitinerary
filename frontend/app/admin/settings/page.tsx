@@ -1131,8 +1131,8 @@ export default function SettingsPage() {
                         </div>
                         <p className={SUB}>Layout Spacing</p>
                         <div className="grid gap-3 grid-cols-2">
-                          <div className="space-y-1.5"><Label className="text-xs">Row Gap (px)</Label><Input type="number" value={getStyle('inc_row_gap','80')} onChange={e=>setStyle('inc_row_gap',e.target.value)}/></div>
-                          <div className="space-y-1.5"><Label className="text-xs">Column Gap (px)</Label><Input type="number" value={getStyle('inc_col_gap','450')} onChange={e=>setStyle('inc_col_gap',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Row Gap (px)</Label><Input type="number" value={getStyle('inc_row_gap','32')} onChange={e=>setStyle('inc_row_gap',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Column Gap (px)</Label><Input type="number" value={getStyle('inc_col_gap','24')} onChange={e=>setStyle('inc_col_gap',e.target.value)}/></div>
                         </div>
                         <p className={SUB}>Item Size</p>
                         <div className="grid gap-3 grid-cols-2">
