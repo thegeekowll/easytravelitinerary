@@ -483,9 +483,9 @@ export default function ClientPresentationView() {
           {itinerary.inclusions && itinerary.inclusions.length > 0 && (
             <div className="mb-8 md:mb-12">
               <h2 className="text-center mb-8 md:mb-16 uppercase" style={{ color: lbl('page_color_primary'), fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), wordSpacing: sty('heading_word_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_whats_included')}</h2>
-              <div className="flex flex-wrap justify-center" style={{ rowGap: px('inc_row_gap'), columnGap: px('inc_col_gap') }}>
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, ${px('inc_item_width')})`, justifyContent: 'center', rowGap: px('inc_row_gap'), columnGap: px('inc_col_gap') }}>
                 {itinerary.inclusions.map((item: any, idx: number) => (
-                  <div key={idx} className="flex flex-row gap-4 md:gap-6 items-start text-left" style={{ width: px('inc_item_width') }}>
+                  <div key={idx} className="flex flex-row gap-4 md:gap-6 items-start text-left">
                     <div className="flex-shrink-0 mt-1">
                       {item.image_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -510,9 +510,9 @@ export default function ClientPresentationView() {
           {itinerary.exclusions && itinerary.exclusions.length > 0 && (
             <div>
               <h2 className="text-center mb-8 md:mb-16 uppercase" style={{ color: lbl('page_color_exclusions'), fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), wordSpacing: sty('heading_word_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_whats_excluded')}</h2>
-              <div className="flex flex-wrap justify-center" style={{ rowGap: px('inc_row_gap'), columnGap: px('inc_col_gap') }}>
+              <div style={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, ${px('inc_item_width')})`, justifyContent: 'center', rowGap: px('inc_row_gap'), columnGap: px('inc_col_gap') }}>
                 {itinerary.exclusions.map((item: any, idx: number) => (
-                  <div key={idx} className="flex flex-row gap-4 md:gap-6 items-start text-left" style={{ width: px('inc_item_width') }}>
+                  <div key={idx} className="flex flex-row gap-4 md:gap-6 items-start text-left">
                     <div className="flex-shrink-0 mt-1">
                       {item.image_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
