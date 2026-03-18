@@ -46,6 +46,8 @@ const DEFAULT_STYLES: Record<string, string> = {
   inc_desc_word_spacing:       '0',
   inc_row_gap:                 '80',
   inc_col_gap:                 '450',
+  inc_item_width:              '450',
+  inc_img_size:                '58',
   welcome_size:                '16',
   welcome_letter_spacing:      '0',
   welcome_word_spacing:        '0',
@@ -86,6 +88,8 @@ const DEFAULT_MOBILE_STYLES: Record<string, string> = {
   m_inc_desc_size:        '13',
   m_inc_row_gap:          '20',
   m_inc_col_gap:          '0',
+  m_inc_item_width:       '320',
+  m_inc_img_size:         '44',
   m_welcome_size:         '14',
   m_contact_name_size:    '14',
   m_contact_name_weight:  '700',
@@ -481,16 +485,16 @@ export default function ClientPresentationView() {
               <h2 className="text-center mb-8 md:mb-16 uppercase" style={{ color: lbl('page_color_primary'), fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), wordSpacing: sty('heading_word_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_whats_included')}</h2>
               <div className="flex flex-wrap justify-start" style={{ rowGap: px('inc_row_gap'), columnGap: px('inc_col_gap') }}>
                 {itinerary.inclusions.map((item: any, idx: number) => (
-                  <div key={idx} className="w-full md:w-[calc(50%-225px)] flex flex-row gap-4 md:gap-6 items-start text-left">
+                  <div key={idx} className="flex flex-row gap-4 md:gap-6 items-start text-left" style={{ width: px('inc_item_width') }}>
                     <div className="flex-shrink-0 mt-1">
                       {item.image_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.image_url} alt={item.name} className="h-[44px] w-[44px] md:h-[58px] md:w-[58px] object-cover rounded-md shadow-sm border border-gray-100" />
+                        <img src={item.image_url} alt={item.name} className="object-cover rounded-md shadow-sm border border-gray-100" style={{ width: px('inc_img_size'), height: px('inc_img_size') }} />
                       ) : (
-                        <CheckCircle2 className="h-[28px] w-[28px] md:h-[34px] md:w-[34px] text-green-600" />
+                        <CheckCircle2 className="text-green-600" style={{ width: px('inc_img_size'), height: px('inc_img_size') }} />
                       )}
                     </div>
-                    <div className="max-w-full md:max-w-[350px] font-sans">
+                    <div className="font-sans min-w-0">
                       <h3 className="text-gray-900 mb-1" style={{ fontSize: px('inc_title_size'), fontWeight: sty('inc_title_weight'), letterSpacing: sty('inc_title_letter_spacing'), wordSpacing: sty('inc_title_word_spacing') }}>{item.name}</h3>
                       {item.description && (
                         <p className="text-gray-600 leading-relaxed" style={{ fontSize: px('inc_desc_size'), letterSpacing: sty('inc_desc_letter_spacing'), wordSpacing: sty('inc_desc_word_spacing') }}>{item.description}</p>
@@ -508,16 +512,16 @@ export default function ClientPresentationView() {
               <h2 className="text-center mb-8 md:mb-16 uppercase" style={{ color: lbl('page_color_exclusions'), fontSize: px('heading_size'), fontWeight: sty('heading_weight'), letterSpacing: sty('heading_spacing'), wordSpacing: sty('heading_word_spacing'), fontFamily: sty('global_sans') }}>{lbl('page_heading_whats_excluded')}</h2>
               <div className="flex flex-wrap justify-start" style={{ rowGap: px('inc_row_gap'), columnGap: px('inc_col_gap') }}>
                 {itinerary.exclusions.map((item: any, idx: number) => (
-                  <div key={idx} className="w-full md:w-[calc(50%-225px)] flex flex-row gap-4 md:gap-6 items-start text-left">
+                  <div key={idx} className="flex flex-row gap-4 md:gap-6 items-start text-left" style={{ width: px('inc_item_width') }}>
                     <div className="flex-shrink-0 mt-1">
                       {item.image_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={item.image_url} alt={item.name} className="h-[44px] w-[44px] md:h-[58px] md:w-[58px] object-cover rounded-md shadow-sm border border-gray-100" />
+                        <img src={item.image_url} alt={item.name} className="object-cover rounded-md shadow-sm border border-gray-100" style={{ width: px('inc_img_size'), height: px('inc_img_size') }} />
                       ) : (
-                        <XCircle className="h-[28px] w-[28px] md:h-[34px] md:w-[34px] text-red-500" />
+                        <XCircle className="text-red-500" style={{ width: px('inc_img_size'), height: px('inc_img_size') }} />
                       )}
                     </div>
-                    <div className="max-w-full md:max-w-[350px] font-sans">
+                    <div className="font-sans min-w-0">
                       <h3 className="text-gray-900 mb-1" style={{ fontSize: px('inc_title_size'), fontWeight: sty('inc_title_weight'), letterSpacing: sty('inc_title_letter_spacing'), wordSpacing: sty('inc_title_word_spacing') }}>{item.name}</h3>
                       {item.description && (
                         <p className="text-gray-600 leading-relaxed" style={{ fontSize: px('inc_desc_size'), letterSpacing: sty('inc_desc_letter_spacing'), wordSpacing: sty('inc_desc_word_spacing') }}>{item.description}</p>

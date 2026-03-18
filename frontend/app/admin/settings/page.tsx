@@ -1110,7 +1110,7 @@ export default function SettingsPage() {
                 <details className={A}>
                   <summary className={S}>
                     <span className="font-semibold">Inclusions &amp; Exclusions</span>
-                    <span className="text-xs text-muted-foreground">Item title, description, row/column gap</span>
+                    <span className="text-xs text-muted-foreground">Item title, description, spacing, item width, image size</span>
                   </summary>
                   <div className={B}>
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 lg:divide-x">
@@ -1134,6 +1134,11 @@ export default function SettingsPage() {
                           <div className="space-y-1.5"><Label className="text-xs">Row Gap (px)</Label><Input type="number" value={getStyle('inc_row_gap','80')} onChange={e=>setStyle('inc_row_gap',e.target.value)}/></div>
                           <div className="space-y-1.5"><Label className="text-xs">Column Gap (px)</Label><Input type="number" value={getStyle('inc_col_gap','450')} onChange={e=>setStyle('inc_col_gap',e.target.value)}/></div>
                         </div>
+                        <p className={SUB}>Item Size</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Item Width (px)</Label><Input type="number" value={getStyle('inc_item_width','450')} onChange={e=>setStyle('inc_item_width',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Icon / Image Size (px)</Label><Input type="number" value={getStyle('inc_img_size','58')} onChange={e=>setStyle('inc_img_size',e.target.value)}/></div>
+                        </div>
                       </div>
                       <div className="space-y-4 lg:pl-8">
                         <p className={MB}><span className="h-2 w-2 rounded-full bg-orange-500 inline-block"/>Mobile (&lt; 768px)</p>
@@ -1154,6 +1159,11 @@ export default function SettingsPage() {
                         <div className="grid gap-3 grid-cols-2">
                           <div className="space-y-1.5"><Label className="text-xs">Row Gap (px)</Label><Input type="number" value={getStyle('m_inc_row_gap','20')} onChange={e=>setStyle('m_inc_row_gap',e.target.value)}/></div>
                           <div className="space-y-1.5"><Label className="text-xs">Column Gap (0 = single col)</Label><Input type="number" value={getStyle('m_inc_col_gap','0')} onChange={e=>setStyle('m_inc_col_gap',e.target.value)}/></div>
+                        </div>
+                        <p className={SUB}>Item Size</p>
+                        <div className="grid gap-3 grid-cols-2">
+                          <div className="space-y-1.5"><Label className="text-xs">Item Width (px)</Label><Input type="number" value={getStyle('m_inc_item_width','320')} onChange={e=>setStyle('m_inc_item_width',e.target.value)}/></div>
+                          <div className="space-y-1.5"><Label className="text-xs">Icon / Image Size (px)</Label><Input type="number" value={getStyle('m_inc_img_size','44')} onChange={e=>setStyle('m_inc_img_size',e.target.value)}/></div>
                         </div>
                       </div>
                     </div>
